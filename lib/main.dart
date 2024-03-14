@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'worker.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -57,7 +59,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
-  void _incrementCounter() {
+  Future<void> _incrementCounter() async {
     setState(() {
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
@@ -66,6 +68,10 @@ class _MyHomePageState extends State<MyHomePage> {
       // called again, and so nothing would appear to happen.
       _counter++;
     });
+
+    final worker = Worker();
+    await worker.spawn();
+    await worker.parseJson('{"key":"value"}');
   }
 
   @override

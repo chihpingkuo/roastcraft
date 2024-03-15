@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:roastcraft/bloc/timer_bloc.dart';
 
 import 'package:roastcraft/my_bloc_observer.dart';
+import 'package:roastcraft/ticker.dart';
 import 'package:roastcraft/worker.dart';
 
 void main() {
@@ -16,80 +18,120 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Flutter Timer',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
+  const MyHomePage({super.key});
+  // const MyHomePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => CounterCubit(),
-      child: const CounterView(),
+      create: (_) => TimerBloc(ticker: Ticker()),
+      child: const TimerView(),
     );
   }
 }
 
-/// {@template counter_cubit}
-/// A [Cubit] which manages an [int] as its state.
-/// {@endtemplate}
-class CounterCubit extends Cubit<int> {
-  /// {@macro counter_cubit}
-  CounterCubit() : super(0);
-
-  /// Add 1 to the current state.
-  void increment() => emit(state + 1);
-
-  /// Subtract 1 from the current state.
-  void decrement() => emit(state - 1);
+class TimerView extends StatelessWidget {
+  const TimerView({Key? key}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Flutter Timer')),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: const <Widget>[
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 100.0),
+            child: Center(child: TimerText()),
+          ),
+          Actions(),
+        ],
+      ),
+    );
+  }
 }
 
-/// {@template counter_view}
-/// A [StatelessWidget] which reacts to the provided
-/// [CounterCubit] state and notifies it in response to user input.
-/// {@endtemplate}
-class CounterView extends StatelessWidget {
-  /// {@macro counter_view}
-  const CounterView({super.key});
+class TimerText extends StatelessWidget {
+  const TimerText({Key? key}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    final duration = context.select((TimerBloc bloc) => bloc.state.duration);
+    final minutesStr =
+        ((duration / 60) % 60).floor().toString().padLeft(2, '0');
+    final secondsStr = (duration % 60).floor().toString().padLeft(2, '0');
+    return Text(
+      '$minutesStr:$secondsStr',
+      style: Theme.of(context).textTheme.headline1,
+    );
+  }
+}
+
+class Actions extends StatelessWidget {
+  const Actions({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return Scaffold(
-      body: Center(
-        child: BlocBuilder<CounterCubit, int>(
-          builder: (context, state) {
-            return Text('$state', style: textTheme.displayMedium);
-          },
-        ),
-      ),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: <Widget>[
-          FloatingActionButton(
-            key: const Key('counterView_increment_floatingActionButton'),
-            child: const Icon(Icons.add),
-            onPressed: () => context.read<CounterCubit>().increment(),
-          ),
-          const SizedBox(height: 8),
-          FloatingActionButton(
-            key: const Key('counterView_decrement_floatingActionButton'),
-            child: const Icon(Icons.remove),
-            onPressed: () => context.read<CounterCubit>().decrement(),
-          ),
-        ],
-      ),
+    return BlocBuilder<TimerBloc, TimerState>(
+      buildWhen: (prev, state) => prev.runtimeType != state.runtimeType,
+      builder: (context, state) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ...switch (state) {
+              TimerInitial() => [
+                  FloatingActionButton(
+                    child: const Icon(Icons.play_arrow),
+                    onPressed: () => context
+                        .read<TimerBloc>()
+                        .add(TimerStarted(duration: state.duration)),
+                  ),
+                ],
+              TimerRunInProgress() => [
+                  FloatingActionButton(
+                    child: const Icon(Icons.pause),
+                    onPressed: () =>
+                        context.read<TimerBloc>().add(const TimerPaused()),
+                  ),
+                  FloatingActionButton(
+                    child: const Icon(Icons.replay),
+                    onPressed: () =>
+                        context.read<TimerBloc>().add(const TimerReset()),
+                  ),
+                ],
+              TimerRunPause() => [
+                  FloatingActionButton(
+                    child: const Icon(Icons.play_arrow),
+                    onPressed: () =>
+                        context.read<TimerBloc>().add(const TimerResumed()),
+                  ),
+                  FloatingActionButton(
+                    child: const Icon(Icons.replay),
+                    onPressed: () =>
+                        context.read<TimerBloc>().add(const TimerReset()),
+                  ),
+                ],
+              TimerRunComplete() => [
+                  FloatingActionButton(
+                    child: const Icon(Icons.replay),
+                    onPressed: () =>
+                        context.read<TimerBloc>().add(const TimerReset()),
+                  ),
+                ]
+            }
+          ],
+        );
+      },
     );
   }
 }

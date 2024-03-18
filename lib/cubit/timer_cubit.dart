@@ -8,46 +8,42 @@ part 'timer_state.dart';
 
 class TimerCubit extends Cubit<TimerState> {
   final Ticker _ticker;
-  static const int _initialDuration = 20;
+  static const int _maxDuration = 20;
 
   StreamSubscription<int>? _tickerSubscription;
   TimerCubit({required Ticker ticker})
       : _ticker = ticker,
-        super(const TimerState(
-            status: TimerStatus.initial, duration: _initialDuration));
+        super(const TimerState());
 
   void start() {
-    emit(TimerState(
-        status: TimerStatus.runInProgress, duration: state.duration));
+    emit(state.copyWith(status: TimerStatus.runInProgress));
     _tickerSubscription?.cancel();
     _tickerSubscription =
-        _ticker.tick(ticks: state.duration).listen((d) => tick(d));
+        _ticker.tick(ticks: _maxDuration).listen((d) => tick(d));
   }
 
   void pause() {
     if (state.status == TimerStatus.runInProgress) {
       _tickerSubscription?.pause();
-      emit(TimerState(status: TimerStatus.runPause, duration: state.duration));
+      emit(state.copyWith(status: TimerStatus.runPause));
     }
   }
 
   void resume() {
     if (state.status == TimerStatus.runPause) {
       _tickerSubscription?.resume();
-      emit(TimerState(
-          status: TimerStatus.runInProgress, duration: state.duration));
+      emit(state.copyWith(status: TimerStatus.runInProgress));
     }
   }
 
   void reset() {
     _tickerSubscription?.cancel();
-    emit(const TimerState(
-        status: TimerStatus.initial, duration: _initialDuration));
+    emit(const TimerState());
   }
 
   void tick(int d) {
-    emit(d > 0
-        ? TimerState(status: TimerStatus.runInProgress, duration: d)
-        : const TimerState(status: TimerStatus.runComplete, duration: 0));
+    emit(d < _maxDuration
+        ? state.copyWith(duration: d)
+        : TimerState(status: TimerStatus.runComplete, duration: d));
   }
 }

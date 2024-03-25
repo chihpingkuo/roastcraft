@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
-import 'package:roastcraft/ticker.dart';
+import 'package:roastcraft/features/timer/ticker.dart';
 
 part 'timer_event.dart';
 part 'timer_state.dart';

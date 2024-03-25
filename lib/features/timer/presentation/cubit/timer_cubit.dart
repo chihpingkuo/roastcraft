@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:roastcraft/ticker.dart';
+import 'package:roastcraft/features/timer/ticker.dart';
 
 part 'timer_state.dart';
 
 class TimerCubit extends Cubit<TimerState> {
   final Ticker _ticker;
-  static const int _maxDuration = 20;
+  static const int _maxDuration = 1200;
 
   StreamSubscription<int>? _tickerSubscription;
   TimerCubit({required Ticker ticker})

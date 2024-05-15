@@ -1,5 +1,3 @@
-App();
-
 function App() {
   const width = 640;
   const height = 400;
@@ -38,3 +36,5 @@ function App() {
   // Append the SVG element.
   container.append(svg.node());
 }
+
+export default App;

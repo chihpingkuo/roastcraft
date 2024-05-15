@@ -22,6 +22,11 @@
       defer
       src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.10/dist/cdn.min.js"
     ></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script
+      type="module"
+      src="{{ url_for('static', path='/app.js') }}"
+    ></script>
   </head>
   <body>
     <h1 class="text-3xl font-bold underline">Hello world!</h1>
@@ -36,5 +41,6 @@
       <button hx-get="/" hx-swap="outerHTML">Click Me</button>
     </h1>
     <h1 x-data="{ message: 'I ❤️ Alpine' }" x-text="message"></h1>
+    <div id="container"></div>
   </body>
 </html>

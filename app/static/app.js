@@ -34,6 +34,7 @@ function App() {
     .call(d3.axisLeft(y));
 
   // Append the SVG element.
+  const container = document.getElementById("container");
   container.append(svg.node());
 }
 

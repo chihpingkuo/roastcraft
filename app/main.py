@@ -21,3 +21,10 @@ async def read_item(request: Request, id: str):
     return templates.TemplateResponse(
         request=request, name="item.html", context={"id": id}
     )
+
+
+@app.get("/main", response_class=HTMLResponse)
+async def main(request: Request):
+    return templates.TemplateResponse(
+        request=request, name="index.html"
+    )

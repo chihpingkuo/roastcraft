@@ -1,10 +1,10 @@
 from datetime import datetime
 
 from fastapi import FastAPI
-from fastapi.middleware import Middleware
 from fastapi.requests import Request
 from fastapi.responses import PlainTextResponse, Response
-from starlette.types import ASGIApp, Receive, Scope, Send
+from fastapi.concurrency import asynccontextmanager
+
 
 from apscheduler import AsyncScheduler
 from apscheduler.triggers.interval import IntervalTrigger
@@ -14,31 +14,36 @@ def tick():
     print("Hello, the time is", datetime.now())
 
 
-class SchedulerMiddleware:
-    def __init__(
-        self,
-        app: ASGIApp,
-        scheduler: AsyncScheduler,
-    ) -> None:
-        self.app = app
-        self.scheduler = scheduler
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Lifespan startup actions
+    scheduler = AsyncScheduler()
 
-    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
-        if scope["type"] == "lifespan":
-            async with self.scheduler:
-                await self.scheduler.add_schedule(
-                    tick, IntervalTrigger(seconds=1), id="tick"
-                )
-                await self.scheduler.start_in_background()
-                await self.app(scope, receive, send)
-        else:
-            await self.app(scope, receive, send)
+    async with scheduler:
+        await scheduler.start_in_background()
+        app.state.scheduler = scheduler
+
+        yield
+
+app = FastAPI(lifespan=lifespan)
 
 
+@app.get("/")
 async def root(request: Request) -> Response:
     return PlainTextResponse("Hello, world!")
 
-scheduler = AsyncScheduler()
-middleware = [Middleware(SchedulerMiddleware, scheduler=scheduler)]
-app = FastAPI(middleware=middleware)
-app.add_api_route("/", root)
+
+@app.get("/start")
+async def start(request: Request) -> Response:
+    await request.app.state.scheduler.add_schedule(
+        tick, IntervalTrigger(seconds=1), id="tick"
+    )
+    return PlainTextResponse("start ticking")
+
+
+@app.get("/stop")
+async def stop(request: Request) -> Response:
+    await request.app.state.scheduler.remove_schedule(
+        id="tick"
+    )
+    return PlainTextResponse("stop ticking")

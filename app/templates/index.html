@@ -29,14 +29,10 @@
     ></script>
   </head>
   <body>
-    <h1 class="text-3xl font-bold underline">Hello world!</h1>
-    <button class="btn">Button</button>
-    <button class="btn btn-neutral">Neutral</button>
-    <button class="btn btn-primary">Primary</button>
-    <button class="btn btn-secondary">Secondary</button>
-    <button class="btn btn-accent">Accent</button>
-    <button class="btn btn-ghost">Ghost</button>
-    <button class="btn btn-link">Link</button>
+    <button class="btn" hx-post="/connect" hx-trigger="click">connect</button>
+    <button class="btn" hx-post="/start" hx-trigger="click">start</button>
+    <button class="btn" hx-post="/stop" hx-trigger="click">stop</button>
+
     <h1>
       <button hx-get="/hello" hx-swap="outerHTML">Click Me</button>
     </h1>

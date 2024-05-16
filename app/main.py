@@ -52,32 +52,7 @@ async def root(request: Request):
     )
 
 
-async def tick(client: ModbusClient.AsyncModbusSerialClient):
-    print("Hello, the time is", datetime.now())
-
-    try:
-        # See all calls in client_calls.py
-        rr = await client.read_holding_registers(18176, 1, slave=1)
-    except ModbusException as e:
-        print(f"Received ModbusException({e}) from library")
-        return
-
-    decoder = BinaryPayloadDecoder.fromRegisters(
-        rr.registers, byteorder=Endian.BIG, wordorder=Endian.BIG
-    )
-
-    print(decoder.decode_16bit_int()*0.1)
-
-
-@app.get("/start")
-async def start(request: Request) -> Response:
-    await cast(AsyncScheduler, request.app.state.scheduler).add_schedule(
-        tick, args=[request.app.state.client], trigger=IntervalTrigger(seconds=2), id="tick"
-    )
-    return PlainTextResponse("start ticking")
-
-
-@app.get("/connect")
+@app.post("/connect")
 async def connect(request: Request) -> Response:
 
     config: dict = request.app.state.config
@@ -100,4 +75,37 @@ async def connect(request: Request) -> Response:
 
     await client.connect()
 
-    return PlainTextResponse("connect")
+    return PlainTextResponse("connected")
+
+
+async def tick(client: ModbusClient.AsyncModbusSerialClient):
+    print("Hello, the time is", datetime.now())
+
+    try:
+        # See all calls in client_calls.py
+        rr = await client.read_holding_registers(18176, 1, slave=1)
+    except ModbusException as e:
+        print(f"Received ModbusException({e}) from library")
+        return
+
+    decoder = BinaryPayloadDecoder.fromRegisters(
+        rr.registers, byteorder=Endian.BIG, wordorder=Endian.BIG
+    )
+
+    print(decoder.decode_16bit_int()*0.1)
+
+
+@app.post("/start")
+async def start(request: Request) -> Response:
+    await cast(AsyncScheduler, request.app.state.scheduler).add_schedule(
+        tick, args=[request.app.state.client], trigger=IntervalTrigger(seconds=2), id="tick"
+    )
+    return PlainTextResponse("start ticking")
+
+
+@app.post("/stop")
+async def stop(request: Request) -> Response:
+    await cast(AsyncScheduler, request.app.state.scheduler).remove_schedule(
+        id="tick"
+    )
+    return PlainTextResponse("stop ticking")

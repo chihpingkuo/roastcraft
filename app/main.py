@@ -1,3 +1,4 @@
+import tomllib
 from datetime import datetime
 from typing import cast
 
@@ -12,10 +13,8 @@ from apscheduler.triggers.interval import IntervalTrigger
 
 import pymodbus.client as ModbusClient
 from pymodbus import (
-    ExceptionResponse,
     Framer,
     ModbusException,
-    pymodbus_apply_logging_config,
 )
 from pymodbus.constants import Endian
 from pymodbus.payload import BinaryPayloadDecoder
@@ -33,12 +32,12 @@ async def lifespan(app: FastAPI):
         yield
 
 app = FastAPI(lifespan=lifespan)
-
+templates = Jinja2Templates(directory="templates")
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-
-templates = Jinja2Templates(directory="templates")
+with open("config.toml", "rb") as f:
+    app.state.config = tomllib.load(f)
 
 
 @app.get("/hello")
@@ -53,24 +52,15 @@ async def root(request: Request):
     )
 
 
-async def tick():
-    client = app.state.client
+async def tick(client: ModbusClient.AsyncModbusSerialClient):
     print("Hello, the time is", datetime.now())
+
     try:
         # See all calls in client_calls.py
         rr = await client.read_holding_registers(18176, 1, slave=1)
-    except ModbusException as exc:
-        print(f"Received ModbusException({exc}) from library")
-        client.close()
+    except ModbusException as e:
+        print(f"Received ModbusException({e}) from library")
         return
-    if rr.isError():
-        print(f"Received Modbus library error({rr})")
-        client.close()
-        return
-    if isinstance(rr, ExceptionResponse):
-        print(f"Received Modbus library exception ({rr})")
-        # THIS IS NOT A PYTHON EXCEPTION, but a valid modbus message
-        client.close()
 
     decoder = BinaryPayloadDecoder.fromRegisters(
         rr.registers, byteorder=Endian.BIG, wordorder=Endian.BIG
@@ -82,7 +72,7 @@ async def tick():
 @app.get("/start")
 async def start(request: Request) -> Response:
     await cast(AsyncScheduler, request.app.state.scheduler).add_schedule(
-        tick, IntervalTrigger(seconds=2), id="tick"
+        tick, args=[request.app.state.client], trigger=IntervalTrigger(seconds=2), id="tick"
     )
     return PlainTextResponse("start ticking")
 
@@ -90,9 +80,10 @@ async def start(request: Request) -> Response:
 @app.get("/connect")
 async def connect(request: Request) -> Response:
 
-    pymodbus_apply_logging_config("DEBUG")
+    config: dict = request.app.state.config
+    port: str = config['serial']['port']
     client = ModbusClient.AsyncModbusSerialClient(
-        "COM3",
+        port,
         framer=Framer.RTU,
         # timeout=10,
         # retries=3,

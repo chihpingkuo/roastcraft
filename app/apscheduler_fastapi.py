@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import cast
 
 from fastapi import FastAPI
 from fastapi.requests import Request
@@ -35,7 +36,7 @@ async def root(request: Request) -> Response:
 
 @app.get("/start")
 async def start(request: Request) -> Response:
-    await request.app.state.scheduler.add_schedule(
+    await cast(AsyncScheduler, request.app.state.scheduler).add_schedule(
         tick, IntervalTrigger(seconds=1), id="tick"
     )
     return PlainTextResponse("start ticking")
@@ -43,7 +44,7 @@ async def start(request: Request) -> Response:
 
 @app.get("/stop")
 async def stop(request: Request) -> Response:
-    await request.app.state.scheduler.remove_schedule(
+    await cast(AsyncScheduler, request.app.state.scheduler).remove_schedule(
         id="tick"
     )
     return PlainTextResponse("stop ticking")

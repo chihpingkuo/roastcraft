@@ -1,9 +1,39 @@
+from datetime import datetime
+from typing import cast
+
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.concurrency import asynccontextmanager
 
-app = FastAPI()
+from apscheduler import AsyncScheduler
+from apscheduler.triggers.interval import IntervalTrigger
+
+import pymodbus.client as ModbusClient
+from pymodbus import (
+    ExceptionResponse,
+    Framer,
+    ModbusException,
+    pymodbus_apply_logging_config,
+)
+from pymodbus.constants import Endian
+from pymodbus.payload import BinaryPayloadDecoder
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Lifespan startup actions
+    scheduler = AsyncScheduler()
+
+    async with scheduler:
+        await scheduler.start_in_background()
+        app.state.scheduler = scheduler
+
+        yield
+
+app = FastAPI(lifespan=lifespan)
+
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -21,3 +51,62 @@ async def root(request: Request):
     return templates.TemplateResponse(
         request=request, name="index.html"
     )
+
+
+async def tick():
+    client = app.state.client
+    print("Hello, the time is", datetime.now())
+    try:
+        # See all calls in client_calls.py
+        rr = await client.read_holding_registers(18176, 1, slave=1)
+    except ModbusException as exc:
+        print(f"Received ModbusException({exc}) from library")
+        client.close()
+        return
+    if rr.isError():
+        print(f"Received Modbus library error({rr})")
+        client.close()
+        return
+    if isinstance(rr, ExceptionResponse):
+        print(f"Received Modbus library exception ({rr})")
+        # THIS IS NOT A PYTHON EXCEPTION, but a valid modbus message
+        client.close()
+
+    decoder = BinaryPayloadDecoder.fromRegisters(
+        rr.registers, byteorder=Endian.BIG, wordorder=Endian.BIG
+    )
+
+    print(decoder.decode_16bit_int()*0.1)
+
+
+@app.get("/start")
+async def start(request: Request) -> Response:
+    await cast(AsyncScheduler, request.app.state.scheduler).add_schedule(
+        tick, IntervalTrigger(seconds=2), id="tick"
+    )
+    return PlainTextResponse("start ticking")
+
+
+@app.get("/connect")
+async def connect(request: Request) -> Response:
+
+    pymodbus_apply_logging_config("DEBUG")
+    client = ModbusClient.AsyncModbusSerialClient(
+        "COM3",
+        framer=Framer.RTU,
+        # timeout=10,
+        # retries=3,
+        # retry_on_empty=False,
+        # strict=True,
+        baudrate=9600,
+        bytesize=8,
+        parity="N",
+        stopbits=1,
+        # handle_local_echo=False,
+    )
+
+    app.state.client = client
+
+    await client.connect()
+
+    return PlainTextResponse("connect")

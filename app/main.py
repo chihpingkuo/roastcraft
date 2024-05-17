@@ -3,10 +3,11 @@ from datetime import datetime
 from typing import cast
 
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, PlainTextResponse, Response
+from fastapi.responses import HTMLResponse, PlainTextResponse, Response, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.concurrency import asynccontextmanager
+from fastapi.encoders import jsonable_encoder
 
 from apscheduler import AsyncScheduler
 from apscheduler.triggers.interval import IntervalTrigger
@@ -18,6 +19,18 @@ from pymodbus import (
 )
 from pymodbus.constants import Endian
 from pymodbus.payload import BinaryPayloadDecoder
+
+
+class Point:
+    def __init__(self, t: int, v: float):
+        self.t = t
+        self.v = v
+
+    def __str__(self):
+        return f"({self.t}, {self.v})"
+
+    def __repr__(self):
+        return f"({self.t}, {self.v})"
 
 
 @asynccontextmanager
@@ -38,6 +51,9 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 with open("config.toml", "rb") as f:
     app.state.config = tomllib.load(f)
+
+app.state.timer = 0
+app.state.bt = []
 
 
 @app.get("/hello")
@@ -92,7 +108,12 @@ async def tick(client: ModbusClient.AsyncModbusSerialClient):
         rr.registers, byteorder=Endian.BIG, wordorder=Endian.BIG
     )
 
-    print(decoder.decode_16bit_int()*0.1)
+    value: float = decoder.decode_16bit_int()*0.1
+    print(value)
+
+    app.state.timer += 2
+    p = Point(app.state.timer, value)
+    app.state.bt.append(p)
 
 
 @app.post("/start")
@@ -109,3 +130,8 @@ async def stop(request: Request) -> Response:
         id="tick"
     )
     return PlainTextResponse("stop ticking")
+
+
+@app.get("/bt")
+async def bt(request: Request) -> Response:
+    return JSONResponse(jsonable_encoder(app.state.bt))

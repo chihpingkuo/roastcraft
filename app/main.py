@@ -9,6 +9,9 @@ from fastapi.templating import Jinja2Templates
 from fastapi.concurrency import asynccontextmanager
 from fastapi.encoders import jsonable_encoder
 
+import socketio
+
+
 from apscheduler import AsyncScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
@@ -22,6 +25,8 @@ from pymodbus.payload import BinaryPayloadDecoder
 
 
 class Point:
+    # t : time
+    # v : value
     def __init__(self, t: int, v: float):
         self.t = t
         self.v = v
@@ -44,10 +49,24 @@ async def lifespan(app: FastAPI):
 
         yield
 
+socketio_server = socketio.AsyncServer(
+    async_mode="asgi", cors_allowed_origins="*"
+)
+
 app = FastAPI(lifespan=lifespan)
 templates = Jinja2Templates(directory="templates")
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+socketio_app = socketio.ASGIApp(
+    socketio_server=socketio_server,
+    socketio_path='/socket.io'
+)
+
+# https://github.com/tiangolo/fastapi/discussions/10970
+# path needs to match socketio_path in socketio.ASGIApp above
+app.mount("/socket.io", socketio_app)
+
 
 with open("config.toml", "rb") as f:
     app.state.config = tomllib.load(f)
@@ -58,6 +77,7 @@ app.state.bt = []
 
 @app.get("/hello")
 async def hello():
+    await socketio_server.emit("hello", "hello everyone")
     return {"message": "Hello World"}
 
 
@@ -75,7 +95,7 @@ async def connect(request: Request) -> Response:
     port: str = config['serial']['port']
     client = ModbusClient.AsyncModbusSerialClient(
         port,
-        framer=Framer.RTU,
+        framer=Framer.ASCII,
         # timeout=10,
         # retries=3,
         # retry_on_empty=False,

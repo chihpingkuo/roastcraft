@@ -8,10 +8,10 @@ async function App() {
 
   let store = Alpine.reactive({ data: [] });
 
-  setInterval(async () => {
-    store.data = await d3.json("/bt");
-    console.log(store.data);
-  }, 2000);
+  // setInterval(async () => {
+  //   store.data = await d3.json("/bt");
+  //   console.log(store.data);
+  // }, 2000);
 
   // Declare the x (horizontal position) scale.
   const x = d3
@@ -62,6 +62,12 @@ async function App() {
   // Append the SVG element.
   const container = document.getElementById("container");
   container.append(svg.node());
+
+  const socket = io();
+
+  socket.on("hello", (arg) => {
+    console.log(arg);
+  });
 }
 
 export default App;

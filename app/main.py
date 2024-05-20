@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import cast
 
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, PlainTextResponse, Response, JSONResponse
+from fastapi.responses import HTMLResponse, PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.concurrency import asynccontextmanager
@@ -134,6 +134,7 @@ async def tick(client: ModbusClient.AsyncModbusSerialClient):
     app.state.timer += 2
     p = Point(app.state.timer, value)
     app.state.bt.append(p)
+    await socketio_server.emit("tick", jsonable_encoder(app.state.bt))
 
 
 @app.post("/start")
@@ -150,8 +151,3 @@ async def stop(request: Request) -> Response:
         id="tick"
     )
     return PlainTextResponse("stop ticking")
-
-
-@app.get("/bt")
-async def bt(request: Request) -> Response:
-    return JSONResponse(jsonable_encoder(app.state.bt))

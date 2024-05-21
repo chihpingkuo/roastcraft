@@ -2,6 +2,8 @@ import tomllib
 from datetime import datetime
 from typing import cast
 
+import socketio
+
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
@@ -9,37 +11,19 @@ from fastapi.templating import Jinja2Templates
 from fastapi.concurrency import asynccontextmanager
 from fastapi.encoders import jsonable_encoder
 
-import socketio
-
-
 from apscheduler import AsyncScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
 import pymodbus.client as ModbusClient
-from pymodbus import (
-    Framer,
-    ModbusException,
-)
+from pymodbus import Framer, ModbusException
 from pymodbus.constants import Endian
 from pymodbus.payload import BinaryPayloadDecoder
 
-
-class Point:
-    # t : time
-    # v : value
-    def __init__(self, t: int, v: float):
-        self.t = t
-        self.v = v
-
-    def __str__(self):
-        return f"({self.t}, {self.v})"
-
-    def __repr__(self):
-        return f"({self.t}, {self.v})"
+from .classes import Batch, Point, Channel
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI):  # pylint: disable=redefined-outer-name
     # Lifespan startup actions
     scheduler = AsyncScheduler()
 
@@ -70,9 +54,6 @@ app.mount("/socket.io", socketio_app)
 
 with open("config.toml", "rb") as f:
     app.state.config = tomllib.load(f)
-
-app.state.timer = 0
-app.state.bt = []
 
 
 @app.get("/hello")
@@ -115,7 +96,6 @@ async def connect(request: Request) -> Response:
 
 
 async def tick(client: ModbusClient.AsyncModbusSerialClient):
-    print("Hello, the time is", datetime.now())
 
     try:
         # See all calls in client_calls.py
@@ -124,21 +104,31 @@ async def tick(client: ModbusClient.AsyncModbusSerialClient):
         print(f"Received ModbusException({e}) from library")
         return
 
-    decoder = BinaryPayloadDecoder.fromRegisters(
-        rr.registers, byteorder=Endian.BIG, wordorder=Endian.BIG
-    )
-
-    value: float = decoder.decode_16bit_int()*0.1
+    value: float = BinaryPayloadDecoder.fromRegisters(
+        rr.registers,
+        byteorder=Endian.BIG,
+        wordorder=Endian.BIG
+    ).decode_16bit_int()*0.1
     print(value)
 
-    app.state.timer += 2
-    p = Point(app.state.timer, value)
-    app.state.bt.append(p)
-    await socketio_server.emit("tick", jsonable_encoder(app.state.bt))
+    batch: Batch = app.state.batch
+    batch.timer = (
+        datetime.now() - batch.start_time).total_seconds()
+    print("timer is", batch.timer)
+    p = Point(batch.timer, value)
+    batch.channels[0].data.append(p)
+    await socketio_server.emit("tick", jsonable_encoder(batch.channels[0].data))
 
 
 @app.post("/start")
 async def start(request: Request) -> Response:
+
+    batch = Batch()
+    batch.channels.append(Channel(id="BT"))
+    batch.start_time = datetime.now()
+
+    app.state.batch = batch
+
     await cast(AsyncScheduler, request.app.state.scheduler).add_schedule(
         tick, args=[request.app.state.client], trigger=IntervalTrigger(seconds=2), id="tick"
     )

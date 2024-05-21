@@ -6,7 +6,13 @@ async function App() {
   const marginBottom = 30;
   const marginLeft = 40;
 
-  let store = Alpine.reactive({ data: [] });
+  let store = Alpine.reactive({
+    channels: [
+      { id: "BT", data: [] },
+      { id: "ET", data: [] },
+      { id: "INLET", data: [] },
+    ],
+  });
 
   // Declare the x (horizontal position) scale.
   const x = d3
@@ -41,17 +47,20 @@ async function App() {
     .attr("transform", `translate(${marginLeft},0)`)
     .call(d3.axisLeft(y));
 
-  // Append a path for the line.
-  svg
-    .append("path")
-    .attr("id", "id1")
-    .attr("fill", "none")
-    .attr("stroke", "steelblue")
-    .attr("stroke-width", 1.5)
-    .attr("d", line(store.data));
+  store.channels.forEach((channel) => {
+    svg
+      .append("path")
+      .attr("id", channel.id)
+      .attr("fill", "none")
+      .attr("stroke", "steelblue")
+      .attr("stroke-width", 1.5)
+      .attr("d", line(channel.data));
+  });
 
   Alpine.effect(() => {
-    d3.select("#id1").attr("d", line(store.data));
+    store.channels.forEach((channel) => {
+      d3.select("#" + channel.id).attr("d", line(channel.data));
+    });
   });
 
   // Append the SVG element.
@@ -63,10 +72,9 @@ async function App() {
   // });
   const socket = io();
 
-  console.log(socket);
-  socket.on("tick", (msg) => {
-    console.log(msg);
-    store.data = msg;
+  socket.on("tick", (channels) => {
+    console.log(channels);
+    store.channels = channels;
   });
 }
 

@@ -97,27 +97,40 @@ async def connect(request: Request) -> Response:
 
 async def tick(client: ModbusClient.AsyncModbusSerialClient):
 
-    try:
-        # See all calls in client_calls.py
-        rr = await client.read_holding_registers(18176, 1, slave=1)
-    except ModbusException as e:
-        print(f"Received ModbusException({e}) from library")
-        return
+    async def read(slave: int) -> float:
 
-    value: float = BinaryPayloadDecoder.fromRegisters(
-        rr.registers,
-        byteorder=Endian.BIG,
-        wordorder=Endian.BIG
-    ).decode_16bit_int()*0.1
-    print(value)
+        try:
+            # See all calls in client_calls.py
+            rr = await client.read_holding_registers(18176, 1, slave)
+        except ModbusException as e:
+            print(f"Received ModbusException({e}) from library")
+            return
+
+        value: float = BinaryPayloadDecoder.fromRegisters(
+            rr.registers,
+            byteorder=Endian.BIG,
+            wordorder=Endian.BIG
+        ).decode_16bit_int()*0.1
+        print(value)
+        return value
 
     batch: Batch = app.state.batch
     batch.timer = (
         datetime.now() - batch.start_time).total_seconds()
     print("timer is", batch.timer)
-    p = Point(batch.timer, value)
-    batch.channels[0].data.append(p)
-    await socketio_server.emit("tick", jsonable_encoder(batch.channels[0].data))
+
+    # for kapok 501 inlet
+    et = Point(batch.timer, await read(slave=1))
+    batch.channels[1].data.append(et)
+
+    bt = Point(batch.timer, await read(slave=2))
+    batch.channels[0].data.append(bt)
+
+    inlet = Point(batch.timer, await read(slave=3))
+    batch.channels[2].data.append(inlet)
+
+    # await socketio_server.emit("tick", jsonable_encoder([batch.channels[0].data, batch.channels[1].data, batch.channels[2].data]))
+    await socketio_server.emit("tick", jsonable_encoder(batch.channels))
 
 
 @app.post("/start")
@@ -125,6 +138,8 @@ async def start(request: Request) -> Response:
 
     batch = Batch()
     batch.channels.append(Channel(id="BT"))
+    batch.channels.append(Channel(id="ET"))
+    batch.channels.append(Channel(id="INLET"))
     batch.start_time = datetime.now()
 
     app.state.batch = batch

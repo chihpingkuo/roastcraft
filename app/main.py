@@ -1,4 +1,3 @@
-import tomllib
 from datetime import datetime
 from typing import cast
 
@@ -20,6 +19,7 @@ from pymodbus.constants import Endian
 from pymodbus.payload import BinaryPayloadDecoder
 
 from .classes import Batch, Point, Channel
+from .config import load_config
 
 
 @asynccontextmanager
@@ -51,9 +51,7 @@ socketio_app = socketio.ASGIApp(
 # path needs to match socketio_path in socketio.ASGIApp above
 app.mount("/socket.io", socketio_app)
 
-
-with open("config.toml", "rb") as f:
-    app.state.config = tomllib.load(f)
+app.state.config = load_config()
 
 
 @app.get("/hello")
@@ -65,7 +63,7 @@ async def hello():
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
     return templates.TemplateResponse(
-        request=request, name="index.html"
+        request=request, name="index.html", context={"ctx_config": app.state.config}
     )
 
 
@@ -120,16 +118,15 @@ async def tick(client: ModbusClient.AsyncModbusSerialClient):
     print("timer is", batch.timer)
 
     # for kapok 501 inlet
-    et = Point(batch.timer, await read(slave=1))
-    batch.channels[1].data.append(et)
-
     bt = Point(batch.timer, await read(slave=2))
     batch.channels[0].data.append(bt)
+
+    et = Point(batch.timer, await read(slave=1))
+    batch.channels[1].data.append(et)
 
     inlet = Point(batch.timer, await read(slave=3))
     batch.channels[2].data.append(inlet)
 
-    # await socketio_server.emit("tick", jsonable_encoder([batch.channels[0].data, batch.channels[1].data, batch.channels[2].data]))
     await socketio_server.emit("tick", jsonable_encoder(batch.channels))
 
 

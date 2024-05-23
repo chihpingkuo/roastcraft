@@ -19,7 +19,7 @@ from pymodbus.constants import Endian
 from pymodbus.payload import BinaryPayloadDecoder
 
 from .classes import Batch, Point, Channel
-from .config import load_config
+from .settings import load_settings
 
 
 @asynccontextmanager
@@ -51,7 +51,7 @@ socketio_app = socketio.ASGIApp(
 # path needs to match socketio_path in socketio.ASGIApp above
 app.mount("/socket.io", socketio_app)
 
-app.state.config = load_config()
+app.state.settings = load_settings()
 
 
 @app.get("/hello")
@@ -63,15 +63,15 @@ async def hello():
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
     return templates.TemplateResponse(
-        request=request, name="index.html", context={"ctx_config": app.state.config}
+        request=request, name="index.html", context={"ctx_settings": app.state.settings}
     )
 
 
 @app.post("/connect")
 async def connect(request: Request) -> Response:
 
-    config: dict = request.app.state.config
-    port: str = config['serial']['port']
+    settings: dict = request.app.state.settings
+    port: str = settings['serial']['port']
     client = ModbusClient.AsyncModbusSerialClient(
         port,
         framer=Framer.ASCII,

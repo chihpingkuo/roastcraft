@@ -63,7 +63,7 @@ async def hello():
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
     return templates.TemplateResponse(
-        request=request, name="index.html", context={"ctx_settings": app.state.settings}
+        request=request, name="index.html.jinja2", context={"ctx_settings": app.state.settings}
     )
 
 

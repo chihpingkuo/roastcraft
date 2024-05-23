@@ -1,17 +1,17 @@
 async function App() {
-  const width = 640;
-  const height = 400;
+  const width = 800;
+  const height = 600;
   const marginTop = 20;
   const marginRight = 20;
   const marginBottom = 30;
   const marginLeft = 40;
 
   let store = Alpine.reactive({
-    channels: [
-      { id: "BT", data: [] },
-      { id: "ET", data: [] },
-      { id: "INLET", data: [] },
-    ],
+    channels: settings.channels.map((c) => ({
+      id: c.id,
+      color: c.color,
+      data: [],
+    })),
   });
 
   // Declare the x (horizontal position) scale.
@@ -52,7 +52,7 @@ async function App() {
       .append("path")
       .attr("id", channel.id)
       .attr("fill", "none")
-      .attr("stroke", "steelblue")
+      .attr("stroke", channel.color)
       .attr("stroke-width", 1.5)
       .attr("d", line(channel.data));
   });
@@ -64,8 +64,7 @@ async function App() {
   });
 
   // Append the SVG element.
-  const container = document.getElementById("container");
-  container.append(svg.node());
+  document.getElementById("main_chart").append(svg.node());
 
   // const socket = io("http://localhost:8000", {
   //   opts: { path: "/socket.io" },

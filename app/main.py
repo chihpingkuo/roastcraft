@@ -13,13 +13,7 @@ from fastapi.encoders import jsonable_encoder
 from apscheduler import AsyncScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
-import pymodbus.client as ModbusClient
-from pymodbus import Framer, ModbusException
-from pymodbus.constants import Endian
-from pymodbus.payload import BinaryPayloadDecoder
-
-from app.device import Device, Kapok501
-
+from app.device import ArtisanLog, Device, Kapok501
 from app.classes import Batch, Point, Channel
 from app.settings import load_settings
 from app.loggers import LOG_FASTAPI_CLI, LOG_UVICORN
@@ -61,6 +55,10 @@ if app.state.settings['device'] == "Kapok501":
     LOG_FASTAPI_CLI.info("device: Kapok501")
 
     device: Device = Kapok501(app.state.settings['serial']['port'])
+    app.state.device = device
+else:
+    LOG_FASTAPI_CLI.info("device: ArtisanLog")
+    device: Device = ArtisanLog("../util/23-11-05_1013.alog")
     app.state.device = device
 
 

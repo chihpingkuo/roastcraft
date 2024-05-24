@@ -23,7 +23,7 @@ async function App() {
   // Declare the y (vertical position) scale.
   const y = d3
     .scaleLinear()
-    .domain([0, 100])
+    .domain([0, 400])
     .range([height - marginBottom, marginTop]);
 
   // Declare the line generator.

@@ -18,9 +18,11 @@ from pymodbus import Framer, ModbusException
 from pymodbus.constants import Endian
 from pymodbus.payload import BinaryPayloadDecoder
 
-from .classes import Batch, Point, Channel
-from .settings import load_settings
-from .loggers import LOG_FASTAPI_CLI, LOG_UVICORN
+from app.device import Device, Kapok501
+
+from app.classes import Batch, Point, Channel
+from app.settings import load_settings
+from app.loggers import LOG_FASTAPI_CLI, LOG_UVICORN
 
 
 @asynccontextmanager
@@ -58,6 +60,9 @@ app.state.settings = load_settings()
 if app.state.settings['device'] == "Kapok501":
     LOG_FASTAPI_CLI.info("device: Kapok501")
 
+    device: Device = Kapok501(app.state.settings['serial']['port'])
+    app.state.device = device
+
 
 @app.get("/hello")
 async def hello():
@@ -76,61 +81,27 @@ async def root(request: Request):
 @app.post("/connect")
 async def connect(request: Request) -> Response:
 
-    settings: dict = request.app.state.settings
-    port: str = settings['serial']['port']
-    client = ModbusClient.AsyncModbusSerialClient(
-        port,
-        framer=Framer.ASCII,
-        # timeout=10,
-        # retries=3,
-        # retry_on_empty=False,
-        # strict=True,
-        baudrate=9600,
-        bytesize=8,
-        parity="N",
-        stopbits=1,
-        # handle_local_echo=False,
-    )
-
-    app.state.client = client
-
-    await client.connect()
+    await app.state.device.connect()
 
     return PlainTextResponse("connected")
 
 
-async def tick(client: ModbusClient.AsyncModbusSerialClient):
-
-    async def read(slave: int) -> float:
-
-        try:
-            # See all calls in client_calls.py
-            rr = await client.read_holding_registers(18176, 1, slave)
-        except ModbusException as e:
-            print(f"Received ModbusException({e}) from library")
-            return
-
-        value: float = BinaryPayloadDecoder.fromRegisters(
-            rr.registers,
-            byteorder=Endian.BIG,
-            wordorder=Endian.BIG
-        ).decode_16bit_int()*0.1
-        print(value)
-        return value
+async def tick():
 
     batch: Batch = app.state.batch
-    batch.timer = (
-        datetime.now() - batch.start_time).total_seconds()
-    print("timer is", batch.timer)
+    batch.timer = (datetime.now() - batch.start_time).total_seconds()
+    LOG_UVICORN.info("batch timer : %s", batch.timer)
 
-    # for kapok 501 inlet
-    bt = Point(batch.timer, await read(slave=2))
+    result = await app.state.device.read()
+    LOG_UVICORN.info(result)
+
+    bt = Point(batch.timer, result["BT"])
     batch.channels[0].data.append(bt)
 
-    et = Point(batch.timer, await read(slave=1))
+    et = Point(batch.timer, result["ET"])
     batch.channels[1].data.append(et)
 
-    inlet = Point(batch.timer, await read(slave=3))
+    inlet = Point(batch.timer, result["INLET"])
     batch.channels[2].data.append(inlet)
 
     await socketio_server.emit("tick", jsonable_encoder(batch.channels))
@@ -148,7 +119,7 @@ async def start(request: Request) -> Response:
     app.state.batch = batch
 
     await cast(AsyncScheduler, request.app.state.scheduler).add_schedule(
-        tick, args=[request.app.state.client], trigger=IntervalTrigger(seconds=2), id="tick"
+        tick, trigger=IntervalTrigger(seconds=2), id="tick"
     )
     return PlainTextResponse("start ticking")
 

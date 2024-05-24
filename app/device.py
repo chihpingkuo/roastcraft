@@ -1,26 +1,30 @@
 import codecs
 import ast
 from typing import Any, Dict
+import pymodbus.client as ModbusClient
+from pymodbus import Framer, ModbusException
+from pymodbus.constants import Endian
+from pymodbus.payload import BinaryPayloadDecoder
 
 
 class Device:
 
-    def connect(self) -> bool:
+    async def connect(self) -> bool:
         return False
 
-    def read(self) -> dict:
+    async def read(self) -> dict:
         return {}
 
 
 class ArtisanLog(Device):
-    def __init__(self, filename: str):
+    def __init__(self, filename: str) -> None:
 
         self.filename: str = filename
         self.bt: list[float] = []
         self.et: list[float] = []
         self.inlet: list[float] = []
 
-    def connect(self) -> bool:
+    async def connect(self) -> bool:
         with codecs.open(self.filename, "rb", encoding='utf-8') as file:
 
             result: Dict[str, Any] = ast.literal_eval(file.read())
@@ -30,7 +34,7 @@ class ArtisanLog(Device):
             self.inlet: list[float] = result['extratemp1'][0]
             return True
 
-    def read(self) -> dict:
+    async def read(self) -> dict:
         if len(self.bt) > 0:
             return {
                 "BT": self.bt.pop(0),
@@ -38,3 +42,52 @@ class ArtisanLog(Device):
                 "INLET": self.inlet.pop(0)
             }
         return {}
+
+
+class Kapok501(Device):
+    def __init__(self, port: str) -> None:
+        self.port = port
+        self.client = None
+
+    async def connect(self) -> bool:
+        self.client = ModbusClient.AsyncModbusSerialClient(
+            self.port,
+            framer=Framer.ASCII,
+            # timeout=10,
+            # retries=3,
+            # retry_on_empty=False,
+            # strict=True,
+            baudrate=9600,
+            bytesize=8,
+            parity="N",
+            stopbits=1,
+            # handle_local_echo=False,
+        )
+        await self.client.connect()
+        return True
+
+    async def read(self) -> Dict:
+        async def read(slave: int) -> float:
+
+            try:
+                # See all calls in client_calls.py
+                rr = await self.client.read_holding_registers(18176, 1, slave)
+            except ModbusException as e:
+                print(f"Received ModbusException({e}) from library")
+                return
+
+            value: float = BinaryPayloadDecoder.fromRegisters(
+                rr.registers,
+                byteorder=Endian.BIG,
+                wordorder=Endian.BIG
+            ).decode_16bit_int()*0.1
+            return value
+
+        bt = await read(slave=2)
+        et = await read(slave=1)
+        inlet = await read(slave=3)
+        return {
+            "BT": bt,
+            "ET": et,
+            "INLET": inlet
+        }

@@ -20,6 +20,7 @@ from pymodbus.payload import BinaryPayloadDecoder
 
 from .classes import Batch, Point, Channel
 from .settings import load_settings
+from .loggers import LOG_FASTAPI_CLI, LOG_UVICORN
 
 
 @asynccontextmanager
@@ -53,10 +54,15 @@ app.mount("/socket.io", socketio_app)
 
 app.state.settings = load_settings()
 
+# device initialization
+if app.state.settings['device'] == "Kapok501":
+    LOG_FASTAPI_CLI.info("device: Kapok501")
+
 
 @app.get("/hello")
 async def hello():
     await socketio_server.emit("hello", "hello everyone")
+    LOG_UVICORN.warning("Hello World")
     return {"message": "Hello World"}
 
 

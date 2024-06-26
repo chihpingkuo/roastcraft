@@ -17,13 +17,14 @@ from pymodbus import Framer, ModbusException
 from pymodbus.constants import Endian
 from pymodbus.payload import BinaryPayloadDecoder
 
+from . import store
 from .classes import Batch, Point, Channel
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):  # pylint: disable=redefined-outer-name
     # Lifespan startup actions
-    app.state.loop = asyncio.get_running_loop()
+    store.loop = asyncio.get_running_loop()
 
     yield
     # Lifespan cleanup actions
@@ -46,9 +47,8 @@ socketio_app = socketio.ASGIApp(
 # path needs to match socketio_path in socketio.ASGIApp above
 app.mount("/socket.io", socketio_app)
 
-
 with open("config.toml", "rb") as f:
-    app.state.config = tomllib.load(f)
+    store.config = tomllib.load(f)
 
 
 @app.get("/hello")
@@ -66,9 +66,8 @@ async def root(request: Request):
 
 @app.post("/connect")
 async def connect(request: Request) -> Response:
-
-    config: dict = request.app.state.config
-    port: str = config['serial']['port']
+    
+    port: str = store.config['serial']['port']
     client = ModbusClient.AsyncModbusSerialClient(
         port,
         framer=Framer.ASCII,
@@ -83,24 +82,24 @@ async def connect(request: Request) -> Response:
         # handle_local_echo=False,
     )
 
-    app.state.client = client
+    store.client = client
 
     await client.connect()
 
     return PlainTextResponse("connected")
 
-async def timer():
+async def timer(interval: float):
     while True:
-        await tick(app.state.client)
-        await asyncio.sleep(2)
+        await tick()
+        await asyncio.sleep(interval)
 
-async def tick(client: ModbusClient.AsyncModbusSerialClient):
+async def tick():
 
     async def read(slave: int) -> float:
 
         try:
             # See all calls in client_calls.py
-            rr = await client.read_holding_registers(18176, 1, slave)
+            rr = await store.client.read_holding_registers(18176, 1, slave)
         except ModbusException as e:
             print(f"Received ModbusException({e}) from library")
             return
@@ -113,7 +112,7 @@ async def tick(client: ModbusClient.AsyncModbusSerialClient):
         print(value)
         return value
 
-    batch: Batch = app.state.batch
+    batch: Batch = store.batch
     batch.timer = (
         datetime.now() - batch.start_time).total_seconds()
     print("timer is", batch.timer)
@@ -140,14 +139,14 @@ async def start(request: Request) -> Response:
     batch.channels.append(Channel(id="INLET"))
     batch.start_time = datetime.now()
 
-    app.state.batch = batch
+    store.batch = batch
     
-    task: asyncio.Task = app.state.loop.create_task(timer(), name="timer")
-    app.state.task = task
+    store.task = store.loop.create_task(timer(interval=2.0), name="timer")
+
     return PlainTextResponse("start ticking")
 
 
 @app.post("/stop")
 async def stop(request: Request) -> Response:
-    app.state.task.cancel()
+    store.task.cancel()
     return PlainTextResponse("stop ticking")

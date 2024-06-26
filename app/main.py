@@ -1,3 +1,4 @@
+import asyncio
 import tomllib
 from datetime import datetime
 from typing import cast
@@ -11,9 +12,6 @@ from fastapi.templating import Jinja2Templates
 from fastapi.concurrency import asynccontextmanager
 from fastapi.encoders import jsonable_encoder
 
-from apscheduler import AsyncScheduler
-from apscheduler.triggers.interval import IntervalTrigger
-
 import pymodbus.client as ModbusClient
 from pymodbus import Framer, ModbusException
 from pymodbus.constants import Endian
@@ -25,13 +23,10 @@ from .classes import Batch, Point, Channel
 @asynccontextmanager
 async def lifespan(app: FastAPI):  # pylint: disable=redefined-outer-name
     # Lifespan startup actions
-    scheduler = AsyncScheduler()
+    app.state.loop = asyncio.get_running_loop()
 
-    async with scheduler:
-        await scheduler.start_in_background()
-        app.state.scheduler = scheduler
-
-        yield
+    yield
+    # Lifespan cleanup actions
 
 socketio_server = socketio.AsyncServer(
     async_mode="asgi", cors_allowed_origins="*"
@@ -94,6 +89,10 @@ async def connect(request: Request) -> Response:
 
     return PlainTextResponse("connected")
 
+async def timer():
+    while True:
+        await tick(app.state.client)
+        await asyncio.sleep(2)
 
 async def tick(client: ModbusClient.AsyncModbusSerialClient):
 
@@ -129,7 +128,6 @@ async def tick(client: ModbusClient.AsyncModbusSerialClient):
     inlet = Point(batch.timer, await read(slave=3))
     batch.channels[2].data.append(inlet)
 
-    # await socketio_server.emit("tick", jsonable_encoder([batch.channels[0].data, batch.channels[1].data, batch.channels[2].data]))
     await socketio_server.emit("tick", jsonable_encoder(batch.channels))
 
 
@@ -143,16 +141,13 @@ async def start(request: Request) -> Response:
     batch.start_time = datetime.now()
 
     app.state.batch = batch
-
-    await cast(AsyncScheduler, request.app.state.scheduler).add_schedule(
-        tick, args=[request.app.state.client], trigger=IntervalTrigger(seconds=2), id="tick"
-    )
+    
+    task: asyncio.Task = app.state.loop.create_task(timer(), name="timer")
+    app.state.task = task
     return PlainTextResponse("start ticking")
 
 
 @app.post("/stop")
 async def stop(request: Request) -> Response:
-    await cast(AsyncScheduler, request.app.state.scheduler).remove_schedule(
-        id="tick"
-    )
+    app.state.task.cancel()
     return PlainTextResponse("stop ticking")

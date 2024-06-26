@@ -15,4 +15,3 @@ cd tailwindcss
 cd app
 fastapi dev main.py
 
-pip install git+https://github.com/agronholm/apscheduler.git@4.0.0a4

@@ -19,6 +19,7 @@ from app.loggers import LOG_FASTAPI_CLI, LOG_UVICORN
 
 from app.routers import settings
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):  # pylint: disable=redefined-outer-name
     # Lifespan startup actions
@@ -27,9 +28,8 @@ async def lifespan(app: FastAPI):  # pylint: disable=redefined-outer-name
     yield
     # Lifespan cleanup actions
 
-socketio_server = socketio.AsyncServer(
-    async_mode="asgi", cors_allowed_origins="*"
-)
+
+socketio_server = socketio.AsyncServer(async_mode="asgi", cors_allowed_origins="*")
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(settings.router)
@@ -38,8 +38,7 @@ templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 socketio_app = socketio.ASGIApp(
-    socketio_server=socketio_server,
-    socketio_path='/socket.io'
+    socketio_server=socketio_server, socketio_path="/socket.io"
 )
 
 # https://github.com/tiangolo/fastapi/discussions/10970
@@ -49,12 +48,12 @@ app.mount("/socket.io", socketio_app)
 with open("settings.json", "rb") as f:
     store.settings = json.load(f)
     LOG_FASTAPI_CLI.info(settings)
- 
+
 # device initialization
-if store.settings['device'] == "Kapok501":
+if store.settings["device"] == "Kapok501":
     LOG_FASTAPI_CLI.info("device: Kapok501")
 
-    device: Device = Kapok501(store.settings['serial']['port'])
+    device: Device = Kapok501(store.settings["serial"]["port"])
     store.device = device
 else:
     LOG_FASTAPI_CLI.info("device: ArtisanLog")
@@ -65,7 +64,9 @@ else:
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
     return templates.TemplateResponse(
-        request=request, name="index.html.jinja2", context={"ctx_settings": store.settings}
+        request=request,
+        name="index.html.jinja2",
+        context={"ctx_settings": store.settings},
     )
 
 
@@ -75,12 +76,14 @@ async def connect(request: Request) -> Response:
 
     return PlainTextResponse("connected")
 
+
 async def timer(interval: float):
     while True:
         await tick()
         await asyncio.sleep(interval)
 
-async def tick():   
+
+async def tick():
 
     batch: Batch = store.batch
     batch.timer = (datetime.now() - batch.start_time).total_seconds()
@@ -111,7 +114,7 @@ async def start(request: Request) -> Response:
     batch.start_time = datetime.now()
 
     store.batch = batch
-    
+
     store.task = store.loop.create_task(timer(interval=2.0), name="timer")
 
     return PlainTextResponse("start ticking")

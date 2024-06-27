@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 
-router = APIRouter()
+router = APIRouter(prefix="/settings")
 
 
-@router.get("/settings/hello")
+@router.get("/hello")
 async def hello():
     return {"message": "Hello World"}

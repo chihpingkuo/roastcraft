@@ -1,6 +1,6 @@
 async function App() {
   const width = 800;
-  const height = 600;
+  const height = 500;
   const marginTop = 20;
   const marginRight = 20;
   const marginBottom = 30;

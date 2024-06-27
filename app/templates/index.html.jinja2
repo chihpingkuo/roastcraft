@@ -9,7 +9,7 @@
       type="text/css"
     />
     <link
-      href="https://cdn.jsdelivr.net/npm/daisyui@4.11.1/dist/full.min.css"
+      href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css"
       rel="stylesheet"
       type="text/css"
     />
@@ -38,18 +38,26 @@
     ></script>
   </head>
   <body>
-    <button
-      class="btn"
-      hx-post="/connect"
-      hx-trigger="click"
-      hx-target="this"
-      hx-swap="outerHTML"
-    >
-      connect
-    </button>
-    <button class="btn" hx-post="/start" hx-trigger="click">start</button>
-    <button class="btn" hx-post="/stop" hx-trigger="click">stop</button>
+    <div class="grid grid-cols-6 gap-2">
+      <div class="col-span-4">
+        <div id="main_chart"></div>
+      </div>
+      <div class="col-span-2">
+        <button
+          class="btn"
+          hx-post="/connect"
+          hx-trigger="click"
+          hx-target="this"
+          hx-swap="outerHTML"
+        >
+          connect
+        </button>
+        <button class="btn" hx-post="/start" hx-trigger="click">start</button>
+        <button class="btn" hx-post="/stop" hx-trigger="click">stop</button>
 
-    <div id="main_chart"></div>
+      </div>
+    </div>
+
+    
   </body>
 </html>

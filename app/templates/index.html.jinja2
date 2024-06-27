@@ -28,6 +28,10 @@
       integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO"
       crossorigin="anonymous"
     ></script>
+    <script>
+      let settings = {{ctx_settings|tojson}};
+      console.log(settings);
+    </script>
     <script
       type="module"
       src="{{ url_for('static', path='/index.js') }}"
@@ -46,10 +50,6 @@
     <button class="btn" hx-post="/start" hx-trigger="click">start</button>
     <button class="btn" hx-post="/stop" hx-trigger="click">stop</button>
 
-    <h1>
-      <button hx-get="/hello" hx-swap="outerHTML">Click Me</button>
-    </h1>
-    <h1 x-data="{ message: 'I ❤️ Alpine' }" x-text="message"></h1>
-    <div id="container"></div>
+    <div id="main_chart"></div>
   </body>
 </html>

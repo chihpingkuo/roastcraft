@@ -1,5 +1,4 @@
 import asyncio
-import tomllib
 from datetime import datetime
 from typing import cast
 
@@ -17,8 +16,12 @@ from pymodbus import Framer, ModbusException
 from pymodbus.constants import Endian
 from pymodbus.payload import BinaryPayloadDecoder
 
-from . import store
-from .classes import Batch, Point, Channel
+from app import store
+
+from app.device import ArtisanLog, Device, Kapok501
+from app.classes import Batch, Point, Channel
+from app.settings import load_settings
+from app.loggers import LOG_FASTAPI_CLI, LOG_UVICORN
 
 
 @asynccontextmanager
@@ -47,44 +50,38 @@ socketio_app = socketio.ASGIApp(
 # path needs to match socketio_path in socketio.ASGIApp above
 app.mount("/socket.io", socketio_app)
 
-with open("config.toml", "rb") as f:
-    store.config = tomllib.load(f)
+store.settings = load_settings()
+
+# device initialization
+if store.settings['device'] == "Kapok501":
+    LOG_FASTAPI_CLI.info("device: Kapok501")
+
+    device: Device = Kapok501(store.settings['serial']['port'])
+    store.device = device
+else:
+    LOG_FASTAPI_CLI.info("device: ArtisanLog")
+    device: Device = ArtisanLog("../util/23-11-05_1013.alog")
+    store.device = device
 
 
 @app.get("/hello")
 async def hello():
     await socketio_server.emit("hello", "hello everyone")
+    LOG_UVICORN.warning("Hello World")
     return {"message": "Hello World"}
 
 
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
     return templates.TemplateResponse(
-        request=request, name="index.html"
+        request=request, name="index.html.jinja2", context={"ctx_settings": store.settings}
     )
 
 
 @app.post("/connect")
 async def connect(request: Request) -> Response:
     
-    port: str = store.config['serial']['port']
-    client = ModbusClient.AsyncModbusSerialClient(
-        port,
-        framer=Framer.ASCII,
-        # timeout=10,
-        # retries=3,
-        # retry_on_empty=False,
-        # strict=True,
-        baudrate=9600,
-        bytesize=8,
-        parity="N",
-        stopbits=1,
-        # handle_local_echo=False,
-    )
-
-    store.client = client
-
-    await client.connect()
+    await store.device.connect()
 
     return PlainTextResponse("connected")
 
@@ -93,38 +90,22 @@ async def timer(interval: float):
         await tick()
         await asyncio.sleep(interval)
 
-async def tick():
-
-    async def read(slave: int) -> float:
-
-        try:
-            # See all calls in client_calls.py
-            rr = await store.client.read_holding_registers(18176, 1, slave)
-        except ModbusException as e:
-            print(f"Received ModbusException({e}) from library")
-            return
-
-        value: float = BinaryPayloadDecoder.fromRegisters(
-            rr.registers,
-            byteorder=Endian.BIG,
-            wordorder=Endian.BIG
-        ).decode_16bit_int()*0.1
-        print(value)
-        return value
+async def tick():   
 
     batch: Batch = store.batch
-    batch.timer = (
-        datetime.now() - batch.start_time).total_seconds()
-    print("timer is", batch.timer)
+    batch.timer = (datetime.now() - batch.start_time).total_seconds()
+    LOG_UVICORN.info("batch timer : %s", batch.timer)
 
-    # for kapok 501 inlet
-    et = Point(batch.timer, await read(slave=1))
-    batch.channels[1].data.append(et)
+    result = await store.device.read()
+    LOG_UVICORN.info(result)
 
-    bt = Point(batch.timer, await read(slave=2))
+    bt = Point(batch.timer, result["BT"])
     batch.channels[0].data.append(bt)
 
-    inlet = Point(batch.timer, await read(slave=3))
+    et = Point(batch.timer, result["ET"])
+    batch.channels[1].data.append(et)
+
+    inlet = Point(batch.timer, result["INLET"])
     batch.channels[2].data.append(inlet)
 
     await socketio_server.emit("tick", jsonable_encoder(batch.channels))

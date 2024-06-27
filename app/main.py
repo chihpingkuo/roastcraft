@@ -1,8 +1,8 @@
+import json
 import asyncio
 from datetime import datetime
-from typing import cast
-
 import socketio
+
 
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, PlainTextResponse, Response
@@ -11,18 +11,13 @@ from fastapi.templating import Jinja2Templates
 from fastapi.concurrency import asynccontextmanager
 from fastapi.encoders import jsonable_encoder
 
-import pymodbus.client as ModbusClient
-from pymodbus import Framer, ModbusException
-from pymodbus.constants import Endian
-from pymodbus.payload import BinaryPayloadDecoder
-
 from app import store
 
 from app.device import ArtisanLog, Device, Kapok501
 from app.classes import Batch, Point, Channel
-from app.settings import load_settings
 from app.loggers import LOG_FASTAPI_CLI, LOG_UVICORN
 
+from app.routers import settings
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):  # pylint: disable=redefined-outer-name
@@ -37,6 +32,7 @@ socketio_server = socketio.AsyncServer(
 )
 
 app = FastAPI(lifespan=lifespan)
+app.include_router(settings.router)
 templates = Jinja2Templates(directory="templates")
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -50,8 +46,10 @@ socketio_app = socketio.ASGIApp(
 # path needs to match socketio_path in socketio.ASGIApp above
 app.mount("/socket.io", socketio_app)
 
-store.settings = load_settings()
-
+with open("settings.json", "rb") as f:
+    store.settings = json.load(f)
+    LOG_FASTAPI_CLI.info(settings)
+ 
 # device initialization
 if store.settings['device'] == "Kapok501":
     LOG_FASTAPI_CLI.info("device: Kapok501")
@@ -64,13 +62,6 @@ else:
     store.device = device
 
 
-@app.get("/hello")
-async def hello():
-    await socketio_server.emit("hello", "hello everyone")
-    LOG_UVICORN.warning("Hello World")
-    return {"message": "Hello World"}
-
-
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
     return templates.TemplateResponse(
@@ -80,7 +71,6 @@ async def root(request: Request):
 
 @app.post("/connect")
 async def connect(request: Request) -> Response:
-    
     await store.device.connect()
 
     return PlainTextResponse("connected")

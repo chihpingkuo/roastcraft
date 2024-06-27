@@ -1,5 +1,5 @@
 {
-  "device": "ArtisanLog",
+  "device": "Kapok501", 
   "serial": { "port": "COM3" },
   "channels": [
     { "id": "BT", "color": "#191970" },

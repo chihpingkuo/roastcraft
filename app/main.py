@@ -1,8 +1,8 @@
 import json
 import asyncio
 from datetime import datetime
-import socketio
 
+import socketio
 
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, PlainTextResponse, Response
@@ -14,7 +14,7 @@ from fastapi.encoders import jsonable_encoder
 from app import store
 
 from app.device import ArtisanLog, Device, Kapok501
-from app.classes import Batch, Point, Channel
+from app.classes import RoastSession, Point, Channel
 from app.loggers import LOG_FASTAPI_CLI, LOG_UVICORN
 
 from app.routers import settings
@@ -85,35 +85,35 @@ async def timer(interval: float):
 
 async def tick():
 
-    batch: Batch = store.batch
-    batch.timer = (datetime.now() - batch.start_time).total_seconds()
-    LOG_UVICORN.info("batch timer : %s", batch.timer)
+    roast_session: RoastSession = store.roast_session
+    roast_session.timer = (datetime.now() - roast_session.start_time).total_seconds()
+    LOG_UVICORN.info("roast_session timer : %s", roast_session.timer)
 
     result = await store.device.read()
     LOG_UVICORN.info(result)
 
-    bt = Point(batch.timer, result["BT"])
-    batch.channels[0].data.append(bt)
+    bt = Point(roast_session.timer, result["BT"])
+    roast_session.channels[0].data.append(bt)
 
-    et = Point(batch.timer, result["ET"])
-    batch.channels[1].data.append(et)
+    et = Point(roast_session.timer, result["ET"])
+    roast_session.channels[1].data.append(et)
 
-    inlet = Point(batch.timer, result["INLET"])
-    batch.channels[2].data.append(inlet)
+    inlet = Point(roast_session.timer, result["INLET"])
+    roast_session.channels[2].data.append(inlet)
 
-    await socketio_server.emit("tick", jsonable_encoder(batch.channels))
+    await socketio_server.emit("tick", jsonable_encoder(roast_session.channels))
 
 
 @app.post("/start")
 async def start(request: Request) -> Response:
 
-    batch = Batch()
-    batch.channels.append(Channel(id="BT"))
-    batch.channels.append(Channel(id="ET"))
-    batch.channels.append(Channel(id="INLET"))
-    batch.start_time = datetime.now()
+    rs = RoastSession()
+    rs.channels.append(Channel(id="BT"))
+    rs.channels.append(Channel(id="ET"))
+    rs.channels.append(Channel(id="INLET"))
+    rs.start_time = datetime.now()
 
-    store.batch = batch
+    store.roast_session = rs
 
     store.task = store.loop.create_task(timer(interval=2.0), name="timer")
 

@@ -1,6 +1,7 @@
 import json
 import asyncio
 from datetime import datetime
+import typing
 
 import socketio
 
@@ -77,13 +78,13 @@ async def connect(request: Request) -> Response:
     return PlainTextResponse("connected")
 
 
-async def timer(interval: float):
+async def ticker(interval: float, function_to_call: typing.Callable):
     while True:
-        await tick()
+        await function_to_call()
         await asyncio.sleep(interval)
 
 
-async def tick():
+async def read_device():
 
     roast_session: RoastSession = store.roast_session
     roast_session.timer = (datetime.now() - roast_session.start_time).total_seconds()
@@ -101,7 +102,13 @@ async def tick():
     inlet = Point(roast_session.timer, result["INLET"])
     roast_session.channels[2].data.append(inlet)
 
-    await socketio_server.emit("tick", jsonable_encoder(roast_session.channels))
+    await socketio_server.emit("read_device", jsonable_encoder(roast_session.channels))
+
+
+async def update_timer():
+    roast_session: RoastSession = store.roast_session
+    roast_session.timer = (datetime.now() - roast_session.start_time).total_seconds()
+    LOG_UVICORN.info(roast_session.timer)
 
 
 @app.post("/start")
@@ -115,12 +122,18 @@ async def start(request: Request) -> Response:
 
     store.roast_session = rs
 
-    store.task = store.loop.create_task(timer(interval=2.0), name="timer")
+    store.read_device_task = store.loop.create_task(
+        ticker(interval=2.0, function_to_call=read_device)
+    )
+    store.update_timer_task = store.loop.create_task(
+        ticker(interval=1.0, function_to_call=update_timer)
+    )
 
     return PlainTextResponse("start ticking")
 
 
 @app.post("/stop")
 async def stop(request: Request) -> Response:
-    store.task.cancel()
+    store.read_device_task.cancel()
+    store.update_timer_task.cancel()
     return PlainTextResponse("stop ticking")

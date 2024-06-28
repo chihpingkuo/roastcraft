@@ -71,7 +71,7 @@ async function App() {
   // });
   const socket = io();
 
-  socket.on("tick", (channels) => {
+  socket.on("read_device", (channels) => {
     console.log(channels);
     store.channels = channels;
   });

@@ -14,4 +14,5 @@ roast_session: RoastSession
 
 loop: asyncio.AbstractEventLoop
 
-task: asyncio.Task
+read_device_task: asyncio.Task
+update_timer_task: asyncio.Task

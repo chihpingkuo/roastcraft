@@ -18,6 +18,18 @@
       integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2"
       crossorigin="anonymous"
     ></script>
+    <script>
+      document.addEventListener('alpine:init', () => {
+        Alpine.data('timer', () => ({
+            value: 0,
+            init(){
+              io().on("update_timer", (value) => {
+                this.value = value
+              });
+            }
+        }))
+      })
+    </script>
     <script
       defer
       src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.10/dist/cdn.min.js"
@@ -38,23 +50,30 @@
     ></script>
   </head>
   <body>
-    <div class="grid grid-cols-6 gap-2">
+    <div class="grid grid-cols-6">
       <div class="col-span-4">
         <div id="main_chart"></div>
       </div>
       <div class="col-span-2">
-        <button
-          class="btn"
-          hx-post="/connect"
-          hx-trigger="click"
-          hx-target="this"
-          hx-swap="outerHTML"
-        >
-          connect
-        </button>
-        <button class="btn" hx-post="/start" hx-trigger="click">start</button>
-        <button class="btn" hx-post="/stop" hx-trigger="click">stop</button>
-
+        <div class="flex flex-wrap gap-1">
+          <div class="flex items-center justify-center bg-black text-white rounded text-2xl font-extrabold w-36"
+               x-data="timer">
+            <span x-text="value">
+          </div>
+          <div>
+            <button
+              class="btn"
+              hx-post="/connect"
+              hx-trigger="click"
+              hx-target="this"
+              hx-swap="outerHTML"
+            >
+              connect
+            </button>
+            <button class="btn" hx-post="/start" hx-trigger="click">start</button>
+            <button class="btn" hx-post="/stop" hx-trigger="click">stop</button>
+          </div>
+        </div>
       </div>
     </div>
 

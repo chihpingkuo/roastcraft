@@ -109,6 +109,7 @@ async def update_timer():
     roast_session: RoastSession = store.roast_session
     roast_session.timer = (datetime.now() - roast_session.start_time).total_seconds()
     LOG_UVICORN.info(roast_session.timer)
+    await socketio_server.emit("update_timer", roast_session.timer)
 
 
 @app.post("/start")

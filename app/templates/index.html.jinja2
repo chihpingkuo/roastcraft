@@ -14,17 +14,6 @@
     <script>
       let settings = {{ctx_settings|tojson}};
       console.log(settings);
-
-      document.addEventListener('alpine:init', () => {
-        Alpine.data('timer', () => ({
-            value: 0,
-            init(){
-              io().on("update_timer", (value) => {
-                this.value = value
-              });
-            }
-        }))
-      })
     </script>
 
     {# https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js #}
@@ -46,7 +35,8 @@
       <div class="col-span-2">
         <div class="flex flex-wrap gap-1">
           <div class="flex items-center justify-center bg-black text-white rounded text-2xl font-extrabold w-36"
-               x-data="timer">
+               x-data="{ value : 0 }"
+               x-init=" io().on('update_timer', (v) => { value = v }); ">
             <span x-text="value">
           </div>
           <div>

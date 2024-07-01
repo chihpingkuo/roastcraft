@@ -3,22 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      href="{{ url_for('static', path='/tailwind-output.css') }}"
-      rel="stylesheet"
-      type="text/css"
-    />
-    <link
-      href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css"
-      rel="stylesheet"
-      type="text/css"
-    />
-    <script
-      src="https://unpkg.com/htmx.org@1.9.12"
-      integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2"
-      crossorigin="anonymous"
-    ></script>
+    <link href="{{ url_for('static', path='/tailwind-output.css') }}" rel="stylesheet" type="text/css"/>
+    
+    {# https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css #}
+    <link href="{{ url_for('static', path='/daisyui.4.12.10.full.min.css') }}" rel="stylesheet" type="text/css"/>
+    
+    {# https://unpkg.com/htmx.org@2.0.0 #}
+    <script type="module" src="{{ url_for('static', path='/htmx.2.0.0.min.js') }}"></script>
+
     <script>
+      let settings = {{ctx_settings|tojson}};
+      console.log(settings);
+
       document.addEventListener('alpine:init', () => {
         Alpine.data('timer', () => ({
             value: 0,
@@ -30,24 +26,17 @@
         }))
       })
     </script>
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.10/dist/cdn.min.js"
-    ></script>
-    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
-    <script
-      src="https://cdn.socket.io/4.7.5/socket.io.min.js"
-      integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO"
-      crossorigin="anonymous"
-    ></script>
-    <script>
-      let settings = {{ctx_settings|tojson}};
-      console.log(settings);
-    </script>
-    <script
-      type="module"
-      src="{{ url_for('static', path='/index.js') }}"
-    ></script>
+
+    {# https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js #}
+    <script defer src="{{ url_for('static', path='/alpinejs.3.14.1.min.js') }}"></script>
+
+    {# https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js #}
+    <script src="{{ url_for('static', path='/d3.7.9.0.min.js') }}"></script>
+
+    {# https://cdn.socket.io/4.7.5/socket.io.min.js #}
+    <script src="{{ url_for('static', path='/socket.io.4.7.5.min.js') }}"></script>
+
+    <script type="module" src="{{ url_for('static', path='/index.js') }}"></script>
   </head>
   <body>
     <div class="grid grid-cols-6">

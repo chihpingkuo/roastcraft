@@ -9,21 +9,21 @@
     <link href="{{ url_for('static', path='/daisyui.4.12.10.full.min.css') }}" rel="stylesheet" type="text/css"/>
     
     {# https://unpkg.com/htmx.org@2.0.0 #}
-    <script type="module" src="{{ url_for('static', path='/htmx.2.0.0.min.js') }}"></script>
+    <script type="module" src="{{ url_for('static', path='/lib/htmx.2.0.0.min.js') }}"></script>
+
+    {# https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js #}
+    <script defer src="{{ url_for('static', path='/lib/alpinejs.3.14.1.min.js') }}"></script>
+
+    {# https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js #}
+    <script src="{{ url_for('static', path='/lib/d3.7.9.0.min.js') }}"></script>
+
+    {# https://cdn.socket.io/4.7.5/socket.io.min.js #}
+    <script src="{{ url_for('static', path='/lib/socket.io.4.7.5.min.js') }}"></script>
 
     <script>
       let settings = {{ctx_settings|tojson}};
       console.log(settings);
     </script>
-
-    {# https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js #}
-    <script defer src="{{ url_for('static', path='/alpinejs.3.14.1.min.js') }}"></script>
-
-    {# https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js #}
-    <script src="{{ url_for('static', path='/d3.7.9.0.min.js') }}"></script>
-
-    {# https://cdn.socket.io/4.7.5/socket.io.min.js #}
-    <script src="{{ url_for('static', path='/socket.io.4.7.5.min.js') }}"></script>
 
     <script type="module" src="{{ url_for('static', path='/index.js') }}"></script>
   </head>

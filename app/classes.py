@@ -1,4 +1,5 @@
 from datetime import datetime
+from enum import Enum
 
 
 class Point:
@@ -27,3 +28,9 @@ class RoastSession:
         self.start_time: datetime = datetime.now()
         self.timer: float = 0.0
         self.channels: list[Channel] = []
+
+
+class AppStatus(Enum):
+    OFF = 1
+    ON = 2
+    RECORDING = 3

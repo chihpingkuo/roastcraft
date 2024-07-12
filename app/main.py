@@ -15,7 +15,7 @@ from fastapi.encoders import jsonable_encoder
 from app import store
 
 from app.device import ArtisanLog, Device, Kapok501
-from app.classes import RoastSession, Point, Channel
+from app.classes import RoastSession, Point, Channel, AppStatus
 from app.loggers import LOG_FASTAPI_CLI, LOG_UVICORN
 
 from app.routers import settings
@@ -46,11 +46,11 @@ socketio_app = socketio.ASGIApp(
 # path needs to match socketio_path in socketio.ASGIApp above
 app.mount("/socket.io", socketio_app)
 
+# store init
 with open("settings.json", "rb") as f:
     store.settings = json.load(f)
     LOG_FASTAPI_CLI.info(settings)
 
-# device initialization
 if store.settings["device"] == "Kapok501":
     LOG_FASTAPI_CLI.info("device: Kapok501")
 
@@ -60,6 +60,8 @@ else:
     LOG_FASTAPI_CLI.info("device: ArtisanLog")
     device: Device = ArtisanLog("../util/23-11-05_1013.alog")
     store.device = device
+
+store.app_status = AppStatus.OFF
 
 
 @app.get("/", response_class=HTMLResponse)

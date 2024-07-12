@@ -33,8 +33,8 @@
         <div id="main_chart"></div>
       </div>
       <div class="col-span-2">
-        <div class="flex flex-wrap gap-1">
-          <div class="flex items-center justify-center bg-black text-white rounded text-2xl font-extrabold w-36"
+        <div class="flex gap-1 mt-1">
+          <div class="flex items-center justify-center bg-black text-white rounded text-2xl font-extrabold w-24"
                x-data="{ timer : '0:00' }"
                x-init="io().on('update_timer', 
                (t) => { 
@@ -46,6 +46,8 @@
                >
             <span x-text="timer">
           </div>
+        </div>
+        <div class="flex gap-1 mt-1">
           <div>
             <button
               class="btn"
@@ -58,6 +60,26 @@
             </button>
             <button class="btn" hx-post="/start" hx-trigger="click">start</button>
             <button class="btn" hx-post="/stop" hx-trigger="click">stop</button>
+          </div>
+        </div>
+        <div class="flex gap-1 mt-1">
+          <div class="flex items-center justify-center rounded text-2xl font-extrabold w-24 bg-gray-300"
+               x-data="{ bt : 0 }"
+               x-init=""
+               >
+            <span x-text="bt">
+          </div>
+          <div class="flex items-center justify-center rounded text-2xl font-extrabold w-24 bg-gray-300"
+               x-data="{ et : 0 }"
+               x-init=""
+               >
+            <span x-text="et">
+          </div>
+          <div class="flex items-center justify-center rounded text-2xl font-extrabold w-24 bg-gray-300"
+               x-data="{ inlet : 0 }"
+               x-init=""
+               >
+            <span x-text="inlet">
           </div>
         </div>
       </div>

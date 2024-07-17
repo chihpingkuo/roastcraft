@@ -61,19 +61,28 @@
         <div class="flex gap-1 mt-1">
           <div class="flex items-center justify-center rounded text-2xl font-extrabold w-24 bg-gray-300"
                x-data="{ bt : 0 }"
-               x-init=""
+               x-init="io().on('read_device', 
+               (channels) => { 
+                  bt = channels[0].current_data;
+               });"
                >
             <span x-text="bt">
           </div>
           <div class="flex items-center justify-center rounded text-2xl font-extrabold w-24 bg-gray-300"
                x-data="{ et : 0 }"
-               x-init=""
+               x-init="io().on('read_device', 
+               (channels) => { 
+                  et = channels[1].current_data;
+               });"
                >
             <span x-text="et">
           </div>
           <div class="flex items-center justify-center rounded text-2xl font-extrabold w-24 bg-gray-300"
                x-data="{ inlet : 0 }"
-               x-init=""
+               x-init="io().on('read_device', 
+               (channels) => { 
+                  inlet = channels[2].current_data;
+               });"
                >
             <span x-text="inlet">
           </div>

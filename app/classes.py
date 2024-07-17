@@ -19,12 +19,18 @@ class Point:
 class Channel:
     def __init__(self, id: str):
         self.id: str = id
+
+        self.current_data: float = 0
+        self.current_ror: float = 0
+        self.data_window: list[Point] = []  # for calculate current ror
+
         self.data: list[Point] = []
+        self.ror: list[Point] = []
 
 
-class RoastSession:
+class AppState:
     def __init__(self):
-
+        self.status: AppStatus = AppStatus.OFF
         self.start_time: datetime = datetime.now()
         self.timer: float = 0.0
         self.channels: list[Channel] = []

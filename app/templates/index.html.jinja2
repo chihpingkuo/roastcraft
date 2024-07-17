@@ -48,19 +48,15 @@
           </div>
         </div>
         <div class="flex gap-1 mt-1">
-          <div>
-            <button
-              class="btn"
-              hx-post="/connect"
-              hx-trigger="click"
-              hx-target="this"
-              hx-swap="outerHTML"
-            >
-              connect
-            </button>
-            <button class="btn" hx-post="/start" hx-trigger="click">start</button>
-            <button class="btn" hx-post="/stop" hx-trigger="click">stop</button>
-          </div>
+          <button
+            class="btn"
+            hx-post="/on"
+            hx-trigger="click"
+            hx-target="closest div"
+            hx-swap="outerHTML"
+          >
+            on
+          </button>
         </div>
         <div class="flex gap-1 mt-1">
           <div class="flex items-center justify-center rounded text-2xl font-extrabold w-24 bg-gray-300"

@@ -73,11 +73,116 @@ async def root(request: Request):
     )
 
 
-@app.post("/connect")
-async def connect(request: Request) -> Response:
+@app.post("/on", response_class=HTMLResponse)
+async def connect() -> Response:
     await store.device.connect()
 
-    return PlainTextResponse("connected")
+    return """
+    <div class="flex gap-1 mt-1">
+        <button
+            class="btn"
+            hx-post="/off"
+            hx-trigger="click"
+            hx-target="closest div"
+            hx-swap="outerHTML"
+        >
+            off
+        </button>
+        <button 
+            class="btn" 
+            hx-post="/start" 
+            hx-trigger="click"
+            hx-target="this"
+            hx-swap="outerHTML"
+        >
+            start
+        </button>
+    </div>
+    """
+
+
+@app.post("/off", response_class=HTMLResponse)
+async def close() -> Response:
+    await store.device.close()
+
+    return """
+    <div class="flex gap-1 mt-1">
+        <button
+            class="btn"
+            hx-post="/on"
+            hx-trigger="click"
+            hx-target="closest div"
+            hx-swap="outerHTML"
+        >
+            on
+        </button>
+    </div>
+    """
+
+
+@app.post("/start", response_class=HTMLResponse)
+async def start() -> Response:
+
+    rs = RoastSession()
+    rs.channels.append(Channel(id="BT"))
+    rs.channels.append(Channel(id="ET"))
+    rs.channels.append(Channel(id="INLET"))
+    rs.start_time = datetime.now()
+
+    store.roast_session = rs
+
+    store.read_device_task = store.loop.create_task(
+        ticker(interval=2.0, function_to_call=read_device)
+    )
+    store.update_timer_task = store.loop.create_task(
+        ticker(interval=1.0, function_to_call=update_timer)
+    )
+
+    return """
+    <button 
+        class="btn" 
+        hx-post="/stop" 
+        hx-trigger="click"
+        hx-target="this"
+        hx-swap="outerHTML"
+    >
+        stop
+    </button>
+    """
+
+
+@app.post("/stop", response_class=HTMLResponse)
+async def stop() -> Response:
+    store.read_device_task.cancel()
+    store.update_timer_task.cancel()
+
+    return """
+    <button 
+        class="btn" 
+        hx-post="/reset" 
+        hx-trigger="click"
+        hx-target="this"
+        hx-swap="outerHTML"
+    >
+        reset
+    </button>
+    """
+
+
+@app.post("/reset", response_class=HTMLResponse)
+async def reset() -> Response:
+
+    return """
+    <button 
+        class="btn" 
+        hx-post="/start" 
+        hx-trigger="click"
+        hx-target="this"
+        hx-swap="outerHTML"
+    >
+        start
+    </button>
+    """
 
 
 async def ticker(interval: float, function_to_call: typing.Callable):
@@ -112,31 +217,3 @@ async def update_timer():
     roast_session.timer = (datetime.now() - roast_session.start_time).total_seconds()
     LOG_UVICORN.info(roast_session.timer)
     await socketio_server.emit("update_timer", roast_session.timer)
-
-
-@app.post("/start")
-async def start(request: Request) -> Response:
-
-    rs = RoastSession()
-    rs.channels.append(Channel(id="BT"))
-    rs.channels.append(Channel(id="ET"))
-    rs.channels.append(Channel(id="INLET"))
-    rs.start_time = datetime.now()
-
-    store.roast_session = rs
-
-    store.read_device_task = store.loop.create_task(
-        ticker(interval=2.0, function_to_call=read_device)
-    )
-    store.update_timer_task = store.loop.create_task(
-        ticker(interval=1.0, function_to_call=update_timer)
-    )
-
-    return PlainTextResponse("start ticking")
-
-
-@app.post("/stop")
-async def stop(request: Request) -> Response:
-    store.read_device_task.cancel()
-    store.update_timer_task.cancel()
-    return PlainTextResponse("stop ticking")

@@ -1,7 +1,7 @@
 # https://docs.python.org/3/faq/programming.html#how-do-i-share-global-variables-across-modules
 import asyncio
 import pymodbus.client as ModbusClient
-from app.classes import AppState
+from app.classes import RoastSession, AppStatus
 from app.device import Device
 
 settings: dict
@@ -10,7 +10,9 @@ client: ModbusClient.AsyncModbusSerialClient
 
 device: Device
 
-app_state: AppState
+session: RoastSession
+
+app_status: AppStatus
 
 loop: asyncio.AbstractEventLoop
 

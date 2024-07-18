@@ -15,7 +15,7 @@ from fastapi.encoders import jsonable_encoder
 from app import store
 
 from app.device import ArtisanLog, Device, Kapok501
-from app.classes import AppState, Point, Channel, AppStatus
+from app.classes import RoastSession, Point, Channel, AppStatus
 from app.loggers import LOG_FASTAPI_CLI, LOG_UVICORN
 
 from app.routers import settings
@@ -61,10 +61,13 @@ else:
     device: Device = ArtisanLog("../util/23-11-05_1013.alog")
     store.device = device
 
-store.app_state = AppState()
-store.app_state.channels.append(Channel(id="BT"))
-store.app_state.channels.append(Channel(id="ET"))
-store.app_state.channels.append(Channel(id="INLET"))
+# initialization
+store.app_status = AppStatus.OFF
+
+store.session = RoastSession()
+store.session.channels.append(Channel(id="BT"))
+store.session.channels.append(Channel(id="ET"))
+store.session.channels.append(Channel(id="INLET"))
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -84,7 +87,7 @@ async def connect() -> Response:
         ticker(interval=2.0, function_to_call=read_device)
     )
 
-    store.app_state.status = AppStatus.ON
+    store.app_status = AppStatus.ON
 
     return """
     <div class="flex gap-1 mt-1">
@@ -116,7 +119,7 @@ async def close() -> Response:
 
     await store.device.close()
 
-    store.app_state.status = AppStatus.OFF
+    store.app_status = AppStatus.OFF
 
     return """
     <div class="flex gap-1 mt-1">
@@ -136,13 +139,13 @@ async def close() -> Response:
 @app.post("/start", response_class=HTMLResponse)
 async def start() -> Response:
 
-    store.app_state.start_time = datetime.now()
+    store.session.start_time = datetime.now()
 
     store.update_timer_task = store.loop.create_task(
         ticker(interval=1.0, function_to_call=update_timer)
     )
 
-    store.app_state.status = AppStatus.RECORDING
+    store.app_status = AppStatus.RECORDING
 
     return """
     <button 
@@ -161,7 +164,7 @@ async def start() -> Response:
 async def stop() -> Response:
     # store.read_device_task.cancel()
     store.update_timer_task.cancel()
-    store.app_state.status = AppStatus.ON
+    store.app_status = AppStatus.ON
 
     return """
     <button 
@@ -200,33 +203,33 @@ async def ticker(interval: float, function_to_call: typing.Callable):
 
 async def read_device():
 
-    state: AppState = store.app_state
+    session: RoastSession = store.session
 
     result = await store.device.read()
     LOG_UVICORN.info(result)
 
-    state.channels[0].current_data = result["BT"]
-    state.channels[1].current_data = result["ET"]
-    state.channels[2].current_data = result["INLET"]
+    session.channels[0].current_data = result["BT"]
+    session.channels[1].current_data = result["ET"]
+    session.channels[2].current_data = result["INLET"]
 
-    if state.status == AppStatus.RECORDING:
-        state.timer = (datetime.now() - state.start_time).total_seconds()
-        LOG_UVICORN.info("roast_session timer : %s", state.timer)
+    if store.app_status == AppStatus.RECORDING:
+        session.timer = (datetime.now() - session.start_time).total_seconds()
+        LOG_UVICORN.info("roast_session timer : %s", session.timer)
 
-        bt = Point(state.timer, result["BT"])
-        state.channels[0].data.append(bt)
+        bt = Point(session.timer, result["BT"])
+        session.channels[0].data.append(bt)
 
-        et = Point(state.timer, result["ET"])
-        state.channels[1].data.append(et)
+        et = Point(session.timer, result["ET"])
+        session.channels[1].data.append(et)
 
-        inlet = Point(state.timer, result["INLET"])
-        state.channels[2].data.append(inlet)
+        inlet = Point(session.timer, result["INLET"])
+        session.channels[2].data.append(inlet)
 
-    await socketio_server.emit("read_device", jsonable_encoder(state.channels))
+    await socketio_server.emit("read_device", jsonable_encoder(session.channels))
 
 
 async def update_timer():
-    state: AppState = store.app_state
-    state.timer = (datetime.now() - state.start_time).total_seconds()
-    LOG_UVICORN.info(state.timer)
-    await socketio_server.emit("update_timer", state.timer)
+    session: RoastSession = store.session
+    session.timer = (datetime.now() - session.start_time).total_seconds()
+    LOG_UVICORN.info(session.timer)
+    await socketio_server.emit("update_timer", session.timer)

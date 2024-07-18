@@ -28,9 +28,8 @@ class Channel:
         self.ror: list[Point] = []
 
 
-class AppState:
+class RoastSession:
     def __init__(self):
-        self.status: AppStatus = AppStatus.OFF
         self.start_time: datetime = datetime.now()
         self.timer: float = 0.0
         self.channels: list[Channel] = []

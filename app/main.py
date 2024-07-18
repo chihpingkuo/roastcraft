@@ -65,9 +65,8 @@ else:
 store.app_status = AppStatus.OFF
 
 store.session = RoastSession()
-store.session.channels.append(Channel(id="BT"))
-store.session.channels.append(Channel(id="ET"))
-store.session.channels.append(Channel(id="INLET"))
+for c in store.settings["channels"]:
+    store.session.channels.append(Channel(id=c["id"]))
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -206,24 +205,33 @@ async def read_device():
     session: RoastSession = store.session
 
     result = await store.device.read()
-    LOG_UVICORN.info(result)
+    LOG_UVICORN.info("result: %s", result)
 
-    session.channels[0].current_data = result["BT"]
-    session.channels[1].current_data = result["ET"]
-    session.channels[2].current_data = result["INLET"]
+    now = datetime.now()
+    for c in session.channels:
+        c.current_data = result[c.id]
+
+        # calculate ror
+        c.data_window.append({"t": now, "v": result[c.id]})
+        if len(c.data_window) > 5:
+            c.data_window.pop(0)
+
+        delta = c.data_window[-1]["v"] - c.data_window[0]["v"]
+        time_elapsed_sec = (
+            c.data_window[-1]["t"] - c.data_window[0]["t"]
+        ).total_seconds()
+
+        ror = 0
+        if time_elapsed_sec != 0:
+            ror: float = delta / time_elapsed_sec
+        c.current_ror = ror
 
     if store.app_status == AppStatus.RECORDING:
-        session.timer = (datetime.now() - session.start_time).total_seconds()
+        session.timer = (now - session.start_time).total_seconds()
         LOG_UVICORN.info("roast_session timer : %s", session.timer)
 
-        bt = Point(session.timer, result["BT"])
-        session.channels[0].data.append(bt)
-
-        et = Point(session.timer, result["ET"])
-        session.channels[1].data.append(et)
-
-        inlet = Point(session.timer, result["INLET"])
-        session.channels[2].data.append(inlet)
+        for c in session.channels:
+            c.data.append(Point(session.timer, result[c.id]))
 
     await socketio_server.emit("read_device", jsonable_encoder(session.channels))
 

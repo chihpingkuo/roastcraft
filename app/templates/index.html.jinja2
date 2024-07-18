@@ -58,33 +58,45 @@
             on
           </button>
         </div>
-        <div class="flex gap-1 mt-1">
-          <div class="flex items-center justify-center rounded text-2xl font-extrabold w-24 bg-gray-300"
-               x-data="{ bt : 0 }"
+        <div class="flex gap-1 mt-1">  
+          <div class="bg-base-300 rounded text-right w-20 px-1"
+               x-data="{ id : '', value : 0 }"
                x-init="io().on('read_device', 
                (channels) => { 
-                  bt = channels[0].current_data;
+                  id = channels[0].id;
+                  value = channels[0].current_data;
                });"
-               >
-            <span x-text="bt">
+          >
+            <p x-text="id"></p>
+            <p class="text-2xl leading-tight text-red-600"
+               x-text="value">
+            </p>
           </div>
-          <div class="flex items-center justify-center rounded text-2xl font-extrabold w-24 bg-gray-300"
-               x-data="{ et : 0 }"
+          <div class="bg-base-300 rounded text-right w-20 px-1"
+               x-data="{ id : '', value : 0 }"
                x-init="io().on('read_device', 
                (channels) => { 
-                  et = channels[1].current_data;
+                  id = channels[1].id;
+                  value = channels[1].current_data;
                });"
-               >
-            <span x-text="et">
+          >
+            <p x-text="id"></p>
+            <p class="text-2xl leading-tight text-red-600"
+               x-text="value">
+            </p>
           </div>
-          <div class="flex items-center justify-center rounded text-2xl font-extrabold w-24 bg-gray-300"
-               x-data="{ inlet : 0 }"
+          <div class="bg-base-300 rounded text-right w-20 px-1"
+               x-data="{ id : '', value : 0 }"
                x-init="io().on('read_device', 
                (channels) => { 
-                  inlet = channels[2].current_data;
+                  id = channels[2].id;
+                  value = channels[2].current_data;
                });"
-               >
-            <span x-text="inlet">
+          >
+            <p x-text="id"></p>
+            <p class="text-2xl leading-tight text-red-600"
+               x-text="value">
+            </p>
           </div>
         </div>
       </div>

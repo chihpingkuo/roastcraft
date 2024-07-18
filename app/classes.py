@@ -22,7 +22,7 @@ class Channel:
 
         self.current_data: float = 0
         self.current_ror: float = 0
-        self.data_window: list[Point] = []  # for calculate current ror
+        self.data_window: list = []  # for calculate current ror
 
         self.data: list[Point] = []
         self.ror: list[Point] = []

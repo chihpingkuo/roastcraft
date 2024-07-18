@@ -11,26 +11,38 @@ async function App() {
       id: c.id,
       color: c.color,
       data: [],
+      ror: [],
     })),
   });
 
   // Declare the x (horizontal position) scale.
-  const x = d3
+  const xScale = d3
     .scaleLinear()
     .domain([0, 900])
     .range([marginLeft, width - marginRight]);
 
   // Declare the y (vertical position) scale.
-  const y = d3
+  const yScale = d3
     .scaleLinear()
     .domain([0, 400])
     .range([height - marginBottom, marginTop]);
 
+  // Declare the y (vertical position) scale.
+  const yScaleROR = d3
+  .scaleLinear()
+  .domain([0, 30])
+  .range([height - marginBottom, marginTop]);
+
+
   // Declare the line generator.
-  const line = d3
-    .line()
-    .x((d) => x(d.t))
-    .y((d) => y(d.v));
+  const line = d3.line()
+    .x((p) => xScale(p.t))
+    .y((p) => yScale(p.v));
+
+  const lineROR = d3.line()
+    .x((p) => xScale(p.t))
+    .y((p) => yScaleROR(p.v));
+
 
   // Create the SVG container.
   const svg = d3.create("svg").attr("width", width).attr("height", height);
@@ -39,13 +51,19 @@ async function App() {
   svg
     .append("g")
     .attr("transform", `translate(0,${height - marginBottom})`)
-    .call(d3.axisBottom(x));
+    .call(d3.axisBottom(xScale));
 
   // Add the y-axis.
   svg
     .append("g")
     .attr("transform", `translate(${marginLeft},0)`)
-    .call(d3.axisLeft(y));
+    .call(d3.axisLeft(yScale));
+
+  svg
+    .append("g")
+    .attr("transform", `translate(${width - marginRight},0)`)
+    .call(d3.axisRight(yScaleROR));
+
 
   store.channels.forEach((channel) => {
     svg
@@ -55,11 +73,20 @@ async function App() {
       .attr("stroke", channel.color)
       .attr("stroke-width", 1.5)
       .attr("d", line(channel.data));
+
+    svg
+      .append("path")
+      .attr("id", channel.id+"ROR")
+      .attr("fill", "none")
+      .attr("stroke", channel.color)
+      .attr("stroke-width", 1.5)
+      .attr("d", lineROR(channel.ror));
   });
 
   Alpine.effect(() => {
     store.channels.forEach((channel) => {
       d3.select("#" + channel.id).attr("d", line(channel.data));
+      d3.select("#" + channel.id+"ROR").attr("d", lineROR(channel.ror));
     });
   });
 

@@ -223,7 +223,7 @@ async def read_device():
 
         ror = 0
         if time_elapsed_sec != 0:
-            ror: float = delta / time_elapsed_sec
+            ror: float = delta * 60 / time_elapsed_sec
         c.current_ror = ror
 
     if store.app_status == AppStatus.RECORDING:
@@ -232,6 +232,7 @@ async def read_device():
 
         for c in session.channels:
             c.data.append(Point(session.timer, result[c.id]))
+            c.ror.append(Point(session.timer, c.current_ror))
 
     await socketio_server.emit("read_device", jsonable_encoder(session.channels))
 

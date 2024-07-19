@@ -12,6 +12,7 @@ async function App() {
       color: c.color,
       data: [],
       ror: [],
+      ror_smoothed: []
     })),
   });
 
@@ -73,21 +74,31 @@ async function App() {
       .attr("stroke", channel.color)
       .attr("stroke-width", 1.5)
       .attr("d", line(channel.data));
-
-    svg
-      .append("path")
-      .attr("id", channel.id+"ROR")
-      .attr("fill", "none")
-      .attr("stroke", channel.color)
-      .attr("stroke-width", 1.5)
-      .attr("d", lineROR(channel.ror));
   });
+
+  svg
+  .append("path")
+  .attr("id", "BT_ROR")
+  .attr("fill", "none")
+  .attr("stroke", "#2E8B57")
+  .attr("stroke-width", 1)
+  .attr("d", lineROR(store.channels[0].ror));
+
+  svg
+  .append("path")
+  .attr("id", "BT_ROR_SMOOTH")
+  .attr("fill", "none")
+  .attr("stroke", "#0000FF")
+  .attr("stroke-width", 2)
+  .attr("d", lineROR(store.channels[0].ror_smoothed));
+
 
   Alpine.effect(() => {
     store.channels.forEach((channel) => {
       d3.select("#" + channel.id).attr("d", line(channel.data));
-      d3.select("#" + channel.id+"ROR").attr("d", lineROR(channel.ror));
     });
+    d3.select("#" + "BT_ROR").attr("d", lineROR(store.channels[0].ror));
+    d3.select("#" + "BT_ROR_SMOOTH").attr("d", lineROR(store.channels[0].ror_smoothed));
   });
 
   // Append the SVG element.

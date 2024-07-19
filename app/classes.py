@@ -26,6 +26,7 @@ class Channel:
 
         self.data: list[Point] = []
         self.ror: list[Point] = []
+        self.ror_smoothed: list[Point] = []
 
 
 class RoastSession:

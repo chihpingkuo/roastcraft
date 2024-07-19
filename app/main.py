@@ -12,6 +12,9 @@ from fastapi.templating import Jinja2Templates
 from fastapi.concurrency import asynccontextmanager
 from fastapi.encoders import jsonable_encoder
 
+from scipy.signal import savgol_filter
+import numpy
+
 from app import store
 
 from app.device import ArtisanLog, Device, Kapok501
@@ -233,6 +236,24 @@ async def read_device():
         for c in session.channels:
             c.data.append(Point(session.timer, result[c.id]))
             c.ror.append(Point(session.timer, c.current_ror))
+
+            # ref artisanlib > canvas.py > smooth()
+            window_len = 13
+            if len(c.ror) >= window_len:
+                y = []
+
+                for p in c.ror:
+                    y.append(p.v)
+
+                s = numpy.r_[y[window_len - 1 : 0 : -1], y, y[-1:-window_len:-1]]
+                w = numpy.hanning(window_len)
+                ys = numpy.convolve(w / w.sum(), s, mode="valid")
+                hwl = int(window_len / 2)
+                res = ys[hwl:-hwl]
+
+                c.ror_smoothed = []
+                for idx, p in enumerate(c.ror):
+                    c.ror_smoothed.append(Point(p.t, res[idx]))
 
     await socketio_server.emit("read_device", jsonable_encoder(session.channels))
 

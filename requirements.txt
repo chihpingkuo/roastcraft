@@ -3,4 +3,3 @@ pymodbus==3.6.8
 pyserial==3.5
 python-socketio==5.11.2
 numpy==1.26.4
-scipy==1.14.0

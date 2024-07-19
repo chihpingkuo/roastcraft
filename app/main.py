@@ -12,7 +12,6 @@ from fastapi.templating import Jinja2Templates
 from fastapi.concurrency import asynccontextmanager
 from fastapi.encoders import jsonable_encoder
 
-from scipy.signal import savgol_filter
 import numpy
 
 from app import store
@@ -237,12 +236,28 @@ async def read_device():
             c.data.append(Point(session.timer, result[c.id]))
             c.ror.append(Point(session.timer, c.current_ror))
 
-            # ref artisanlib > canvas.py > smooth()
-            window_len = 13
+            # filter outliers
+            window_len = 5
             if len(c.ror) >= window_len:
                 y = []
 
                 for p in c.ror:
+                    y.append(p.v)
+
+                filtered, outliers = hampel_filter_forloop(y, 5, n_sigmas=2)
+
+                c.ror_filtered = []
+
+                for idx, p in enumerate(c.ror):
+                    if idx not in outliers:
+                        c.ror_filtered.append(p)
+
+            # ref artisanlib > canvas.py > smooth()
+            window_len = 11
+            if len(c.ror_filtered) >= window_len:
+                y = []
+
+                for p in c.ror_filtered:
                     y.append(p.v)
 
                 s = numpy.r_[y[window_len - 1 : 0 : -1], y, y[-1:-window_len:-1]]
@@ -252,10 +267,51 @@ async def read_device():
                 res = ys[hwl:-hwl]
 
                 c.ror_smoothed = []
-                for idx, p in enumerate(c.ror):
+                for idx, p in enumerate(c.ror_filtered):
                     c.ror_smoothed.append(Point(p.t, res[idx]))
 
     await socketio_server.emit("read_device", jsonable_encoder(session.channels))
+
+
+def hampel_filter_forloop(input_series, window_size, n_sigmas=3):
+    """
+    Function for outlier detection using the Hampel filter.
+    Based on `pracma` implementation in R.
+
+    Parameters
+    ------------
+    input_series : np.ndarray
+        The series on which outlier detection will be performed
+    window_size : int
+        The size of the window (one-side). Total window size is 2*window_size+1
+    n_sigmas : int
+        The number of standard deviations used for identifying outliers
+
+    Returns
+    -----------
+    new_series : np.ndarray
+        The array in which outliers were replaced with respective window medians
+    indices : np.ndarray
+        The array containing the indices of detected outliers
+    """
+
+    n = len(input_series)
+    new_series = input_series.copy()
+    k = 1.4826  # scale factor for Gaussian distribution
+
+    indices = []
+
+    # possibly use np.nanmedian
+    for i in range((window_size), (n - window_size)):
+        x0 = numpy.median(input_series[(i - window_size) : (i + window_size)])
+        S0 = k * numpy.median(
+            numpy.abs(input_series[(i - window_size) : (i + window_size)] - x0)
+        )
+        if numpy.abs(input_series[i] - x0) > n_sigmas * S0:
+            new_series[i] = x0
+            indices.append(i)
+
+    return new_series, indices
 
 
 async def update_timer():

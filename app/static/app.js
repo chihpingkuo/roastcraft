@@ -20,13 +20,13 @@ async function App() {
   // Declare the x (horizontal position) scale.
   const xScale = d3
     .scaleLinear()
-    .domain([0, 900])
+    .domain([0, 780])
     .range([marginLeft, width - marginRight]);
 
   // Declare the y (vertical position) scale.
   const yScale = d3
     .scaleLinear()
-    .domain([0, 400])
+    .domain([80, 400])
     .range([height - marginBottom, marginTop]);
 
   // Declare the y (vertical position) scale.

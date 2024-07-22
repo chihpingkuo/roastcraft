@@ -237,14 +237,16 @@ async def read_device():
             c.ror.append(Point(session.timer, c.current_ror))
 
             # filter outliers
-            if len(c.ror) >= 7:
+            filter_window_size = 7  # shouled be odd number
+            n_sigmas = 2
+            if len(c.ror) >= filter_window_size:
 
                 c.ror_filtered, outliers = hampel_filter_forloop_point(
-                    c.ror, window_size=3, n_sigmas=2
+                    c.ror, int(filter_window_size / 2), n_sigmas
                 )
 
             # https://scipy-cookbook.readthedocs.io/items/SignalSmooth.html
-            window_len = 9
+            window_len = 15  # shouled be odd number
             if len(c.ror_filtered) >= window_len:
                 x = []
 

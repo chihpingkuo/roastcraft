@@ -12,6 +12,7 @@ async function App() {
       color: c.color,
       data: [],
       ror: [],
+      ror_filtered: [],
       ror_smoothed: []
     })),
   });

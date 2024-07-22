@@ -85,7 +85,7 @@ async def connect() -> Response:
     await store.device.connect()
 
     store.read_device_task = store.loop.create_task(
-        ticker(interval=2.0, function_to_call=read_device)
+        ticker(interval=2, function_to_call=read_device)
     )
 
     store.app_status = AppStatus.ON
@@ -237,34 +237,27 @@ async def read_device():
             c.ror.append(Point(session.timer, c.current_ror))
 
             # filter outliers
-            window_len = 5
-            if len(c.ror) >= window_len:
-                y = []
+            if len(c.ror) >= 7:
 
-                for p in c.ror:
-                    y.append(p.v)
+                c.ror_filtered, outliers = hampel_filter_forloop_point(
+                    c.ror, window_size=3, n_sigmas=2
+                )
 
-                filtered, outliers = hampel_filter_forloop(y, 5, n_sigmas=2)
-
-                c.ror_filtered = []
-
-                for idx, p in enumerate(c.ror):
-                    if idx not in outliers:
-                        c.ror_filtered.append(p)
-
-            # ref artisanlib > canvas.py > smooth()
-            window_len = 11
+            # https://scipy-cookbook.readthedocs.io/items/SignalSmooth.html
+            window_len = 9
             if len(c.ror_filtered) >= window_len:
-                y = []
+                x = []
 
                 for p in c.ror_filtered:
-                    y.append(p.v)
+                    x.append(p.v)
 
-                s = numpy.r_[y[window_len - 1 : 0 : -1], y, y[-1:-window_len:-1]]
+                s = numpy.r_[
+                    x[window_len - 1 : 0 : -1], x, x[-2 : -window_len - 1 : -1]
+                ]
                 w = numpy.hanning(window_len)
-                ys = numpy.convolve(w / w.sum(), s, mode="valid")
+                y = numpy.convolve(w / w.sum(), s, mode="valid")
                 hwl = int(window_len / 2)
-                res = ys[hwl:-hwl]
+                res = y[hwl - 1 : -hwl]
 
                 c.ror_smoothed = []
                 for idx, p in enumerate(c.ror_filtered):
@@ -273,45 +266,30 @@ async def read_device():
     await socketio_server.emit("read_device", jsonable_encoder(session.channels))
 
 
-def hampel_filter_forloop(input_series, window_size, n_sigmas=3):
-    """
-    Function for outlier detection using the Hampel filter.
-    Based on `pracma` implementation in R.
+# https://github.com/erykml/medium_articles/blob/master/Machine%20Learning/outlier_detection_hampel_filter.ipynb
+def hampel_filter_forloop_point(input_series: list[Point], window_size, n_sigmas=3):
 
-    Parameters
-    ------------
-    input_series : np.ndarray
-        The series on which outlier detection will be performed
-    window_size : int
-        The size of the window (one-side). Total window size is 2*window_size+1
-    n_sigmas : int
-        The number of standard deviations used for identifying outliers
-
-    Returns
-    -----------
-    new_series : np.ndarray
-        The array in which outliers were replaced with respective window medians
-    indices : np.ndarray
-        The array containing the indices of detected outliers
-    """
+    input_series_v = []
+    for p in input_series:
+        input_series_v.append(p.v)
 
     n = len(input_series)
-    new_series = input_series.copy()
+    filtered = input_series.copy()
     k = 1.4826  # scale factor for Gaussian distribution
 
-    indices = []
+    outliers = []
 
     # possibly use np.nanmedian
     for i in range((window_size), (n - window_size)):
-        x0 = numpy.median(input_series[(i - window_size) : (i + window_size)])
+        x0 = numpy.median(input_series_v[(i - window_size) : (i + window_size)])
         S0 = k * numpy.median(
-            numpy.abs(input_series[(i - window_size) : (i + window_size)] - x0)
+            numpy.abs(input_series_v[(i - window_size) : (i + window_size)] - x0)
         )
-        if numpy.abs(input_series[i] - x0) > n_sigmas * S0:
-            new_series[i] = x0
-            indices.append(i)
+        if numpy.abs(input_series_v[i] - x0) > n_sigmas * S0:
+            filtered[i] = Point(input_series[i].t, x0)
+            outliers.append(input_series[i])
 
-    return new_series, indices
+    return filtered, outliers
 
 
 async def update_timer():

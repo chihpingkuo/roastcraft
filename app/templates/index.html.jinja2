@@ -28,11 +28,11 @@
     <script type="module" src="{{ url_for('static', path='/index.js') }}"></script>
   </head>
   <body>
-    <div class="grid grid-cols-6">
-      <div class="col-span-4">
+    <div class="flex gap-1">
+      <div class="">
         <div id="main_chart"></div>
       </div>
-      <div class="col-span-2">
+      <div class="">
         <div class="flex gap-1 mt-1">
           <div class="flex items-center justify-center bg-black text-white rounded text-2xl font-extrabold w-24"
                x-data="{ timer : '0:00' }"
@@ -115,6 +115,18 @@
             </p>
           </div>
           
+        </div>
+        {# events #}
+        <div class="flex gap-1 mt-1">
+          <button
+            class="btn"
+            hx-post="/charge"
+            hx-trigger="click"
+            hx-target="closest div"
+            hx-swap="outerHTML"
+          >
+            charge
+          </button>
         </div>
       </div>
     </div>

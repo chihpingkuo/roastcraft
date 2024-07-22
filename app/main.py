@@ -60,7 +60,7 @@ if store.settings["device"] == "Kapok501":
     store.device = device
 else:
     LOG_FASTAPI_CLI.info("device: ArtisanLog")
-    device: Device = ArtisanLog("../util/23-11-05_1013.alog")
+    device: Device = ArtisanLog("../util/24-07-13_1545_mozart.alog")
     store.device = device
 
 # initialization
@@ -85,7 +85,7 @@ async def connect() -> Response:
     await store.device.connect()
 
     store.read_device_task = store.loop.create_task(
-        ticker(interval=2, function_to_call=read_device)
+        ticker(interval=3.0, function_to_call=read_device)
     )
 
     store.app_status = AppStatus.ON
@@ -258,8 +258,7 @@ async def read_device():
                 ]
                 w = numpy.hanning(window_len)
                 y = numpy.convolve(w / w.sum(), s, mode="valid")
-                hwl = int(window_len / 2)
-                res = y[hwl - 1 : -hwl]
+                res = y[int(window_len / 2) - 1 : -int(window_len / 2)]
 
                 c.ror_smoothed = []
                 for idx, p in enumerate(c.ror_filtered):
@@ -284,10 +283,10 @@ def hampel_filter_forloop_point(input_series: list[Point], window_size, n_sigmas
     # possibly use np.nanmedian
     for i in range((window_size), (n - window_size)):
         x0 = numpy.median(input_series_v[(i - window_size) : (i + window_size)])
-        S0 = k * numpy.median(
+        s0 = k * numpy.median(
             numpy.abs(input_series_v[(i - window_size) : (i + window_size)] - x0)
         )
-        if numpy.abs(input_series_v[i] - x0) > n_sigmas * S0:
+        if numpy.abs(input_series_v[i] - x0) > n_sigmas * s0:
             filtered[i] = Point(input_series[i].t, x0)
             outliers.append(input_series[i])
 

@@ -1,6 +1,6 @@
 async function App() {
-  const width = 800;
-  const height = 500;
+  const width = 860;
+  const height = 550;
   const marginTop = 20;
   const marginRight = 20;
   const marginBottom = 30;
@@ -26,13 +26,13 @@ async function App() {
   // Declare the y (vertical position) scale.
   const yScale = d3
     .scaleLinear()
-    .domain([80, 400])
+    .domain([80, 380])
     .range([height - marginBottom, marginTop]);
 
   // Declare the y (vertical position) scale.
   const yScaleROR = d3
   .scaleLinear()
-  .domain([0, 30])
+  .domain([0, 24])
   .range([height - marginBottom, marginTop]);
 
 

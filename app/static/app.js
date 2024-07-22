@@ -77,13 +77,13 @@ async function App() {
       .attr("d", line(channel.data));
   });
 
-  svg
-  .append("path")
-  .attr("id", "BT_ROR")
-  .attr("fill", "none")
-  .attr("stroke", "#2E8B57")
-  .attr("stroke-width", 1)
-  .attr("d", lineROR(store.channels[0].ror));
+  // svg
+  // .append("path")
+  // .attr("id", "BT_ROR")
+  // .attr("fill", "none")
+  // .attr("stroke", "#2E8B57")
+  // .attr("stroke-width", 1)
+  // .attr("d", lineROR(store.channels[0].ror));
 
   svg
   .append("path")
@@ -98,7 +98,7 @@ async function App() {
     store.channels.forEach((channel) => {
       d3.select("#" + channel.id).attr("d", line(channel.data));
     });
-    d3.select("#" + "BT_ROR").attr("d", lineROR(store.channels[0].ror));
+    // d3.select("#" + "BT_ROR").attr("d", lineROR(store.channels[0].ror));
     d3.select("#" + "BT_ROR_SMOOTH").attr("d", lineROR(store.channels[0].ror_smoothed));
   });
 

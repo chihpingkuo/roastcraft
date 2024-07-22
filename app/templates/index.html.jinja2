@@ -122,10 +122,28 @@
             class="btn"
             hx-post="/charge"
             hx-trigger="click"
-            hx-target="closest div"
+            hx-target="this"
             hx-swap="outerHTML"
           >
             charge
+          </button>
+          <button
+            class="btn"
+            hx-post="/fc_start"
+            hx-trigger="click"
+            hx-target="this"
+            hx-swap="outerHTML"
+          >
+            FC start
+          </button>
+          <button
+            class="btn"
+            hx-post="/drop"
+            hx-trigger="click"
+            hx-target="this"
+            hx-swap="outerHTML"
+          >
+            drop
           </button>
         </div>
       </div>

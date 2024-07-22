@@ -196,6 +196,42 @@ async def reset() -> Response:
     """
 
 
+@app.post("/charge", response_class=HTMLResponse)
+async def charge() -> Response:
+
+    return """
+    <button 
+        class="btn btn-disabled" 
+    >
+        charge
+    </button>
+    """
+
+
+@app.post("/fc_start", response_class=HTMLResponse)
+async def fc_start() -> Response:
+
+    return """
+    <button 
+        class="btn btn-disabled" 
+    >
+        FC start
+    </button>
+    """
+
+
+@app.post("/drop", response_class=HTMLResponse)
+async def drop() -> Response:
+
+    return """
+    <button 
+        class="btn btn-disabled" 
+    >
+        drop
+    </button>
+    """
+
+
 async def ticker(interval: float, function_to_call: typing.Callable):
     while True:
         await function_to_call()

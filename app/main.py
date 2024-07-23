@@ -220,20 +220,42 @@ async def charge() -> Response:
     """
 
 
-@app.post("/fc_start", response_class=HTMLResponse)
+@app.post("/fc", response_class=HTMLResponse)
 async def fc_start() -> Response:
+    session: RoastSession = store.session
+
+    session.roast_events_index[RoastEvent.FC] = len(session.channels[0].data) - 1
+    LOG_UVICORN.info(
+        "FIRST CRACK at BT index : %s", session.roast_events_index[RoastEvent.FC]
+    )
+    LOG_UVICORN.info(
+        session.channels[0].data[session.roast_events_index[RoastEvent.FC]]
+    )
+
+    await socketio_server.emit(
+        "roast_events", jsonable_encoder(session.roast_events_index)
+    )
 
     return """
     <button 
         class="btn btn-disabled" 
     >
-        FC start
+        FC
     </button>
     """
 
 
 @app.post("/drop", response_class=HTMLResponse)
 async def drop() -> Response:
+    session: RoastSession = store.session
+
+    session.roast_events_index[RoastEvent.D] = len(session.channels[0].data) - 1
+    LOG_UVICORN.info("DROP at BT index : %s", session.roast_events_index[RoastEvent.D])
+    LOG_UVICORN.info(session.channels[0].data[session.roast_events_index[RoastEvent.D]])
+
+    await socketio_server.emit(
+        "roast_events", jsonable_encoder(session.roast_events_index)
+    )
 
     return """
     <button 

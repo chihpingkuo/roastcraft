@@ -24,7 +24,7 @@ async function App() {
   // Declare the x (horizontal position) scale.
   const xScale = d3
     .scaleLinear()
-    .domain([0, 780])
+    .domain([-60, 780])
     .range([marginLeft, width - marginRight]);
 
   // Declare the y (vertical position) scale.
@@ -127,6 +127,8 @@ async function App() {
   socket.on("roast_events", (roast_events) => {
     console.log(roast_events);
     store.roast_events = roast_events;
+
+    roast_events_node.selectAll("*").remove();
 
     for (const[key, idx] of Object.entries(roast_events)) {
       if (idx != 0){

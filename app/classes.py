@@ -30,28 +30,32 @@ class Channel:
         self.ror_smoothed: list[Point] = []
 
 
+class RoastEvent(Enum):
+    C = 1  # charge
+    TP = 2  # turning point
+    DE = 3  # dry end
+    FC = 4  # first crack
+    FCE = 5  # first crack end
+    SC = 6  # second crack
+    SCE = 7  # second crack end
+    D = 8  # drop
+
+
 class RoastSession:
     def __init__(self):
         self.start_time: datetime = datetime.now()
         self.timer: float = 0.0
         self.channels: list[Channel] = []
-
-
-class RoastEventId(Enum):
-    CHARGE = 1
-    TP = 2
-    DRY_END = 3
-    FC_START = 4
-    FC_END = 5
-    SC_START = 6
-    SC_END = 6
-    DROP = 6
-
-
-class RoastEvent:
-    def __init__(self, id: RoastEventId, index: int):
-        self.id: RoastEventId = id
-        self.index: int = index
+        self.roast_events_index = {
+            RoastEvent.C: 0,
+            RoastEvent.TP: 0,
+            RoastEvent.DE: 0,
+            RoastEvent.FC: 0,
+            RoastEvent.FCE: 0,
+            RoastEvent.SC: 0,
+            RoastEvent.SCE: 0,
+            RoastEvent.D: 0,
+        }
 
 
 class AppStatus(Enum):

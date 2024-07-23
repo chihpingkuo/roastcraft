@@ -86,13 +86,19 @@ async function App() {
   // .attr("d", lineROR(store.channels[0].ror));
 
   svg
-  .append("path")
-  .attr("id", "BT_ROR_SMOOTH")
-  .attr("fill", "none")
-  .attr("stroke", "#0000FF")
-  .attr("stroke-width", 2)
-  .attr("d", lineROR(store.channels[0].ror_smoothed));
+    .append("path")
+    .attr("id", "BT_ROR_SMOOTH")
+    .attr("fill", "none")
+    .attr("stroke", "#0000FF")
+    .attr("stroke-width", 2)
+    .attr("d", lineROR(store.channels[0].ror_smoothed));
 
+  svg
+    .append("text")
+    .attr("x", xScale(100))
+    .attr("y", yScale(200))
+    .style("visibility", "visible")  // visible, hidden
+    .text("TEXT")
 
   Alpine.effect(() => {
     store.channels.forEach((channel) => {
@@ -113,6 +119,10 @@ async function App() {
   socket.on("read_device", (channels) => {
     console.log(channels);
     store.channels = channels;
+  });
+  socket.on("roast_events", (roast_events) => {
+    console.log(roast_events);
+    
   });
 }
 

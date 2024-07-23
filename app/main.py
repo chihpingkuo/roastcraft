@@ -17,7 +17,7 @@ import numpy
 from app import store
 
 from app.device import ArtisanLog, Device, Kapok501
-from app.classes import RoastSession, Point, Channel, AppStatus
+from app.classes import RoastSession, RoastEvent, Point, Channel, AppStatus
 from app.loggers import LOG_FASTAPI_CLI, LOG_UVICORN
 
 from app.routers import settings
@@ -198,6 +198,18 @@ async def reset() -> Response:
 
 @app.post("/charge", response_class=HTMLResponse)
 async def charge() -> Response:
+
+    session: RoastSession = store.session
+
+    session.roast_events_index[RoastEvent.C] = len(session.channels[0].data) - 1
+    LOG_UVICORN.info(
+        "CHARGE at BT index : %s", session.roast_events_index[RoastEvent.C]
+    )
+    LOG_UVICORN.info(session.channels[0].data[session.roast_events_index[RoastEvent.C]])
+
+    await socketio_server.emit(
+        "roast_events", jsonable_encoder(session.roast_events_index)
+    )
 
     return """
     <button 

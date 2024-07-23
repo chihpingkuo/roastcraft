@@ -31,14 +31,14 @@ class Channel:
 
 
 class RoastEvent(Enum):
-    C = 1  # charge
-    TP = 2  # turning point
-    DE = 3  # dry end
-    FC = 4  # first crack
-    FCE = 5  # first crack end
-    SC = 6  # second crack
-    SCE = 7  # second crack end
-    D = 8  # drop
+    C = "C"  # charge
+    TP = "TP"  # turning point
+    DE = "DE"  # dry end
+    FC = "FC"  # first crack
+    FCE = "FCE"  # first crack end
+    SC = "SC"  # second crack
+    SCE = "SCE"  # second crack end
+    D = "D"  # drop
 
 
 class RoastSession:

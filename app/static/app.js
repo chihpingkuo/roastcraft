@@ -15,7 +15,11 @@ async function App() {
       ror_filtered: [],
       ror_smoothed: []
     })),
+    
+    roast_events: {}
   });
+
+  let channels_nodes = [];  
 
   // Declare the x (horizontal position) scale.
   const xScale = d3
@@ -48,7 +52,7 @@ async function App() {
 
   // Create the SVG container.
   const svg = d3.create("svg").attr("width", width).attr("height", height);
-
+  
   // Add the x-axis.
   svg
     .append("g")
@@ -68,13 +72,15 @@ async function App() {
 
 
   store.channels.forEach((channel) => {
-    svg
-      .append("path")
-      .attr("id", channel.id)
-      .attr("fill", "none")
-      .attr("stroke", channel.color)
-      .attr("stroke-width", 1.5)
-      .attr("d", line(channel.data));
+    channels_nodes.push(
+      svg
+        .append("path")
+        // .attr("id", channel.id)
+        .attr("fill", "none")
+        .attr("stroke", channel.color)
+        .attr("stroke-width", 1.5)
+        .attr("d", line(channel.data))
+    )
   });
 
   // svg
@@ -93,17 +99,15 @@ async function App() {
     .attr("stroke-width", 2)
     .attr("d", lineROR(store.channels[0].ror_smoothed));
 
-  svg
-    .append("text")
-    .attr("x", xScale(100))
-    .attr("y", yScale(200))
-    .style("visibility", "visible")  // visible, hidden
-    .text("TEXT")
+  let roast_events_node = svg.append("g")
+
+  
 
   Alpine.effect(() => {
-    store.channels.forEach((channel) => {
-      d3.select("#" + channel.id).attr("d", line(channel.data));
-    });
+    for(let i = 0 ; i < store.channels.length ; i++) {
+      channels_nodes[i].attr("d", line(store.channels[i].data));  
+    }
+
     // d3.select("#" + "BT_ROR").attr("d", lineROR(store.channels[0].ror));
     d3.select("#" + "BT_ROR_SMOOTH").attr("d", lineROR(store.channels[0].ror_smoothed));
   });
@@ -122,6 +126,35 @@ async function App() {
   });
   socket.on("roast_events", (roast_events) => {
     console.log(roast_events);
+    store.roast_events = roast_events;
+
+    for (const[key, idx] of Object.entries(roast_events)) {
+      if (idx != 0){
+        let x = xScale(store.channels[0].data[idx].t)
+        let y = yScale(store.channels[0].data[idx].v)
+
+        roast_events_node.append("line")
+          .attr("stroke", "black")
+          .attr("stroke-width", 1)
+          .attr("x1", x + 2)
+          .attr("y1", y + 2)
+          .attr("x2", x + 10)
+          .attr("y2", y + 10)
+
+        roast_events_node.append("circle")
+          .attr("cx", x)
+          .attr("cy", y)
+          .attr("r", 2)
+        
+        roast_events_node.append("text")
+          .attr("alignment-baseline", "hanging" )
+          .attr("font-size", "small" )
+          .attr("x", x + 10)
+          .attr("y", y + 10)
+          .text(key)
+      }
+
+    }
     
   });
 }

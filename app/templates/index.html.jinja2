@@ -8,6 +8,14 @@
     {# https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css #}
     <link href="{{ url_for('static', path='/daisyui.4.12.10.full.min.css') }}" rel="stylesheet" type="text/css"/>
     
+    <script type="importmap">
+      {
+        "imports": {
+          "vue": "{{ url_for('static', path='/lib/vue.esm-browser.prod.3.4.34.js') }}"
+        }
+      }
+    </script>
+
     {# https://unpkg.com/htmx.org@2.0.0 #}
     <script type="module" src="{{ url_for('static', path='/lib/htmx.2.0.0.min.js') }}"></script>
 
@@ -20,6 +28,7 @@
     {# https://cdn.socket.io/4.7.5/socket.io.min.js #}
     <script src="{{ url_for('static', path='/lib/socket.io.4.7.5.min.js') }}"></script>
 
+    
     <script>
       let settings = {{ctx_settings|tojson}};
       console.log(settings);
@@ -28,9 +37,9 @@
     <script type="module" src="{{ url_for('static', path='/index.js') }}"></script>
   </head>
   <body>
-    <div class="flex gap-1">
+    <div id="app" class="flex gap-1">
       <div class="">
-        <div id="main_chart"></div>
+        <svg id="main_chart"></svg>
       </div>
       <div class="">
         <div class="flex gap-1 mt-1">

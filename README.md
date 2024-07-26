@@ -5,6 +5,6 @@ jinja2
 tailwindcss
 daisyui
 htmx
-alpine.js
+vue.js
 d3.js
 

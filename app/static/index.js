@@ -3,14 +3,14 @@ import { createApp, ref, onMounted, reactive, watchEffect  } from 'vue'
 const app = createApp({
     setup() {
         
-        const message = ref('Hello Vue!')
-        
-        const main_chart = ref()
+        let timer = ref("0:00");
 
         let store = reactive({
             channels: settings.channels.map((c) => ({
               id: c.id,
               color: c.color,
+              current_data: 0,
+              current_ror: 0,
               data: [],
               ror: [],
               ror_filtered: [],
@@ -114,8 +114,21 @@ const app = createApp({
             store.channels = channels;
         });
 
+        socket.on('update_timer', 
+            (t) => { 
+
+                console.log(t);
+
+                timer.value = 
+                Math.floor(Math.round(t) / 60).toString() +
+                        ':' +
+                        (Math.round(t) % 60).toString().padStart(2, '0');
+                console.log(timer.value);
+            });
+
         return {
-            message
+            timer,
+            store
         }
     }
 })

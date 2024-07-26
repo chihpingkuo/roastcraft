@@ -52,22 +52,8 @@ const app = createApp({
               ror_smoothed: []
             })),
             
-            roast_events: {}
-          });
-
-        // let channels_nodes = [];    
-
-        let roast_events_node;       
-
-
-        onMounted(() => {    
-        
-            // Create the SVG container.
-            const svg = d3.select("#main_chart")                  
-
-            roast_events_node = svg.append("g")
-                        
-        })
+            roast_events: []
+          });        
 
         // const socket = io("http://localhost:8000", {
         //   opts: { path: "/socket.io" },
@@ -91,37 +77,7 @@ const app = createApp({
 
         socket.on("roast_events", (roast_events) => {
             console.log(roast_events);
-            store.roast_events = roast_events;
-        
-            roast_events_node.selectAll("*").remove();
-        
-            for (const[key, idx] of Object.entries(roast_events)) {
-                if (idx != 0){
-                let x = xScale(store.channels[0].data[idx].t)
-                let y = yScale(store.channels[0].data[idx].v)
-        
-                roast_events_node.append("line")
-                    .attr("stroke", "black")
-                    .attr("stroke-width", 1)
-                    .attr("x1", x + 2)
-                    .attr("y1", y + 2)
-                    .attr("x2", x + 10)
-                    .attr("y2", y + 10)
-        
-                roast_events_node.append("circle")
-                    .attr("cx", x)
-                    .attr("cy", y)
-                    .attr("r", 2)
-                
-                roast_events_node.append("text")
-                    .attr("alignment-baseline", "hanging" )
-                    .attr("font-size", "small" )
-                    .attr("x", x + 10)
-                    .attr("y", y + 10)
-                    .text(key)
-                }
-        
-            }
+            store.roast_events = roast_events
             
         });
 
@@ -132,6 +88,8 @@ const app = createApp({
             marginRight : marginRight,
             marginBottom : marginBottom,
             marginLeft : marginLeft,
+            xScale,
+            yScale,
             line,
             lineROR,
             timer,

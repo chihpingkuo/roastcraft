@@ -31,7 +31,7 @@ class Channel:
         self.ror_smoothed: list[Point] = []
 
 
-class RoastEvent(Enum):
+class RoastEventId(Enum):
     C = "C"  # charge
     TP = "TP"  # turning point
     DE = "DE"  # dry end
@@ -47,16 +47,7 @@ class RoastSession:
         self.start_time: datetime = datetime.now()
         self.timer: float = 0.0
         self.channels: list[Channel] = []
-        self.roast_events_index = {
-            RoastEvent.C: 0,
-            RoastEvent.TP: 0,
-            RoastEvent.DE: 0,
-            RoastEvent.FC: 0,
-            RoastEvent.FCE: 0,
-            RoastEvent.SC: 0,
-            RoastEvent.SCE: 0,
-            RoastEvent.D: 0,
-        }
+        self.roast_events = []
 
 
 class AppStatus(Enum):

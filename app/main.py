@@ -17,7 +17,7 @@ import numpy
 from app import store
 
 from app.device import ArtisanLog, Device, Kapok501
-from app.classes import RoastSession, RoastEvent, Point, Channel, AppStatus
+from app.classes import RoastSession, RoastEventId, Point, Channel, AppStatus
 from app.loggers import LOG_FASTAPI_CLI, LOG_UVICORN
 
 from app.routers import settings
@@ -201,15 +201,19 @@ async def charge() -> Response:
 
     session: RoastSession = store.session
 
-    session.roast_events_index[RoastEvent.C] = len(session.channels[0].data) - 1
-    LOG_UVICORN.info(
-        "CHARGE at BT index : %s", session.roast_events_index[RoastEvent.C]
+    index = len(session.channels[0].data) - 1
+    session.roast_events.append(
+        {
+            "id": RoastEventId.C,
+            "index": index,
+            "time": (session.channels[0].data[index].t),
+            "value": (session.channels[0].data[index].v),
+        }
     )
-    LOG_UVICORN.info(session.channels[0].data[session.roast_events_index[RoastEvent.C]])
 
-    await socketio_server.emit(
-        "roast_events", jsonable_encoder(session.roast_events_index)
-    )
+    LOG_UVICORN.info("CHARGE at BT index : %s", index)
+
+    await socketio_server.emit("roast_events", jsonable_encoder(session.roast_events))
 
     return """
     <button 
@@ -221,20 +225,23 @@ async def charge() -> Response:
 
 
 @app.post("/fc", response_class=HTMLResponse)
-async def fc_start() -> Response:
+async def fc() -> Response:
+
     session: RoastSession = store.session
 
-    session.roast_events_index[RoastEvent.FC] = len(session.channels[0].data) - 1
-    LOG_UVICORN.info(
-        "FIRST CRACK at BT index : %s", session.roast_events_index[RoastEvent.FC]
-    )
-    LOG_UVICORN.info(
-        session.channels[0].data[session.roast_events_index[RoastEvent.FC]]
+    index = len(session.channels[0].data) - 1
+    session.roast_events.append(
+        {
+            "id": RoastEventId.FC,
+            "index": index,
+            "time": (session.channels[0].data[index].t),
+            "value": (session.channels[0].data[index].v),
+        }
     )
 
-    await socketio_server.emit(
-        "roast_events", jsonable_encoder(session.roast_events_index)
-    )
+    LOG_UVICORN.info("FIRST CRACK at BT index : %s", index)
+
+    await socketio_server.emit("roast_events", jsonable_encoder(session.roast_events))
 
     return """
     <button 
@@ -247,15 +254,22 @@ async def fc_start() -> Response:
 
 @app.post("/drop", response_class=HTMLResponse)
 async def drop() -> Response:
+
     session: RoastSession = store.session
 
-    session.roast_events_index[RoastEvent.D] = len(session.channels[0].data) - 1
-    LOG_UVICORN.info("DROP at BT index : %s", session.roast_events_index[RoastEvent.D])
-    LOG_UVICORN.info(session.channels[0].data[session.roast_events_index[RoastEvent.D]])
-
-    await socketio_server.emit(
-        "roast_events", jsonable_encoder(session.roast_events_index)
+    index = len(session.channels[0].data) - 1
+    session.roast_events.append(
+        {
+            "id": RoastEventId.D,
+            "index": index,
+            "time": (session.channels[0].data[index].t),
+            "value": (session.channels[0].data[index].v),
+        }
     )
+
+    LOG_UVICORN.info("DROP at BT index : %s", index)
+
+    await socketio_server.emit("roast_events", jsonable_encoder(session.roast_events))
 
     return """
     <button 

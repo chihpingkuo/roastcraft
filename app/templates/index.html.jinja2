@@ -35,7 +35,17 @@
   <body>
     <div id="app" class="flex gap-1">
       <div class="">
-        <svg id="main_chart"></svg>
+        <svg id="main_chart" :width="width" :height="height">
+          <g v-x_axis :transform="`translate(0,${height - marginBottom})`"></g>
+          <g v-y_axis :transform="`translate(${marginLeft},0)`"></g>
+          <g v-y_axis_ror :transform="`translate(${width - marginRight},0)`"></g>
+          <path v-for="channel in store.channels" 
+            fill="none" 
+            stroke-width=1.5 
+            :stroke="channel.color" 
+            :d="line(channel.data)">
+          </path>
+        </svg>
       </div>
       <div class="">
         <div class="flex gap-1 mt-1">

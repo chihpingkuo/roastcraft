@@ -17,8 +17,9 @@ class Point:
 
 
 class Channel:
-    def __init__(self, id: str):
+    def __init__(self, id: str, color: str):
         self.id: str = id
+        self.color: str = color
 
         self.current_data: float = 0
         self.current_ror: float = 0

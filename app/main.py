@@ -68,7 +68,7 @@ store.app_status = AppStatus.OFF
 
 store.session = RoastSession()
 for c in store.settings["channels"]:
-    store.session.channels.append(Channel(id=c["id"]))
+    store.session.channels.append(Channel(id=c["id"], color=c["color"]))
 
 
 @app.get("/", response_class=HTMLResponse)

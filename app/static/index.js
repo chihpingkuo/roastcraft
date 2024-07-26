@@ -40,7 +40,7 @@ const app = createApp({
         
         let timer = ref("0:00");        
 
-        let store = reactive({
+        let store = ref({
             channels: settings.channels.map((c) => ({
               id: c.id,
               color: c.color,
@@ -62,7 +62,7 @@ const app = createApp({
 
         socket.on("read_device", (channels) => {
             console.log(channels);
-            store.channels = channels;
+            store.value.channels = channels;
         });
 
         socket.on('update_timer', 
@@ -77,7 +77,7 @@ const app = createApp({
 
         socket.on("roast_events", (roast_events) => {
             console.log(roast_events);
-            store.roast_events = roast_events
+            store.value.roast_events = roast_events
             
         });
 

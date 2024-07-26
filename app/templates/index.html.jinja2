@@ -45,6 +45,20 @@
             :stroke="channel.color" 
             :d="line(channel.data)">
           </path>
+          <path 
+            fill="none" 
+            stroke-width=1.5 
+            stroke="#2E8B57"
+            :d="lineROR(store.channels[0].ror)" 
+            >
+          </path>
+          <path 
+            fill="none" 
+            stroke-width=1.5 
+            stroke="#0000FF"
+            :d="lineROR(store.channels[0].ror_smoothed)" 
+            >
+          </path>
         </svg>
       </div>
       <div class="">

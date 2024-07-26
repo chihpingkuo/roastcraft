@@ -63,30 +63,10 @@ const app = createApp({
         onMounted(() => {    
         
             // Create the SVG container.
-            const svg = d3.select("#main_chart")           
-        
-            svg.append("path")
-                .attr("id", "BT_ROR")
-                .attr("fill", "none")
-                .attr("stroke", "#2E8B57")
-                .attr("stroke-width", 1)
-                .attr("d", lineROR(store.channels[0].ror));
-
-            svg.append("path")
-                .attr("id", "BT_ROR_SMOOTH")
-                .attr("fill", "none")
-                .attr("stroke", "#0000FF")
-                .attr("stroke-width", 2)
-                .attr("d", lineROR(store.channels[0].ror_smoothed));
+            const svg = d3.select("#main_chart")                  
 
             roast_events_node = svg.append("g")
-            
-            watchEffect(() => {
-           
-                d3.select("#" + "BT_ROR").attr("d", lineROR(store.channels[0].ror));
-                d3.select("#" + "BT_ROR_SMOOTH").attr("d", lineROR(store.channels[0].ror_smoothed));
-            });
-            
+                        
         })
 
         // const socket = io("http://localhost:8000", {
@@ -153,6 +133,7 @@ const app = createApp({
             marginBottom : marginBottom,
             marginLeft : marginLeft,
             line,
+            lineROR,
             timer,
             store
         }

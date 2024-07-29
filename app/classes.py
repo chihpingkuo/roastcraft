@@ -3,15 +3,16 @@ from enum import Enum
 
 
 class Point:
-    def __init__(self, time: float, value: float):
+    def __init__(self, timestamp: datetime, time: float, value: float):
+        self.timestamp: datetime = timestamp
         self.time: float = time
         self.value: float = value
 
     def __str__(self):
-        return f"({self.time}, {self.value})"
+        return f"({self.timestamp}, {self.time}, {self.value})"
 
     def __repr__(self):
-        return f"({self.time}, {self.value})"
+        return f"({self.timestamp}, {self.time}, {self.value})"
 
 
 class Channel:
@@ -45,7 +46,7 @@ class RoastSession:
         self.start_time: datetime = datetime.now()
         self.timer: float = 0.0
         self.channels: list[Channel] = []
-        self.roast_events = []
+        self.roast_events: dict = {}
 
 
 class AppStatus(Enum):

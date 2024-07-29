@@ -202,18 +202,30 @@ async def charge() -> Response:
     session: RoastSession = store.session
 
     index = len(session.channels[0].data) - 1
-    session.roast_events.append(
-        {
-            "id": RoastEventId.C,
-            "index": index,
-            "time": (session.channels[0].data[index].time),
-            "value": (session.channels[0].data[index].value),
-        }
-    )
 
+    charge_point = session.channels[0].data[index]
     LOG_UVICORN.info("CHARGE at BT index : %s", index)
+    LOG_UVICORN.info("CHARGE at Point : %s", charge_point)
 
-    await socketio_server.emit("roast_events", jsonable_encoder(session.roast_events))
+    # re calculate time
+    session.start_time = charge_point.timestamp
+    for channel in session.channels:
+        for point in channel.data:
+            point.time = (point.timestamp - session.start_time).total_seconds()
+        for point in channel.ror:
+            point.time = (point.timestamp - session.start_time).total_seconds()
+
+    session.roast_events[RoastEventId.C] = {
+        "id": RoastEventId.C,
+        "index": index,
+        "time": (session.channels[0].data[index].time),
+        "value": (session.channels[0].data[index].value),
+    }
+
+    await socketio_server.emit(
+        "roast_events",
+        jsonable_encoder([value for key, value in session.roast_events.items()]),
+    )
 
     return """
     <button 
@@ -224,24 +236,85 @@ async def charge() -> Response:
     """
 
 
+@app.post("/charge/toLeft")
+async def charge_to_left() -> Response:
+
+    session: RoastSession = store.session
+
+    new_index = session.roast_events[RoastEventId.C]["index"] - 1
+
+    # re calculate time
+    session.start_time = session.channels[0].data[new_index].timestamp
+    for channel in session.channels:
+        for point in channel.data:
+            point.time = (point.timestamp - session.start_time).total_seconds()
+        for point in channel.ror:
+            point.time = (point.timestamp - session.start_time).total_seconds()
+
+    session.roast_events[RoastEventId.C]["index"] = new_index
+
+    # re calculate roast_events
+    for key, event in session.roast_events.items():
+        event["time"] = session.channels[0].data[event["index"]].time
+        event["value"] = session.channels[0].data[event["index"]].value
+
+    await socketio_server.emit(
+        "roast_events",
+        jsonable_encoder([value for key, value in session.roast_events.items()]),
+    )
+
+    return {"message": "Ok"}
+
+
+@app.post("/charge/toRight")
+async def charge_to_right() -> Response:
+
+    session: RoastSession = store.session
+
+    new_index = session.roast_events[RoastEventId.C]["index"] + 1
+
+    # re calculate time
+    session.start_time = session.channels[0].data[new_index].timestamp
+    for channel in session.channels:
+        for point in channel.data:
+            point.time = (point.timestamp - session.start_time).total_seconds()
+        for point in channel.ror:
+            point.time = (point.timestamp - session.start_time).total_seconds()
+
+    session.roast_events[RoastEventId.C]["index"] = new_index
+
+    # re calculate roast_events
+    for key, event in session.roast_events.items():
+        event["time"] = session.channels[0].data[event["index"]].time
+        event["value"] = session.channels[0].data[event["index"]].value
+
+    await socketio_server.emit(
+        "roast_events",
+        jsonable_encoder([value for key, value in session.roast_events.items()]),
+    )
+
+    return {"message": "Ok"}
+
+
 @app.post("/fc", response_class=HTMLResponse)
 async def fc() -> Response:
 
     session: RoastSession = store.session
 
     index = len(session.channels[0].data) - 1
-    session.roast_events.append(
-        {
-            "id": RoastEventId.FC,
-            "index": index,
-            "time": (session.channels[0].data[index].time),
-            "value": (session.channels[0].data[index].value),
-        }
-    )
+    session.roast_events[RoastEventId.FC] = {
+        "id": RoastEventId.FC,
+        "index": index,
+        "time": (session.channels[0].data[index].time),
+        "value": (session.channels[0].data[index].value),
+    }
 
     LOG_UVICORN.info("FIRST CRACK at BT index : %s", index)
 
-    await socketio_server.emit("roast_events", jsonable_encoder(session.roast_events))
+    await socketio_server.emit(
+        "roast_events",
+        jsonable_encoder([value for key, value in session.roast_events.items()]),
+    )
 
     return """
     <button 
@@ -258,18 +331,19 @@ async def drop() -> Response:
     session: RoastSession = store.session
 
     index = len(session.channels[0].data) - 1
-    session.roast_events.append(
-        {
-            "id": RoastEventId.D,
-            "index": index,
-            "time": (session.channels[0].data[index].time),
-            "value": (session.channels[0].data[index].value),
-        }
-    )
+    session.roast_events[RoastEventId.D] = {
+        "id": RoastEventId.D,
+        "index": index,
+        "time": (session.channels[0].data[index].time),
+        "value": (session.channels[0].data[index].value),
+    }
 
     LOG_UVICORN.info("DROP at BT index : %s", index)
 
-    await socketio_server.emit("roast_events", jsonable_encoder(session.roast_events))
+    await socketio_server.emit(
+        "roast_events",
+        jsonable_encoder([value for key, value in session.roast_events.items()]),
+    )
 
     return """
     <button 
@@ -317,8 +391,8 @@ async def read_device():
         LOG_UVICORN.info("roast_session timer : %s", session.timer)
 
         for c in session.channels:
-            c.data.append(Point(session.timer, result[c.id]))
-            c.ror.append(Point(session.timer, c.current_ror))
+            c.data.append(Point(now, session.timer, result[c.id]))
+            c.ror.append(Point(now, session.timer, c.current_ror))
 
             # filter outliers
             filter_window_size = 7  # shouled be odd number
@@ -346,7 +420,7 @@ async def read_device():
 
                 c.ror_smoothed = []
                 for idx, p in enumerate(c.ror_filtered):
-                    c.ror_smoothed.append(Point(p.time, res[idx]))
+                    c.ror_smoothed.append(Point(p.timestamp, p.time, res[idx]))
 
     await socketio_server.emit("read_device", jsonable_encoder(session.channels))
 
@@ -371,7 +445,7 @@ def hampel_filter_forloop_point(input_series: list[Point], window_size, n_sigmas
             numpy.abs(input_series_value[(i - window_size) : (i + window_size)] - x0)
         )
         if numpy.abs(input_series_value[i] - x0) > n_sigmas * s0:
-            filtered[i] = Point(input_series[i].time, x0)
+            filtered[i] = Point(input_series[i].timestamp, input_series[i].time, x0)
             outliers.append(input_series[i])
 
     return filtered, outliers

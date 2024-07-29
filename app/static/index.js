@@ -27,12 +27,12 @@ const yScaleROR = d3
 
 // Declare the line generator.
 const line = d3.line()
-    .x((p) => xScale(p.t))
-    .y((p) => yScale(p.v));
+    .x((p) => xScale(p.time))
+    .y((p) => yScale(p.value));
 
 const lineROR = d3.line()
-    .x((p) => xScale(p.t))
-    .y((p) => yScaleROR(p.v));
+    .x((p) => xScale(p.time))
+    .y((p) => yScaleROR(p.value));
 
 
 const app = createApp({

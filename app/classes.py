@@ -3,17 +3,15 @@ from enum import Enum
 
 
 class Point:
-    # t : time
-    # v : value
-    def __init__(self, t: float, v: float):
-        self.t: float = t
-        self.v: float = v
+    def __init__(self, time: float, value: float):
+        self.time: float = time
+        self.value: float = value
 
     def __str__(self):
-        return f"({self.t}, {self.v})"
+        return f"({self.time}, {self.value})"
 
     def __repr__(self):
-        return f"({self.t}, {self.v})"
+        return f"({self.time}, {self.value})"
 
 
 class Channel:

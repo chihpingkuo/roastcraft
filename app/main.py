@@ -206,8 +206,8 @@ async def charge() -> Response:
         {
             "id": RoastEventId.C,
             "index": index,
-            "time": (session.channels[0].data[index].t),
-            "value": (session.channels[0].data[index].v),
+            "time": (session.channels[0].data[index].time),
+            "value": (session.channels[0].data[index].value),
         }
     )
 
@@ -234,8 +234,8 @@ async def fc() -> Response:
         {
             "id": RoastEventId.FC,
             "index": index,
-            "time": (session.channels[0].data[index].t),
-            "value": (session.channels[0].data[index].v),
+            "time": (session.channels[0].data[index].time),
+            "value": (session.channels[0].data[index].value),
         }
     )
 
@@ -262,8 +262,8 @@ async def drop() -> Response:
         {
             "id": RoastEventId.D,
             "index": index,
-            "time": (session.channels[0].data[index].t),
-            "value": (session.channels[0].data[index].v),
+            "time": (session.channels[0].data[index].time),
+            "value": (session.channels[0].data[index].value),
         }
     )
 
@@ -335,7 +335,7 @@ async def read_device():
                 x = []
 
                 for p in c.ror_filtered:
-                    x.append(p.v)
+                    x.append(p.value)
 
                 s = numpy.r_[
                     x[window_len - 1 : 0 : -1], x, x[-2 : -window_len - 1 : -1]
@@ -346,7 +346,7 @@ async def read_device():
 
                 c.ror_smoothed = []
                 for idx, p in enumerate(c.ror_filtered):
-                    c.ror_smoothed.append(Point(p.t, res[idx]))
+                    c.ror_smoothed.append(Point(p.time, res[idx]))
 
     await socketio_server.emit("read_device", jsonable_encoder(session.channels))
 
@@ -354,9 +354,9 @@ async def read_device():
 # https://github.com/erykml/medium_articles/blob/master/Machine%20Learning/outlier_detection_hampel_filter.ipynb
 def hampel_filter_forloop_point(input_series: list[Point], window_size, n_sigmas=3):
 
-    input_series_v = []
+    input_series_value = []
     for p in input_series:
-        input_series_v.append(p.v)
+        input_series_value.append(p.value)
 
     n = len(input_series)
     filtered = input_series.copy()
@@ -366,12 +366,12 @@ def hampel_filter_forloop_point(input_series: list[Point], window_size, n_sigmas
 
     # possibly use np.nanmedian
     for i in range((window_size), (n - window_size)):
-        x0 = numpy.median(input_series_v[(i - window_size) : (i + window_size)])
+        x0 = numpy.median(input_series_value[(i - window_size) : (i + window_size)])
         s0 = k * numpy.median(
-            numpy.abs(input_series_v[(i - window_size) : (i + window_size)] - x0)
+            numpy.abs(input_series_value[(i - window_size) : (i + window_size)] - x0)
         )
-        if numpy.abs(input_series_v[i] - x0) > n_sigmas * s0:
-            filtered[i] = Point(input_series[i].t, x0)
+        if numpy.abs(input_series_value[i] - x0) > n_sigmas * s0:
+            filtered[i] = Point(input_series[i].time, x0)
             outliers.append(input_series[i])
 
     return filtered, outliers

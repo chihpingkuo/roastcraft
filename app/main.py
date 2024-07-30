@@ -215,16 +215,13 @@ async def charge() -> Response:
         for point in channel.ror:
             point.time = (point.timestamp - session.start_time).total_seconds()
 
-    session.roast_events[RoastEventId.C] = {
-        "id": RoastEventId.C,
-        "index": index,
-        "time": (session.channels[0].data[index].time),
-        "value": (session.channels[0].data[index].value),
-    }
+    session.roast_events[RoastEventId.C] = index
 
     await socketio_server.emit(
         "roast_events",
-        jsonable_encoder([value for key, value in session.roast_events.items()]),
+        jsonable_encoder(
+            [{"id": key, "index": value} for key, value in session.roast_events.items()]
+        ),
     )
 
     return """
@@ -241,7 +238,7 @@ async def charge_to_left() -> Response:
 
     session: RoastSession = store.session
 
-    new_index = session.roast_events[RoastEventId.C]["index"] - 1
+    new_index = session.roast_events[RoastEventId.C] - 1
 
     # re calculate time
     session.start_time = session.channels[0].data[new_index].timestamp
@@ -251,16 +248,13 @@ async def charge_to_left() -> Response:
         for point in channel.ror:
             point.time = (point.timestamp - session.start_time).total_seconds()
 
-    session.roast_events[RoastEventId.C]["index"] = new_index
-
-    # re calculate roast_events
-    for key, event in session.roast_events.items():
-        event["time"] = session.channels[0].data[event["index"]].time
-        event["value"] = session.channels[0].data[event["index"]].value
+    session.roast_events[RoastEventId.C] = new_index
 
     await socketio_server.emit(
         "roast_events",
-        jsonable_encoder([value for key, value in session.roast_events.items()]),
+        jsonable_encoder(
+            [{"id": key, "index": value} for key, value in session.roast_events.items()]
+        ),
     )
 
     return {"message": "Ok"}
@@ -271,7 +265,7 @@ async def charge_to_right() -> Response:
 
     session: RoastSession = store.session
 
-    new_index = session.roast_events[RoastEventId.C]["index"] + 1
+    new_index = session.roast_events[RoastEventId.C] + 1
 
     # re calculate time
     session.start_time = session.channels[0].data[new_index].timestamp
@@ -281,16 +275,13 @@ async def charge_to_right() -> Response:
         for point in channel.ror:
             point.time = (point.timestamp - session.start_time).total_seconds()
 
-    session.roast_events[RoastEventId.C]["index"] = new_index
-
-    # re calculate roast_events
-    for key, event in session.roast_events.items():
-        event["time"] = session.channels[0].data[event["index"]].time
-        event["value"] = session.channels[0].data[event["index"]].value
+    session.roast_events[RoastEventId.C] = new_index
 
     await socketio_server.emit(
         "roast_events",
-        jsonable_encoder([value for key, value in session.roast_events.items()]),
+        jsonable_encoder(
+            [{"id": key, "index": value} for key, value in session.roast_events.items()]
+        ),
     )
 
     return {"message": "Ok"}
@@ -302,18 +293,15 @@ async def fc() -> Response:
     session: RoastSession = store.session
 
     index = len(session.channels[0].data) - 1
-    session.roast_events[RoastEventId.FC] = {
-        "id": RoastEventId.FC,
-        "index": index,
-        "time": (session.channels[0].data[index].time),
-        "value": (session.channels[0].data[index].value),
-    }
+    session.roast_events[RoastEventId.FC] = index
 
     LOG_UVICORN.info("FIRST CRACK at BT index : %s", index)
 
     await socketio_server.emit(
         "roast_events",
-        jsonable_encoder([value for key, value in session.roast_events.items()]),
+        jsonable_encoder(
+            [{"id": key, "index": value} for key, value in session.roast_events.items()]
+        ),
     )
 
     return """
@@ -331,18 +319,15 @@ async def drop() -> Response:
     session: RoastSession = store.session
 
     index = len(session.channels[0].data) - 1
-    session.roast_events[RoastEventId.D] = {
-        "id": RoastEventId.D,
-        "index": index,
-        "time": (session.channels[0].data[index].time),
-        "value": (session.channels[0].data[index].value),
-    }
+    session.roast_events[RoastEventId.D] = index
 
     LOG_UVICORN.info("DROP at BT index : %s", index)
 
     await socketio_server.emit(
         "roast_events",
-        jsonable_encoder([value for key, value in session.roast_events.items()]),
+        jsonable_encoder(
+            [{"id": key, "index": value} for key, value in session.roast_events.items()]
+        ),
     )
 
     return """

@@ -62,22 +62,22 @@
           <g v-for="re in store.roast_events">
             <circle
               r=2
-              :cx="xScale(re.time)"
-              :cy="yScale(re.value)"
+              :cx="xScale(store.channels[0].data[re.index].time)"
+              :cy="yScale(store.channels[0].data[re.index].value)"
             ></circle>
             <line
               stroke="black"
               stroke-width=1
-              :x1="xScale(re.time)+2"
-              :y1="yScale(re.value)+2" 
-              :x2="xScale(re.time)+10"
-              :y2="yScale(re.value)+10" 
+              :x1="xScale(store.channels[0].data[re.index].time)+2"
+              :y1="yScale(store.channels[0].data[re.index].value)+2" 
+              :x2="xScale(store.channels[0].data[re.index].time)+10"
+              :y2="yScale(store.channels[0].data[re.index].value)+10" 
             ></line>
             <text
               alignment-baseline="hanging"
               font-size="small"
-              :x="xScale(re.time)+10"
-              :y="yScale(re.value)+10" 
+              :x="xScale(store.channels[0].data[re.index].time)+10"
+              :y="yScale(store.channels[0].data[re.index].value)+10" 
             >${re.id}</text>
           </g>
         </svg>

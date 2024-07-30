@@ -410,6 +410,7 @@ async def read_device():
 
     await auto_detect_charge()
     await auto_detect_turning_point()
+    await auto_detect_dry_end()
     await auto_detect_drop()
 
     await socketio_server.emit("read_device", jsonable_encoder(session.channels))
@@ -439,6 +440,14 @@ async def auto_detect_charge():
             LOG_UVICORN.info("auto detected chargeat ror index: %s", charge_index)
 
             session.roast_events[RoastEventId.C] = charge_index
+
+            # re calculate time
+            session.start_time = session.channels[0].data[charge_index].timestamp
+            for channel in session.channels:
+                for point in channel.data:
+                    point.time = (point.timestamp - session.start_time).total_seconds()
+                for point in channel.ror:
+                    point.time = (point.timestamp - session.start_time).total_seconds()
 
             await socketio_server.emit(
                 "roast_events",
@@ -479,6 +488,33 @@ async def auto_detect_drop():
             LOG_UVICORN.info("auto detected drop at ror index: %s", drop_index)
 
             session.roast_events[RoastEventId.D] = drop_index
+
+            await socketio_server.emit(
+                "roast_events",
+                jsonable_encoder(
+                    [
+                        {"id": key, "index": value}
+                        for key, value in session.roast_events.items()
+                    ]
+                ),
+            )
+
+
+async def auto_detect_dry_end():
+    session: RoastSession = store.session
+
+    if (RoastEventId.TP in session.roast_events) & (
+        RoastEventId.DE not in session.roast_events
+    ):
+        bt: list[Point] = session.channels[0].data
+
+        dry_end = 150
+
+        if (bt[-1].value > dry_end) & (bt[-2].value > dry_end):
+
+            dry_end_index = len(bt) - 2
+
+            session.roast_events[RoastEventId.DE] = dry_end_index
 
             await socketio_server.emit(
                 "roast_events",

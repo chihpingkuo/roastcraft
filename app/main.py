@@ -388,6 +388,7 @@ async def read_device():
                     c.ror, int(filter_window_size / 2), n_sigmas
                 )
 
+            # smooth curve
             # https://scipy-cookbook.readthedocs.io/items/SignalSmooth.html
             window_len = 15  # shouled be odd number
             if len(c.ror_filtered) >= window_len:
@@ -407,7 +408,126 @@ async def read_device():
                 for idx, p in enumerate(c.ror_filtered):
                     c.ror_smoothed.append(Point(p.timestamp, p.time, res[idx]))
 
+    await auto_detect_charge()
+    await auto_detect_turning_point()
+    await auto_detect_drop()
+
     await socketio_server.emit("read_device", jsonable_encoder(session.channels))
+
+
+async def auto_detect_charge():
+    session: RoastSession = store.session
+    ror: list[Point] = session.channels[0].ror
+    if (RoastEventId.C not in session.roast_events) & (len(ror) > 5):
+        # window array: [ 0][ 1][ 2][ 3][ 4]
+        #    ror array: [-5][-4][-3][-2][-1]
+        #                       ^^^^
+        #                       CHARGE
+
+        window = list(map(lambda p: p.value, ror[-5:]))
+        dpre = (window[0] + window[1]) / 2.0
+        dpost = (window[3] + window[4]) / 2.0
+        if (
+            (window[0] > 0.0)
+            & (window[1] > 0.0)
+            & (window[3] < 0.0)
+            & (window[4] < 0.0)
+            & (abs(dpost) > abs(dpre) * 2)
+        ):
+            charge_index = len(ror) - 3
+
+            LOG_UVICORN.info("auto detected chargeat ror index: %s", charge_index)
+
+            session.roast_events[RoastEventId.C] = charge_index
+
+            await socketio_server.emit(
+                "roast_events",
+                jsonable_encoder(
+                    [
+                        {"id": key, "index": value}
+                        for key, value in session.roast_events.items()
+                    ]
+                ),
+            )
+
+
+async def auto_detect_drop():
+    session: RoastSession = store.session
+    ror: list[Point] = session.channels[0].ror
+    if (
+        (RoastEventId.TP in session.roast_events)
+        & (RoastEventId.D not in session.roast_events)
+        & (len(ror) > 5)
+    ):
+        # window array: [ 0][ 1][ 2][ 3][ 4]
+        #    ror array: [-5][-4][-3][-2][-1]
+        #                       ^^^^
+        #                       DROP
+
+        window = list(map(lambda p: p.value, ror[-5:]))
+        dpre = (window[0] + window[1]) / 2.0
+        dpost = (window[3] + window[4]) / 2.0
+        if (
+            (window[0] > 0.0)
+            & (window[1] > 0.0)
+            & (window[3] < 0.0)
+            & (window[4] < 0.0)
+            & (abs(dpost) > abs(dpre) * 2)
+        ):
+            drop_index = len(ror) - 3
+
+            LOG_UVICORN.info("auto detected drop at ror index: %s", drop_index)
+
+            session.roast_events[RoastEventId.D] = drop_index
+
+            await socketio_server.emit(
+                "roast_events",
+                jsonable_encoder(
+                    [
+                        {"id": key, "index": value}
+                        for key, value in session.roast_events.items()
+                    ]
+                ),
+            )
+
+
+async def auto_detect_turning_point():
+
+    session: RoastSession = store.session
+
+    if (RoastEventId.C in session.roast_events) & (
+        RoastEventId.TP not in session.roast_events
+    ):
+
+        bt: list[Point] = session.channels[0].data
+
+        tp = 1000
+        high_temp = 0
+        target_index = 0
+        tp_found = False
+        temp_drop = 0
+
+        for p in bt:
+            tp = min(p.value, tp)
+            high_temp = max(p.value, high_temp)
+
+            temp_drop = high_temp - tp
+            if (bt[-1].value > tp) & (bt[-2].value > tp) & (temp_drop > 50):
+                target_index = len(bt) - 3
+                tp_found = True
+                break
+
+        if tp_found:
+            session.roast_events[RoastEventId.TP] = target_index
+            await socketio_server.emit(
+                "roast_events",
+                jsonable_encoder(
+                    [
+                        {"id": key, "index": value}
+                        for key, value in session.roast_events.items()
+                    ]
+                ),
+            )
 
 
 # https://github.com/erykml/medium_articles/blob/master/Machine%20Learning/outlier_detection_hampel_filter.ipynb

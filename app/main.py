@@ -428,6 +428,7 @@ async def read_device():
     LOG_UVICORN.info(phases)
 
     await socketio_server.emit("read_device", jsonable_encoder(session.channels))
+    await socketio_server.emit("phases", jsonable_encoder(phases))
 
 
 async def update_timer():

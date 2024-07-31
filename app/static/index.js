@@ -1,5 +1,11 @@
 import { createApp, ref, onMounted, reactive, watchEffect  } from 'vue'
 
+function time_format(time) {
+    return Math.floor(Math.round(time) / 60).toString() +
+    ':' +
+    (Math.round(time) % 60).toString().padStart(2, '0');
+}
+
 const width = 860;
 const height = 550;
 const marginTop = 20;
@@ -52,7 +58,8 @@ const app = createApp({
               ror_smoothed: []
             })),
             
-            roast_events: []
+            roast_events: [],
+            phases: {}
           });        
 
         // const socket = io("http://localhost:8000", {
@@ -78,7 +85,11 @@ const app = createApp({
         socket.on("roast_events", (roast_events) => {
             console.log(roast_events);
             store.value.roast_events = roast_events
-            
+        });
+
+        socket.on("phases", (phases) => {
+            console.log(phases);
+            store.value.phases = phases
         });
 
         return {
@@ -93,7 +104,8 @@ const app = createApp({
             line,
             lineROR,
             timer,
-            store
+            store,
+            time_format
         }
     }
 })

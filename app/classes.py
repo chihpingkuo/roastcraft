@@ -47,6 +47,12 @@ class Phase:
         self.percent: float = percent
         self.temp_rise: float = temp_rise
 
+    def __str__(self):
+        return f"({self.time}, {self.percent}, {self.temp_rise})"
+
+    def __repr__(self):
+        return f"({self.time}, {self.percent}, {self.temp_rise})"
+
 
 class RoastSession:
     def __init__(self):

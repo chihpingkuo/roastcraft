@@ -1,11 +1,35 @@
+import numpy
 from fastapi.encoders import jsonable_encoder
 
 from app import store
-
-from app.classes import RoastSession, RoastEventId, Point
+from app.classes import Phase, RoastSession, RoastEventId, Point
 from app.loggers import LOG_UVICORN
 
-import numpy
+
+# https://github.com/erykml/medium_articles/blob/master/Machine%20Learning/outlier_detection_hampel_filter.ipynb
+def hampel_filter_forloop_point(input_series: list[Point], window_size, n_sigmas=3):
+
+    input_series_value = []
+    for p in input_series:
+        input_series_value.append(p.value)
+
+    n = len(input_series)
+    filtered = input_series.copy()
+    k = 1.4826  # scale factor for Gaussian distribution
+
+    outliers = []
+
+    # possibly use np.nanmedian
+    for i in range((window_size), (n - window_size)):
+        x0 = numpy.median(input_series_value[(i - window_size) : (i + window_size)])
+        s0 = k * numpy.median(
+            numpy.abs(input_series_value[(i - window_size) : (i + window_size)] - x0)
+        )
+        if numpy.abs(input_series_value[i] - x0) > n_sigmas * s0:
+            filtered[i] = Point(input_series[i].timestamp, input_series[i].time, x0)
+            outliers.append(input_series[i])
+
+    return filtered, outliers
 
 
 async def auto_detect_charge():
@@ -158,27 +182,126 @@ async def auto_detect_turning_point():
             )
 
 
-# https://github.com/erykml/medium_articles/blob/master/Machine%20Learning/outlier_detection_hampel_filter.ipynb
-def hampel_filter_forloop_point(input_series: list[Point], window_size, n_sigmas=3):
+def calculate_phases(t: float, last_temp: float, roast_events: dict):
 
-    input_series_value = []
-    for p in input_series:
-        input_series_value.append(p.value)
+    #   charge	tp	de	fc	drop	last point  phases
+    #   ------------------------------------------------------------------
+    #   o	    x	x	x	x	    timer	    drying
+    # 1 o	    o	x	x	x	    timer	    drying
+    # 2 o	    o	o	x	x	    timer	    drying + maillard
+    # 3 o	    o	o	o	x	    timer	    drying + maillard + develop
+    # 4 o	    o	o	o	o	    drop time	drying + maillard + develop
+    # 5 o	    o	x	x	o	    drop time	drying
+    # 6 o	    o	x	o	o	    drop time	drying + develop
+    # 7 o	    o	o	x	o	    drop time	drying + maillard
+    # 8 o	    o	x	o	x	    timer	    drying + develop
 
-    n = len(input_series)
-    filtered = input_series.copy()
-    k = 1.4826  # scale factor for Gaussian distribution
+    session = store.session
 
-    outliers = []
+    result = {
+        "dry": Phase(0.0, 0.0, 0.0),
+        "mai": Phase(0.0, 0.0, 0.0),
+        "dev": Phase(0.0, 0.0, 0.0),
+    }
 
-    # possibly use np.nanmedian
-    for i in range((window_size), (n - window_size)):
-        x0 = numpy.median(input_series_value[(i - window_size) : (i + window_size)])
-        s0 = k * numpy.median(
-            numpy.abs(input_series_value[(i - window_size) : (i + window_size)] - x0)
+    charge: Point = None
+    tp: Point = None
+    de: Point = None
+    fc: Point = None
+    drop: Point = None
+
+    if RoastEventId.C in roast_events:
+        charge = session.channels[0].data[roast_events[RoastEventId.C]]
+    else:
+        LOG_UVICORN.warning("no CHARGE event")
+        return result
+
+    if RoastEventId.TP in roast_events:
+        tp = session.channels[0].data[roast_events[RoastEventId.TP]]
+    else:
+        result["dry"] = Phase(session.timer - charge.time, 100.0, 0.0)
+        return result
+
+    if RoastEventId.DE in roast_events:
+        de = session.channels[0].data[roast_events[RoastEventId.DE]]
+
+    if RoastEventId.FC in roast_events:
+        fc = session.channels[0].data[roast_events[RoastEventId.FC]]
+
+    if RoastEventId.D in roast_events:
+        drop = session.channels[0].data[roast_events[RoastEventId.D]]
+        t = drop.time
+        last_temp = drop.value
+
+    if (de is None) & (fc is None):
+        # condition 1, 5
+        result["dry"] = Phase(t - charge.time, 100.0, last_temp - tp.value)
+    elif (de is not None) & (fc is None):
+        # condition 2, 7
+        drying_time = de.time - charge.time
+        drying_temp_rise = de.value - tp.value
+
+        maillard_time = t - de.time
+        maillard_temp_rise = last_temp - de.value
+
+        result["dry"] = Phase(
+            drying_time,
+            drying_time / (drying_time + maillard_time) * 100,
+            drying_temp_rise,
         )
-        if numpy.abs(input_series_value[i] - x0) > n_sigmas * s0:
-            filtered[i] = Point(input_series[i].timestamp, input_series[i].time, x0)
-            outliers.append(input_series[i])
 
-    return filtered, outliers
+        result["mai"] = Phase(
+            maillard_time,
+            maillard_time / (drying_time + maillard_time) * 100,
+            maillard_temp_rise,
+        )
+    elif (de is not None) & (fc is not None):
+        # condition 3, 4
+        drying_time = de.time - charge.time
+        drying_temp_rise = de.value - tp.value
+
+        maillard_time = fc.time - de.time
+        maillard_temp_rise = fc.value - de.value
+
+        develop_time = t - fc.time
+        develop_temp_rise = last_temp - fc.value
+
+        result["dry"] = Phase(
+            drying_time,
+            drying_time / (drying_time + maillard_time + develop_time) * 100,
+            drying_temp_rise,
+        )
+
+        result["mai"] = Phase(
+            maillard_time,
+            maillard_time / (drying_time + maillard_time + develop_time) * 100,
+            maillard_temp_rise,
+        )
+
+        result["dev"] = Phase(
+            develop_time,
+            develop_time / (drying_time + maillard_time + develop_time) * 100,
+            develop_temp_rise,
+        )
+    elif (de is None) & (fc is not None):
+        # condition 6, 8
+
+        drying_time = fc.time - charge.time
+        drying_temp_rise = fc.value - tp.value
+
+        develop_time = t - fc.time
+        develop_temp_rise = last_temp - fc.value
+
+        result["dry"] = Phase(
+            drying_time,
+            drying_time / (drying_time + develop_time) * 100,
+            drying_temp_rise,
+        )
+
+        result["dev"] = Phase(
+            develop_time,
+            develop_time / (drying_time + develop_time) * 100,
+            develop_temp_rise,
+        )
+
+    return result

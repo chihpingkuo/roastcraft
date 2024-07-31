@@ -21,6 +21,7 @@ from app.calculate import (
     auto_detect_drop,
     auto_detect_dry_end,
     auto_detect_turning_point,
+    calculate_phases,
     hampel_filter_forloop_point,
 )
 from app.device import ArtisanLog, Device, Kapok501
@@ -421,6 +422,10 @@ async def read_device():
     await auto_detect_turning_point()
     await auto_detect_dry_end()
     await auto_detect_drop()
+    phases = calculate_phases(
+        session.timer, session.channels[0].current_data, session.roast_events
+    )
+    LOG_UVICORN.info(phases)
 
     await socketio_server.emit("read_device", jsonable_encoder(session.channels))
 

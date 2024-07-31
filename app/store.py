@@ -1,5 +1,6 @@
 # https://docs.python.org/3/faq/programming.html#how-do-i-share-global-variables-across-modules
 import asyncio
+import socketio
 import pymodbus.client as ModbusClient
 from app.classes import RoastSession, AppStatus
 from app.device import Device
@@ -18,3 +19,5 @@ loop: asyncio.AbstractEventLoop
 
 read_device_task: asyncio.Task
 update_timer_task: asyncio.Task
+
+socketio_server: socketio.AsyncServer

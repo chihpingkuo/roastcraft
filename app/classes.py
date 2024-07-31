@@ -41,6 +41,13 @@ class RoastEventId(Enum):
     D = "D"  # drop
 
 
+class Phase:
+    def __init__(self, time: float, percent: float, temp_rise: float):
+        self.time: float = time
+        self.percent: float = percent
+        self.temp_rise: float = temp_rise
+
+
 class RoastSession:
     def __init__(self):
         self.start_time: datetime = datetime.now()

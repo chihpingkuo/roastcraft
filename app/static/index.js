@@ -1,4 +1,4 @@
-import { createApp, ref, onMounted, reactive, watchEffect  } from 'vue'
+import { createApp, ref, watch  } from 'vue'
 
 function time_format(time) {
     return Math.floor(Math.round(time) / 60).toString() +
@@ -45,6 +45,7 @@ const app = createApp({
     setup() {
         
         let timer = ref("0:00");        
+        let gas = ref(20);
 
         let store = ref({
             channels: settings.channels.map((c) => ({
@@ -59,8 +60,22 @@ const app = createApp({
             })),
             
             roast_events: [],
-            phases: {}
+            phases: {
+                dry:{time:0, percent:0, temp_rise:0},
+                mai:{time:0, percent:0, temp_rise:0},
+                dev:{time:0, percent:0, temp_rise:0},
+            },
+            
           });        
+
+        watch(gas, (newValue, oldValue) => {
+            console.log(newValue);
+          }
+        );
+        function gasChange(e) {
+            console.log("gasChange " + store.value.gas)
+            
+        }
 
         // const socket = io("http://localhost:8000", {
         //   opts: { path: "/socket.io" },
@@ -105,6 +120,7 @@ const app = createApp({
             lineROR,
             timer,
             store,
+            gas,
             time_format,
             pips: [0,10,20,30,45,60,75,95,110]
         }

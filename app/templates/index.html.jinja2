@@ -119,19 +119,19 @@
         </div>
         {# phases #}
         <div class="flex gap-1 mt-1">
-          <div class="grid grid-cols-3 bg-base-300 rounded w-32 px-1 text-xl" v-if="store.phases.dry !== undefined" > 
+          <div class="grid grid-cols-3 bg-base-300 rounded w-32 px-1 text-xl" > 
             <p class="col-span-1">${store.phases.dry.temp_rise.toFixed(1)}°</p>
             <p class="col-span-2 text-right text-base">Drying</p>
             <p class="col-span-1 text-red-600 ">${time_format(store.phases.dry.time)}</p>  
             <p class="col-span-2 text-right text-blue-600">${store.phases.dry.percent.toFixed(1)}%</p>
           </div>  
-          <div class="grid grid-cols-3 bg-base-300 rounded w-32 px-1 text-xl" v-if="store.phases.mai !== undefined" > 
+          <div class="grid grid-cols-3 bg-base-300 rounded w-32 px-1 text-xl" > 
             <p class="col-span-1">${store.phases.mai.temp_rise.toFixed(1)}°</p>
             <p class="col-span-2 text-right text-base">Maillard</p>
             <p class="col-span-1 text-red-600 ">${time_format(store.phases.mai.time)}</p>  
             <p class="col-span-2 text-right text-blue-600">${store.phases.mai.percent.toFixed(1)}%</p>
           </div>  
-          <div class="grid grid-cols-3 bg-base-300 rounded w-32 px-1 text-xl" v-if="store.phases.dev !== undefined" > 
+          <div class="grid grid-cols-3 bg-base-300 rounded w-32 px-1 text-xl" > 
             <p class="col-span-1">${store.phases.dev.temp_rise.toFixed(1)}°</p>
             <p class="col-span-2 text-right text-base">Develop</p>
             <p class="col-span-1 text-red-600 ">${time_format(store.phases.dev.time)}</p>  
@@ -190,13 +190,15 @@
         </div>
 
         {# range slider #}
-        <div class="my-4">
+        <div class="my-4 relative">
+          <span class="absolute -translate-x-1/2 -translate-y-4" 
+            :style="{left: (2+96/pips[pips.length-1]*gas)+'%'}">${gas}</span>
           <input
             type="range"
             class="w-full accent-blue-700 m-0"
             :min="pips[0]"
             :max="pips[pips.length-1]"
-            value=20
+            v-model="gas"
             step=5
             list="values"
           />
@@ -205,7 +207,9 @@
               class="absolute hover:cursor-pointer -translate-x-1/2" 
               :style="{left: (2+96/pips[pips.length-1]*pip)+'%'}"
               :value="pip" 
-              :label="pip">
+              :label="pip"
+              @click="gas = pip"
+              >
             </option>
           </datalist>
         </div>

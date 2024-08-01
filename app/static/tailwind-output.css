@@ -600,180 +600,16 @@ video {
   position: relative;
 }
 
-.left-\[0\] {
-  left: 0;
-}
-
-.left-\[10\%\] {
-  left: 10%;
-}
-
-.left-\[0\%\] {
-  left: 0%;
-}
-
-.left-\[20\%\] {
-  left: 20%;
-}
-
-.left-\[100\%\] {
-  left: 100%;
-}
-
-.left-\[40\%\] {
-  left: 40%;
-}
-
-.left-\[60\%\] {
-  left: 60%;
-}
-
-.left-\[4\%\] {
-  left: 4%;
-}
-
-.left-\[3\%\] {
-  left: 3%;
-}
-
-.left-\[calc\(0\%\)\] {
-  left: calc(0%);
-}
-
-.left-\[calc\(100\%\)\] {
-  left: calc(100%);
-}
-
-.left-\[calc\(20\%\)\] {
-  left: calc(20%);
-}
-
-.left-\[calc\(40\%\)\] {
-  left: calc(40%);
-}
-
-.left-\[calc\(60\%\)\] {
-  left: calc(60%);
-}
-
-.left-\[calc\(2\%\+96\%\/100\*0\)\] {
-  left: calc(2% + 96% / 100 * 0);
-}
-
-.left-\[calc\(3\%\+96\%\/100\*0\)\] {
-  left: calc(3% + 96% / 100 * 0);
-}
-
-.left-\[calc\(3\%\+96\%\/100\*20\)\] {
-  left: calc(3% + 96% / 100 * 20);
-}
-
-.left-\[calc\(3\%\+96\%\/100\*40\)\] {
-  left: calc(3% + 96% / 100 * 40);
-}
-
-.left-\[calc\(3\%\+96\%\/100\*60\)\] {
-  left: calc(3% + 96% / 100 * 60);
-}
-
-.left-\[calc\(3\%\+96\%\/100\*100\)\] {
-  left: calc(3% + 96% / 100 * 100);
-}
-
-.left-\[calc\(2\%\+96\%\/100\*100\)\] {
-  left: calc(2% + 96% / 100 * 100);
-}
-
-.left-\[calc\(2\%\+96\%\/100\*20\)\] {
-  left: calc(2% + 96% / 100 * 20);
-}
-
-.left-\[calc\(2\%\+96\%\/100\*40\)\] {
-  left: calc(2% + 96% / 100 * 40);
-}
-
-.left-\[calc\(2\%\+96\%\/100\*60\)\] {
-  left: calc(2% + 96% / 100 * 60);
-}
-
-.left-\[calc\(2\%\+94\%\/100\*0\)\] {
-  left: calc(2% + 94% / 100 * 0);
-}
-
-.left-\[calc\(2\%\+94\%\/100\*100\)\] {
-  left: calc(2% + 94% / 100 * 100);
-}
-
-.left-\[calc\(2\%\+94\%\/100\*20\)\] {
-  left: calc(2% + 94% / 100 * 20);
-}
-
-.left-\[calc\(2\%\+94\%\/100\*40\)\] {
-  left: calc(2% + 94% / 100 * 40);
-}
-
-.left-\[calc\(2\%\+94\%\/100\*60\)\] {
-  left: calc(2% + 94% / 100 * 60);
-}
-
 .left-\[calc\(3\%\+94\%\/100\*0\)\] {
   left: calc(3% + 94% / 100 * 0);
 }
 
-.left-\[calc\(3\%\+94\%\/100\*100\)\] {
-  left: calc(3% + 94% / 100 * 100);
+.left-\[calc\(3\%\+94\%\/100\*10\)\] {
+  left: calc(3% + 94% / 100 * 10);
 }
 
 .left-\[calc\(3\%\+94\%\/100\*20\)\] {
   left: calc(3% + 94% / 100 * 20);
-}
-
-.left-\[calc\(3\%\+94\%\/100\*40\)\] {
-  left: calc(3% + 94% / 100 * 40);
-}
-
-.left-\[calc\(3\%\+94\%\/100\*60\)\] {
-  left: calc(3% + 94% / 100 * 60);
-}
-
-.left-\[calc\(3\%\+94\%\/100\*80\)\] {
-  left: calc(3% + 94% / 100 * 80);
-}
-
-.left-\[calc\(3\%\+94\%\/120\*0\)\] {
-  left: calc(3% + 94% / 120 * 0);
-}
-
-.left-\[calc\(3\%\+94\%\/120\*100\)\] {
-  left: calc(3% + 94% / 120 * 100);
-}
-
-.left-\[calc\(3\%\+94\%\/120\*120\)\] {
-  left: calc(3% + 94% / 120 * 120);
-}
-
-.left-\[calc\(3\%\+94\%\/120\*20\)\] {
-  left: calc(3% + 94% / 120 * 20);
-}
-
-.left-\[calc\(3\%\+94\%\/120\*40\)\] {
-  left: calc(3% + 94% / 120 * 40);
-}
-
-.left-\[calc\(3\%\+94\%\/120\*60\)\] {
-  left: calc(3% + 94% / 120 * 60);
-}
-
-.left-\[calc\(3\%\+94\%\/120\*80\)\] {
-  left: calc(3% + 94% / 120 * 80);
-}
-
-.left-\[calc\(3\%\+94\%\/100\*95\)\] {
-  left: calc(3% + 94% / 100 * 95);
-}
-
-.left-\[calc\(3\%\+94\%\/100\*75\)\] {
-  left: calc(3% + 94% / 100 * 75);
 }
 
 .left-\[calc\(3\%\+94\%\/100\*30\)\] {
@@ -784,8 +620,16 @@ video {
   left: calc(3% + 94% / 100 * 45);
 }
 
-.left-\[calc\(3\%\+94\%\/100\*10\)\] {
-  left: calc(3% + 94% / 100 * 10);
+.left-\[calc\(3\%\+94\%\/100\*60\)\] {
+  left: calc(3% + 94% / 100 * 60);
+}
+
+.left-\[calc\(3\%\+94\%\/100\*75\)\] {
+  left: calc(3% + 94% / 100 * 75);
+}
+
+.left-\[calc\(3\%\+94\%\/100\*95\)\] {
+  left: calc(3% + 94% / 100 * 95);
 }
 
 .col-span-1 {
@@ -849,18 +693,6 @@ video {
   width: 100%;
 }
 
-.w-px {
-  width: 1px;
-}
-
-.w-96 {
-  width: 24rem;
-}
-
-.w-4 {
-  width: 1rem;
-}
-
 .-translate-x-1\/2 {
   --tw-translate-x: -50%;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
@@ -877,10 +709,6 @@ video {
 
 .grid-cols-3 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.flex-col {
-  flex-direction: column;
 }
 
 .items-center {

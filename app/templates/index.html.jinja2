@@ -194,24 +194,20 @@
           <input
             type="range"
             class="w-full accent-blue-700 m-0"
-            min=0
-            max=100
+            :min="pips[0]"
+            :max="pips[pips.length-1]"
+            value=20
             step=5
             list="values"
           />
-
           <datalist id="values" class="w-full flex justify-between text-xs p-0 relative">
-            <option class="absolute hover:cursor-pointer -translate-x-1/2 left-[calc(3%+94%/100*0)]" value="0" label="0"></option>
-            <option class="absolute hover:cursor-pointer -translate-x-1/2 left-[calc(3%+94%/100*10)]" value="10" label="10"></option>
-            <option class="absolute hover:cursor-pointer -translate-x-1/2 left-[calc(3%+94%/100*20)]" value="20" label="20"></option>
-            <option class="absolute hover:cursor-pointer -translate-x-1/2 left-[calc(3%+94%/100*30)]" value="30" label="30"></option>
-            <option class="absolute hover:cursor-pointer -translate-x-1/2 left-[calc(3%+94%/100*45)]" value="45" label="45"></option>
-            <option class="absolute hover:cursor-pointer -translate-x-1/2 left-[calc(3%+94%/100*60)]" value="60" label="60"></option>
-            <option class="absolute hover:cursor-pointer -translate-x-1/2 left-[calc(3%+94%/100*75)]" value="75" label="75"></option>
-            <option class="absolute hover:cursor-pointer -translate-x-1/2 left-[calc(3%+94%/100*95)]" value="95" label="95"></option>
-            
+            <option v-for="pip in pips"
+              class="absolute hover:cursor-pointer -translate-x-1/2" 
+              :style="{left: (2+96/pips[pips.length-1]*pip)+'%'}"
+              :value="pip" 
+              :label="pip">
+            </option>
           </datalist>
-
         </div>
 
       </div>

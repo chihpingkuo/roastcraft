@@ -105,7 +105,8 @@ const app = createApp({
             lineROR,
             timer,
             store,
-            time_format
+            time_format,
+            pips: [0,10,20,30,45,60,75,95,110]
         }
     }
 })

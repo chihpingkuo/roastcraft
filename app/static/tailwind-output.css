@@ -592,8 +592,200 @@ video {
   position: static;
 }
 
+.absolute {
+  position: absolute;
+}
+
 .relative {
   position: relative;
+}
+
+.left-\[0\] {
+  left: 0;
+}
+
+.left-\[10\%\] {
+  left: 10%;
+}
+
+.left-\[0\%\] {
+  left: 0%;
+}
+
+.left-\[20\%\] {
+  left: 20%;
+}
+
+.left-\[100\%\] {
+  left: 100%;
+}
+
+.left-\[40\%\] {
+  left: 40%;
+}
+
+.left-\[60\%\] {
+  left: 60%;
+}
+
+.left-\[4\%\] {
+  left: 4%;
+}
+
+.left-\[3\%\] {
+  left: 3%;
+}
+
+.left-\[calc\(0\%\)\] {
+  left: calc(0%);
+}
+
+.left-\[calc\(100\%\)\] {
+  left: calc(100%);
+}
+
+.left-\[calc\(20\%\)\] {
+  left: calc(20%);
+}
+
+.left-\[calc\(40\%\)\] {
+  left: calc(40%);
+}
+
+.left-\[calc\(60\%\)\] {
+  left: calc(60%);
+}
+
+.left-\[calc\(2\%\+96\%\/100\*0\)\] {
+  left: calc(2% + 96% / 100 * 0);
+}
+
+.left-\[calc\(3\%\+96\%\/100\*0\)\] {
+  left: calc(3% + 96% / 100 * 0);
+}
+
+.left-\[calc\(3\%\+96\%\/100\*20\)\] {
+  left: calc(3% + 96% / 100 * 20);
+}
+
+.left-\[calc\(3\%\+96\%\/100\*40\)\] {
+  left: calc(3% + 96% / 100 * 40);
+}
+
+.left-\[calc\(3\%\+96\%\/100\*60\)\] {
+  left: calc(3% + 96% / 100 * 60);
+}
+
+.left-\[calc\(3\%\+96\%\/100\*100\)\] {
+  left: calc(3% + 96% / 100 * 100);
+}
+
+.left-\[calc\(2\%\+96\%\/100\*100\)\] {
+  left: calc(2% + 96% / 100 * 100);
+}
+
+.left-\[calc\(2\%\+96\%\/100\*20\)\] {
+  left: calc(2% + 96% / 100 * 20);
+}
+
+.left-\[calc\(2\%\+96\%\/100\*40\)\] {
+  left: calc(2% + 96% / 100 * 40);
+}
+
+.left-\[calc\(2\%\+96\%\/100\*60\)\] {
+  left: calc(2% + 96% / 100 * 60);
+}
+
+.left-\[calc\(2\%\+94\%\/100\*0\)\] {
+  left: calc(2% + 94% / 100 * 0);
+}
+
+.left-\[calc\(2\%\+94\%\/100\*100\)\] {
+  left: calc(2% + 94% / 100 * 100);
+}
+
+.left-\[calc\(2\%\+94\%\/100\*20\)\] {
+  left: calc(2% + 94% / 100 * 20);
+}
+
+.left-\[calc\(2\%\+94\%\/100\*40\)\] {
+  left: calc(2% + 94% / 100 * 40);
+}
+
+.left-\[calc\(2\%\+94\%\/100\*60\)\] {
+  left: calc(2% + 94% / 100 * 60);
+}
+
+.left-\[calc\(3\%\+94\%\/100\*0\)\] {
+  left: calc(3% + 94% / 100 * 0);
+}
+
+.left-\[calc\(3\%\+94\%\/100\*100\)\] {
+  left: calc(3% + 94% / 100 * 100);
+}
+
+.left-\[calc\(3\%\+94\%\/100\*20\)\] {
+  left: calc(3% + 94% / 100 * 20);
+}
+
+.left-\[calc\(3\%\+94\%\/100\*40\)\] {
+  left: calc(3% + 94% / 100 * 40);
+}
+
+.left-\[calc\(3\%\+94\%\/100\*60\)\] {
+  left: calc(3% + 94% / 100 * 60);
+}
+
+.left-\[calc\(3\%\+94\%\/100\*80\)\] {
+  left: calc(3% + 94% / 100 * 80);
+}
+
+.left-\[calc\(3\%\+94\%\/120\*0\)\] {
+  left: calc(3% + 94% / 120 * 0);
+}
+
+.left-\[calc\(3\%\+94\%\/120\*100\)\] {
+  left: calc(3% + 94% / 120 * 100);
+}
+
+.left-\[calc\(3\%\+94\%\/120\*120\)\] {
+  left: calc(3% + 94% / 120 * 120);
+}
+
+.left-\[calc\(3\%\+94\%\/120\*20\)\] {
+  left: calc(3% + 94% / 120 * 20);
+}
+
+.left-\[calc\(3\%\+94\%\/120\*40\)\] {
+  left: calc(3% + 94% / 120 * 40);
+}
+
+.left-\[calc\(3\%\+94\%\/120\*60\)\] {
+  left: calc(3% + 94% / 120 * 60);
+}
+
+.left-\[calc\(3\%\+94\%\/120\*80\)\] {
+  left: calc(3% + 94% / 120 * 80);
+}
+
+.left-\[calc\(3\%\+94\%\/100\*95\)\] {
+  left: calc(3% + 94% / 100 * 95);
+}
+
+.left-\[calc\(3\%\+94\%\/100\*75\)\] {
+  left: calc(3% + 94% / 100 * 75);
+}
+
+.left-\[calc\(3\%\+94\%\/100\*30\)\] {
+  left: calc(3% + 94% / 100 * 30);
+}
+
+.left-\[calc\(3\%\+94\%\/100\*45\)\] {
+  left: calc(3% + 94% / 100 * 45);
+}
+
+.left-\[calc\(3\%\+94\%\/100\*10\)\] {
+  left: calc(3% + 94% / 100 * 10);
 }
 
 .col-span-1 {
@@ -602,6 +794,15 @@ video {
 
 .col-span-2 {
   grid-column: span 2 / span 2;
+}
+
+.m-0 {
+  margin: 0px;
+}
+
+.my-4 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 
 .mt-1 {
@@ -628,6 +829,10 @@ video {
   height: 0.25rem;
 }
 
+.h-2 {
+  height: 0.5rem;
+}
+
 .w-20 {
   width: 5rem;
 }
@@ -640,20 +845,42 @@ video {
   width: 8rem;
 }
 
-.w-36 {
-  width: 9rem;
+.w-full {
+  width: 100%;
+}
+
+.w-px {
+  width: 1px;
+}
+
+.w-96 {
+  width: 24rem;
+}
+
+.w-4 {
+  width: 1rem;
+}
+
+.-translate-x-1\/2 {
+  --tw-translate-x: -50%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.translate-y-1\/2 {
+  --tw-translate-y: 50%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
 .transform {
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
-.grid-cols-2 {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
 .grid-cols-3 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.flex-col {
+  flex-direction: column;
 }
 
 .items-center {
@@ -662,6 +889,10 @@ video {
 
 .justify-center {
   justify-content: center;
+}
+
+.justify-between {
+  justify-content: space-between;
 }
 
 .gap-1 {
@@ -677,17 +908,26 @@ video {
   background-color: rgb(0 0 0 / var(--tw-bg-opacity));
 }
 
+.p-0 {
+  padding: 0px;
+}
+
 .px-1 {
   padding-left: 0.25rem;
   padding-right: 0.25rem;
 }
 
-.text-right {
-  text-align: right;
+.px-2 {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
-.align-bottom {
-  vertical-align: bottom;
+.pb-4 {
+  padding-bottom: 1rem;
+}
+
+.text-right {
+  text-align: right;
 }
 
 .text-2xl {
@@ -695,9 +935,9 @@ video {
   line-height: 2rem;
 }
 
-.text-lg {
-  font-size: 1.125rem;
-  line-height: 1.75rem;
+.text-base {
+  font-size: 1rem;
+  line-height: 1.5rem;
 }
 
 .text-xl {
@@ -705,9 +945,9 @@ video {
   line-height: 1.75rem;
 }
 
-.text-base {
-  font-size: 1rem;
-  line-height: 1.5rem;
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
 }
 
 .font-extrabold {
@@ -735,6 +975,10 @@ video {
 .text-white {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+
+.accent-blue-700 {
+  accent-color: #1d4ed8;
 }
 
 .outline {
@@ -767,4 +1011,8 @@ video {
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-backdrop-filter;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
+}
+
+.hover\:cursor-pointer:hover {
+  cursor: pointer;
 }

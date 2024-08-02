@@ -34,54 +34,112 @@
   </head>
   <body>
     <div id="app" class="flex gap-1">
-      <div class="">
-        <svg id="main_chart" :width="width" :height="height">
-          <g v-x_axis :transform="`translate(0,${height - marginBottom})`"></g>
-          <g v-y_axis :transform="`translate(${marginLeft},0)`"></g>
-          <g v-y_axis_ror :transform="`translate(${width - marginRight},0)`"></g>
-          <path v-for="channel in store.channels" 
-            fill="none" 
-            stroke-width=1.5 
-            :stroke="channel.color" 
-            :d="line(channel.data)">
-          </path>
-          <path v-if="showROR"
-            fill="none" 
-            stroke-width=1.5 
-            stroke="#2E8B57"
-            :d="lineROR(store.channels[0].ror)" 
-            >
-          </path>
-          <path 
-            fill="none" 
-            stroke-width=1.5 
-            stroke="#0000FF"
-            :d="lineROR(store.channels[0].ror_smoothed)" 
-            >
-          </path>
-          <g v-for="re in store.roast_events">
-            <circle
-              r=2
-              :cx="xScale(store.channels[0].data[re.index].time)"
-              :cy="yScale(store.channels[0].data[re.index].value)"
-            ></circle>
-            <line
-              stroke="black"
-              stroke-width=1
-              :x1="xScale(store.channels[0].data[re.index].time)+2"
-              :y1="yScale(store.channels[0].data[re.index].value)+2" 
-              :x2="xScale(store.channels[0].data[re.index].time)+10"
-              :y2="yScale(store.channels[0].data[re.index].value)+10" 
-            ></line>
-            <text
-              alignment-baseline="hanging"
-              font-size="small"
-              :x="xScale(store.channels[0].data[re.index].time)+10"
-              :y="yScale(store.channels[0].data[re.index].value)+10" 
-            >${re.id}</text>
-          </g>
-        </svg>
-      </div>
+      
+      <svg id="main_chart" :width="width" :height="height">
+        <g v-x_axis :transform="`translate(0,${height - marginBottom})`"></g>
+        <g v-y_axis :transform="`translate(${marginLeft},0)`"></g>
+        <g v-y_axis_ror :transform="`translate(${width - marginRight},0)`"></g>
+        <path v-for="channel in store.channels" 
+          fill="none" 
+          stroke-width=1.5 
+          :stroke="channel.color" 
+          :d="line(channel.data)">
+        </path>
+        <path v-if="showROR"
+          fill="none" 
+          stroke-width=1.5 
+          stroke="#2E8B57"
+          :d="lineROR(store.channels[0].ror)" 
+          >
+        </path>
+        <path 
+          fill="none" 
+          stroke-width=1.5 
+          stroke="#0000FF"
+          :d="lineROR(store.channels[0].ror_smoothed)" 
+          >
+        </path>
+        
+        {# BT #}
+        <circle v-if="store.channels[0].data.length > 0"
+            r=2
+            :cx="xScale(store.channels[0].data.at(-1).time)"
+            :cy="yScale(store.channels[0].data.at(-1).value)"
+            :fill="store.channels[0].color"
+        ></circle>
+        <text v-if="store.channels[0].data.length > 0"
+            alignment-baseline="middle"
+            font-size="small"
+            :x="xScale(store.channels[0].data.at(-1).time)+5"
+            :y="yScale(store.channels[0].data.at(-1).value-5)" 
+        >${store.channels[0].data.at(-1).value.toFixed(1)}</text>
+
+        {# ET #}
+        <circle v-if="store.channels[1].data.length > 0"
+            r=2
+            :cx="xScale(store.channels[1].data.at(-1).time)"
+            :cy="yScale(store.channels[1].data.at(-1).value)"
+            :fill="store.channels[1].color"
+        ></circle>
+        <text v-if="store.channels[1].data.length > 0"
+            alignment-baseline="middle"
+            font-size="small"
+            :x="xScale(store.channels[1].data.at(-1).time)+5"
+            :y="yScale(store.channels[1].data.at(-1).value+5)" 
+        >${store.channels[1].data.at(-1).value.toFixed(1)}</text>
+
+        {# INLET #}
+        <circle v-if="store.channels[2].data.length > 0"
+            r=2
+            :cx="xScale(store.channels[2].data.at(-1).time)"
+            :cy="yScale(store.channels[2].data.at(-1).value)"
+            :fill="store.channels[2].color"
+        ></circle>
+        <text v-if="store.channels[2].data.length > 0"
+            alignment-baseline="middle"
+            font-size="small"
+            :x="xScale(store.channels[2].data.at(-1).time)+5"
+            :y="yScale(store.channels[2].data.at(-1).value)" 
+        >${store.channels[2].data.at(-1).value.toFixed(1)}</text>
+
+        {# ROR_SMOOTHED #}
+        <circle v-if="store.channels[0].ror_smoothed.length > 0"
+            r=2
+            :cx="xScale(store.channels[0].ror_smoothed.at(-1).time)"
+            :cy="yScaleROR(store.channels[0].ror_smoothed.at(-1).value)"
+            fill="#0000FF"
+        ></circle>
+        <text v-if="store.channels[0].ror_smoothed.length > 0"
+            alignment-baseline="middle"
+            font-size="small"
+            :x="xScale(store.channels[0].ror_smoothed.at(-1).time)+5"
+            :y="yScaleROR(store.channels[0].ror_smoothed.at(-1).value)" 
+        >${store.channels[0].ror_smoothed.at(-1).value.toFixed(1)}</text>
+
+
+        <g v-for="re in store.roast_events">
+          <circle
+            r=2
+            :cx="xScale(store.channels[0].data[re.index].time)"
+            :cy="yScale(store.channels[0].data[re.index].value)"
+          ></circle>
+          <line
+            stroke="black"
+            stroke-width=1
+            :x1="xScale(store.channels[0].data[re.index].time)+2"
+            :y1="yScale(store.channels[0].data[re.index].value)+2" 
+            :x2="xScale(store.channels[0].data[re.index].time)+10"
+            :y2="yScale(store.channels[0].data[re.index].value)+10" 
+          ></line>
+          <text
+            alignment-baseline="hanging"
+            font-size="small"
+            :x="xScale(store.channels[0].data[re.index].time)+10"
+            :y="yScale(store.channels[0].data[re.index].value)+10" 
+          >${re.id}</text>
+        </g>
+      </svg>
+      
       <div class="">
         <div class="flex gap-1 mt-1">
           <div class="flex items-center justify-center bg-black text-white rounded text-2xl font-extrabold w-24">

@@ -116,6 +116,7 @@ const app = createApp({
             marginLeft : marginLeft,
             xScale,
             yScale,
+            yScaleROR,
             line,
             lineROR,
             timer,

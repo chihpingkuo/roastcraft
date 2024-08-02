@@ -45,7 +45,7 @@
             :stroke="channel.color" 
             :d="line(channel.data)">
           </path>
-          <path 
+          <path v-if="showROR"
             fill="none" 
             stroke-width=1.5 
             stroke="#2E8B57"
@@ -192,13 +192,14 @@
         {# range slider #}
         <div class="my-4 relative">
           <span class="absolute -translate-x-1/2 -translate-y-4" 
-            :style="{left: (2+96/pips[pips.length-1]*gas)+'%'}">${gas}</span>
+            :style="{left: (2+96/pips[pips.length-1]*gasBubble)+'%'}">${gasBubble}</span>
           <input
             type="range"
             class="w-full accent-blue-700 m-0"
             :min="pips[0]"
             :max="pips[pips.length-1]"
-            v-model="gas"
+            v-model="gasBubble"
+            @change="event => gasValue = event.target.value"
             step=5
             list="values"
           />
@@ -208,7 +209,7 @@
               :style="{left: (2+96/pips[pips.length-1]*pip)+'%'}"
               :value="pip" 
               :label="pip"
-              @click="gas = pip"
+              @click="gasBubble = pip ; gasValue = pip"
               >
             </option>
           </datalist>

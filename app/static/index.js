@@ -45,7 +45,10 @@ const app = createApp({
     setup() {
         
         let timer = ref("0:00");        
-        let gas = ref(20);
+        let gasBubble = ref(20);
+        let gasValue = ref(20);
+
+        let showROR = false;
 
         let store = ref({
             channels: settings.channels.map((c) => ({
@@ -68,14 +71,11 @@ const app = createApp({
             
           });        
 
-        watch(gas, (newValue, oldValue) => {
+        watch(gasValue, (newValue, oldValue) => {
             console.log(newValue);
           }
         );
-        function gasChange(e) {
-            console.log("gasChange " + store.value.gas)
-            
-        }
+       
 
         // const socket = io("http://localhost:8000", {
         //   opts: { path: "/socket.io" },
@@ -120,7 +120,9 @@ const app = createApp({
             lineROR,
             timer,
             store,
-            gas,
+            gasBubble,
+            gasValue,
+            showROR,
             time_format,
             pips: [0,10,20,30,45,60,75,95,110]
         }

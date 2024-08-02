@@ -135,7 +135,13 @@ app.config.compilerOptions.delimiters = ['${', '}']
 
 app.directive(
     'x_axis', (el, binding) => {
-        d3.select(el).call(d3.axisBottom(xScale));
+        d3.select(el).call(
+            d3.axisBottom(xScale)
+            .tickValues(d3.range(-60, 780, 60).concat(780))
+            .tickFormat(
+                (d) => time_format(d)
+            )
+        );
     }
 )
 

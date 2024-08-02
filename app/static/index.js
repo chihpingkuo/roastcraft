@@ -50,6 +50,8 @@ const app = createApp({
 
         let showROR = false;
 
+        let toolTipLabels = ref([])
+
         let store = ref({
             channels: settings.channels.map((c) => ({
               id: c.id,
@@ -83,8 +85,39 @@ const app = createApp({
         const socket = io();
 
         socket.on("read_device", (channels) => {
-            console.log(channels);
+            // console.log(channels);
             store.value.channels = channels;
+
+            let labels=[]
+
+            if(channels[0].data.length > 0) {
+                channels.forEach(c => labels.push({
+                    label: c.data.at(-1).value.toFixed(1), 
+                    x: xScale(c.data.at(-1).time)+2,
+                    y: yScale(c.data.at(-1).value)
+                }))
+                
+            }
+            if(channels[0].ror_smoothed.length > 0) {
+                labels.push({
+                    label: channels[0].ror_smoothed.at(-1).value.toFixed(1), 
+                    x: xScale(channels[0].ror_smoothed.at(-1).time)+2,
+                    y: yScaleROR(channels[0].ror_smoothed.at(-1).value)
+                })
+            }
+
+            labels.sort((a,b) => a.y-b.y)
+
+            // if labels are too close, add some distance
+            for (let i = 0 ; i < labels.length-1 ; i++) {
+                if ((labels[i+1].y - labels[i].y) < 10) {
+                    labels[i+1].y = labels[i+1].y + 5;
+                    labels[i].y = labels[i].y - 5
+                }
+            }
+
+            toolTipLabels.value = labels
+            console.log(toolTipLabels.value);
         });
 
         socket.on('update_timer', 
@@ -124,6 +157,7 @@ const app = createApp({
             gasBubble,
             gasValue,
             showROR,
+            toolTipLabels,
             time_format,
             pips: [0,10,20,30,45,60,75,95,110]
         }

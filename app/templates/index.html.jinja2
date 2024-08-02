@@ -75,41 +75,12 @@
             fill="#0000FF"
         ></circle>
         
-        {# BT #}
-        
-        <text v-if="store.channels[0].data.length > 0"
+        <text v-if="toolTipLabels.length > 0" v-for="tooltip in toolTipLabels"
             alignment-baseline="middle"
             font-size="small"
-            :x="xScale(store.channels[0].data.at(-1).time)+5"
-            :y="yScale(store.channels[0].data.at(-1).value-5)" 
-        >${store.channels[0].data.at(-1).value.toFixed(1)}</text>
-
-        {# ET #}
-        
-        <text v-if="store.channels[1].data.length > 0"
-            alignment-baseline="middle"
-            font-size="small"
-            :x="xScale(store.channels[1].data.at(-1).time)+5"
-            :y="yScale(store.channels[1].data.at(-1).value+5)" 
-        >${store.channels[1].data.at(-1).value.toFixed(1)}</text>
-
-        {# INLET #}
-        
-        <text v-if="store.channels[2].data.length > 0"
-            alignment-baseline="middle"
-            font-size="small"
-            :x="xScale(store.channels[2].data.at(-1).time)+5"
-            :y="yScale(store.channels[2].data.at(-1).value)" 
-        >${store.channels[2].data.at(-1).value.toFixed(1)}</text>
-
-        {# ROR_SMOOTHED #}
-        <text v-if="store.channels[0].ror_smoothed.length > 0"
-            alignment-baseline="middle"
-            font-size="small"
-            :x="xScale(store.channels[0].ror_smoothed.at(-1).time)+5"
-            :y="yScaleROR(store.channels[0].ror_smoothed.at(-1).value)" 
-        >${store.channels[0].ror_smoothed.at(-1).value.toFixed(1)}</text>
-
+            :x="tooltip.x"
+            :y="tooltip.y" 
+        >${tooltip.label}</text>
 
         <g v-for="re in store.roast_events">
           <circle

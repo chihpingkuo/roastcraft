@@ -60,13 +60,23 @@
           >
         </path>
         
-        {# BT #}
-        <circle v-if="store.channels[0].data.length > 0"
+        <g v-for="c in store.channels">
+          <circle v-if="c.data.length > 0"
+              r=2
+              :cx="xScale(c.data.at(-1).time)"
+              :cy="yScale(c.data.at(-1).value)"
+              :fill="c.color"
+          ></circle>
+        </g>
+        <circle v-if="store.channels[0].ror_smoothed.length > 0"
             r=2
-            :cx="xScale(store.channels[0].data.at(-1).time)"
-            :cy="yScale(store.channels[0].data.at(-1).value)"
-            :fill="store.channels[0].color"
+            :cx="xScale(store.channels[0].ror_smoothed.at(-1).time)"
+            :cy="yScaleROR(store.channels[0].ror_smoothed.at(-1).value)"
+            fill="#0000FF"
         ></circle>
+        
+        {# BT #}
+        
         <text v-if="store.channels[0].data.length > 0"
             alignment-baseline="middle"
             font-size="small"
@@ -75,12 +85,7 @@
         >${store.channels[0].data.at(-1).value.toFixed(1)}</text>
 
         {# ET #}
-        <circle v-if="store.channels[1].data.length > 0"
-            r=2
-            :cx="xScale(store.channels[1].data.at(-1).time)"
-            :cy="yScale(store.channels[1].data.at(-1).value)"
-            :fill="store.channels[1].color"
-        ></circle>
+        
         <text v-if="store.channels[1].data.length > 0"
             alignment-baseline="middle"
             font-size="small"
@@ -89,12 +94,7 @@
         >${store.channels[1].data.at(-1).value.toFixed(1)}</text>
 
         {# INLET #}
-        <circle v-if="store.channels[2].data.length > 0"
-            r=2
-            :cx="xScale(store.channels[2].data.at(-1).time)"
-            :cy="yScale(store.channels[2].data.at(-1).value)"
-            :fill="store.channels[2].color"
-        ></circle>
+        
         <text v-if="store.channels[2].data.length > 0"
             alignment-baseline="middle"
             font-size="small"
@@ -103,12 +103,6 @@
         >${store.channels[2].data.at(-1).value.toFixed(1)}</text>
 
         {# ROR_SMOOTHED #}
-        <circle v-if="store.channels[0].ror_smoothed.length > 0"
-            r=2
-            :cx="xScale(store.channels[0].ror_smoothed.at(-1).time)"
-            :cy="yScaleROR(store.channels[0].ror_smoothed.at(-1).value)"
-            fill="#0000FF"
-        ></circle>
         <text v-if="store.channels[0].ror_smoothed.length > 0"
             alignment-baseline="middle"
             font-size="small"

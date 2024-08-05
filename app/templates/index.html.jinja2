@@ -36,6 +36,15 @@
     <div id="app" class="flex gap-1">
       
       <svg id="main_chart" :width="width" :height="height">
+
+        <defs>
+          <clipPath
+              clipPathUnits="userSpaceOnUse"
+              id="clip-path">
+              <rect :x="xScale(0)" :y="marginTop" :width="width - marginRight - xScale(0)" :height="height - marginTop - marginBottom" />
+          </clipPath>
+        </defs>
+
         <g v-x_axis :transform="`translate(0,${height - marginBottom})`"></g>
         <g v-y_axis :transform="`translate(${marginLeft},0)`"></g>
         <g v-y_axis_ror :transform="`translate(${width - marginRight},0)`"></g>
@@ -45,21 +54,22 @@
           :stroke="channel.color" 
           :d="line(channel.data)">
         </path>
-        <path v-if="showROR"
-          fill="none" 
-          stroke-width=1.5 
-          stroke="#2E8B57"
-          :d="lineROR(store.channels[0].ror)" 
-          >
-        </path>
-        <path 
-          fill="none" 
-          stroke-width=1.5 
-          stroke="#0000FF"
-          :d="lineROR(store.channels[0].ror_smoothed)" 
-          >
-        </path>
-        
+        <g clip-path="url(#clip-path)">
+          <path v-if="showROR"
+            fill="none" 
+            stroke-width=1.5 
+            stroke="#2E8B57"
+            :d="lineROR(store.channels[0].ror)" 
+            >
+          </path>
+          <path 
+            fill="none" 
+            stroke-width=1.5 
+            stroke="#0000FF"
+            :d="lineROR(store.channels[0].ror_smoothed)" 
+            >
+          </path>
+        </g>
         <g v-for="c in store.channels">
           <circle v-if="c.data.length > 0"
               r=2
@@ -190,10 +200,10 @@
         </div>
         {# ror #}
         <div class="flex gap-1 mt-1">
-          <div class="bg-base-300 rounded text-right w-20 px-1" v-for="channel in store.channels">
-            <p>${'Δ' + channel.id}</p>
+          <div class="bg-base-300 rounded text-right w-20 px-1">
+            <p>${'Δ' + store.channels[0].id}</p>
             <p class="text-2xl leading-tight text-blue-600"
-               >${channel.current_ror.toFixed(1)}
+               >${store.channels[0].current_ror.toFixed(1)}
             </p>
           </div>  
         </div>

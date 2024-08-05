@@ -140,11 +140,6 @@ const app = createApp({
             store.value.phases = phases
         });
 
-        function emit_app_status(){
-            console.log("emit_app_status");
-            socket.emit("app_status", "testdata")
-        }
-
         return {
             width : width,
             height : height,
@@ -164,7 +159,6 @@ const app = createApp({
             showROR,
             toolTipLabels,
             time_format,
-            emit_app_status: emit_app_status,
             pips: [0,10,20,30,45,60,75,95,110]
         }
     }

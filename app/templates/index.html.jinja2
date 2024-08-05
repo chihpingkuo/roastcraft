@@ -122,30 +122,63 @@
       </svg>
       
       <div class="">
+        
         <div class="flex gap-1 mt-1">
           <div class="flex items-center justify-center bg-black text-white rounded text-2xl font-extrabold w-24">
             ${timer}
           </div>
         </div>
         <div class="flex gap-1 mt-1">
-          <button
-            class="btn"
-            hx-post="/on"
-            hx-trigger="click"
-            hx-target="closest div"
-            hx-swap="outerHTML"
-          >
-            on
-          </button>
+          {% if ctx_appstatus.name == "OFF" %}
+            <button
+              class="btn"
+              hx-post="/reset"
+              hx-trigger="click"
+              hx-swap="none"
+            >
+              reset
+            </button>
+            <button
+              class="btn"
+              hx-post="/on"
+              hx-trigger="click"
+              hx-target="closest div"
+              hx-swap="outerHTML"
+            >
+              on
+            </button>
+          {% elif ctx_appstatus.name == "ON" %}
+            <button
+              class="btn"
+              hx-post="/off"
+              hx-trigger="click"
+              hx-target="closest div"
+              hx-swap="outerHTML"
+            >
+              off
+            </button>
+            <button 
+              class="btn" 
+              hx-post="/start" 
+              hx-trigger="click"
+              hx-target="closest div"
+              hx-swap="outerHTML"
+            >
+              start
+            </button>
+          {% else %}
+            <button 
+              class="btn" 
+              hx-post="/stop" 
+              hx-trigger="click"
+              hx-target="closest div"
+              hx-swap="outerHTML"
+            >
+              stop
+            </button>
+          {% endif %}
         </div>
-        <div class="flex gap-1 mt-1">
-          <button
-            class="btn"
-            @click="emit_app_status()"
-          >
-            on1
-          </button>
-        </div>
+
         <div class="flex gap-1 mt-1">  
           <div class="bg-base-300 rounded text-right w-20 px-1" v-for="channel in store.channels">
             <p>${channel.id}</p>

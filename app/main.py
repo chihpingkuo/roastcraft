@@ -81,18 +81,12 @@ for c in store.settings["channels"]:
     store.session.channels.append(Channel(id=c["id"], color=c["color"]))
 
 
-@socketio_server.on("app_status")
-def app_status(sid, data):
-    print(sid)
-    print(data)
-
-
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="index.html.jinja2",
-        context={"ctx_settings": store.settings},
+        context={"ctx_settings": store.settings, "ctx_appstatus": store.app_status},
     )
 
 
@@ -121,7 +115,7 @@ async def connect() -> Response:
             class="btn" 
             hx-post="/start" 
             hx-trigger="click"
-            hx-target="this"
+            hx-target="closest div"
             hx-swap="outerHTML"
         >
             start
@@ -132,14 +126,21 @@ async def connect() -> Response:
 
 @app.post("/off", response_class=HTMLResponse)
 async def close() -> Response:
-    store.read_device_task.cancel()
 
+    store.read_device_task.cancel()
     await store.device.close()
 
     store.app_status = AppStatus.OFF
 
     return """
     <div class="flex gap-1 mt-1">
+        <button
+            class="btn"
+            hx-post="/reset"
+            hx-trigger="click"
+        >
+            reset
+        </button>
         <button
             class="btn"
             hx-post="/on"
@@ -165,34 +166,49 @@ async def start() -> Response:
     store.app_status = AppStatus.RECORDING
 
     return """
-    <button 
-        class="btn" 
-        hx-post="/stop" 
-        hx-trigger="click"
-        hx-target="this"
-        hx-swap="outerHTML"
-    >
-        stop
-    </button>
+    <div class="flex gap-1 mt-1">
+        <button 
+            class="btn" 
+            hx-post="/stop" 
+            hx-trigger="click"
+            hx-target="closest div"
+            hx-swap="outerHTML"
+        >
+            stop
+        </button>
+    </div>
     """
 
 
 @app.post("/stop", response_class=HTMLResponse)
 async def stop() -> Response:
-    # store.read_device_task.cancel()
+
+    store.read_device_task.cancel()
+    await store.device.close()
+
     store.update_timer_task.cancel()
-    store.app_status = AppStatus.ON
+
+    store.app_status = AppStatus.OFF
 
     return """
-    <button 
-        class="btn" 
-        hx-post="/reset" 
-        hx-trigger="click"
-        hx-target="this"
-        hx-swap="outerHTML"
-    >
-        reset
-    </button>
+    <div class="flex gap-1 mt-1">
+        <button
+            class="btn"
+            hx-post="/reset"
+            hx-trigger="click"
+        >
+            reset
+        </button>
+        <button
+            class="btn"
+            hx-post="/on"
+            hx-trigger="click"
+            hx-target="closest div"
+            hx-swap="outerHTML"
+        >
+            on
+        </button>
+    </div>
     """
 
 
@@ -200,15 +216,7 @@ async def stop() -> Response:
 async def reset() -> Response:
 
     return """
-    <button 
-        class="btn" 
-        hx-post="/start" 
-        hx-trigger="click"
-        hx-target="this"
-        hx-swap="outerHTML"
-    >
-        start
-    </button>
+    
     """
 
 

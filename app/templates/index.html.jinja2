@@ -272,7 +272,7 @@
         {# range slider #}
         <div class="my-4 relative">
           <span class="absolute -translate-x-1/2 -translate-y-4" 
-            :style="{left: (2+96/pips[pips.length-1]*gasBubble)+'%'}">${gasBubble}</span>
+            :style="{left: (2+95/(pips[pips.length-1]-pips[0])*gasBubble)-pips[0]+'%'}">${gasBubble}</span>
           <input
             type="range"
             class="w-full accent-blue-700 m-0"
@@ -286,7 +286,7 @@
           <datalist id="values" class="w-full flex justify-between text-xs p-0 relative">
             <option v-for="pip in pips"
               class="absolute hover:cursor-pointer -translate-x-1/2" 
-              :style="{left: (2+96/pips[pips.length-1]*pip)+'%'}"
+              :style="{left: (2+95/(pips[pips.length-1]-pips[0])*pip)-pips[0]+'%'}"
               :value="pip" 
               :label="pip"
               @click="gasBubble = pip ; gasValue = pip"

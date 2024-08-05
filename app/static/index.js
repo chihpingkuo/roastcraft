@@ -159,7 +159,7 @@ const app = createApp({
             showROR,
             toolTipLabels,
             time_format,
-            pips: [0,10,20,30,45,60,75,95,110]
+            pips: [10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100]
         }
     }
 })

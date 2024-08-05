@@ -92,6 +92,9 @@ async def root(request: Request):
 
 @app.post("/on", response_class=HTMLResponse)
 async def connect() -> Response:
+
+    # TODO: implicit reset data
+
     await store.device.connect()
 
     store.read_device_task = store.loop.create_task(
@@ -138,6 +141,7 @@ async def close() -> Response:
             class="btn"
             hx-post="/reset"
             hx-trigger="click"
+            hx-swap="none"
         >
             reset
         </button>
@@ -196,6 +200,7 @@ async def stop() -> Response:
             class="btn"
             hx-post="/reset"
             hx-trigger="click"
+            hx-swap="none"
         >
             reset
         </button>
@@ -214,6 +219,23 @@ async def stop() -> Response:
 
 @app.post("/reset", response_class=HTMLResponse)
 async def reset() -> Response:
+
+    session = RoastSession()
+    store.session = session
+    for c in store.settings["channels"]:
+        store.session.channels.append(Channel(id=c["id"], color=c["color"]))
+
+    await socketio_server.emit("update_timer", session.timer)
+
+    phases = calculate_phases(
+        session.timer, session.channels[0].current_data, session.roast_events
+    )
+    await socketio_server.emit("phases", jsonable_encoder(phases))
+    await socketio_server.emit(
+        "roast_events",
+        jsonable_encoder([]),
+    )
+    await socketio_server.emit("read_device", jsonable_encoder(session.channels))
 
     return """
     

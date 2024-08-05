@@ -102,7 +102,7 @@
             font-size="small"
             :x="xScale(store.channels[0].data[re.index].time)-10"
             :y="yScale(store.channels[0].data[re.index].value)-22" 
-          >${re.id}  ${store.channels[0].data[re.index].value}°</text>
+          >${re.id}  ${store.channels[0].data[re.index].value.toFixed(1)}°</text>
           <line
             stroke="black"
             stroke-width=1
@@ -138,11 +138,19 @@
             on
           </button>
         </div>
+        <div class="flex gap-1 mt-1">
+          <button
+            class="btn"
+            @click="emit_app_status()"
+          >
+            on1
+          </button>
+        </div>
         <div class="flex gap-1 mt-1">  
           <div class="bg-base-300 rounded text-right w-20 px-1" v-for="channel in store.channels">
             <p>${channel.id}</p>
             <p class="text-2xl leading-tight text-red-600"
-               >${channel.current_data}
+               >${channel.current_data.toFixed(1)}
             </p>
           </div>
           

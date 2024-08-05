@@ -68,7 +68,7 @@ if store.settings["device"] == "Kapok501":
     store.device = device
 else:
     LOG_FASTAPI_CLI.info("device: ArtisanLog")
-    device: Device = ArtisanLog("../util/24-07-13_1545_mozart.alog")
+    device: Device = ArtisanLog("../util/24-08-04_0946_mozart.alog")
     store.device = device
 
 # initialization
@@ -79,6 +79,12 @@ store.app_status = AppStatus.OFF
 store.session = RoastSession()
 for c in store.settings["channels"]:
     store.session.channels.append(Channel(id=c["id"], color=c["color"]))
+
+
+@socketio_server.on("app_status")
+def app_status(sid, data):
+    print(sid)
+    print(data)
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -95,7 +101,7 @@ async def connect() -> Response:
     await store.device.connect()
 
     store.read_device_task = store.loop.create_task(
-        ticker(interval=3.0, function_to_call=read_device)
+        ticker(interval=2.0, function_to_call=read_device)
     )
 
     store.app_status = AppStatus.ON

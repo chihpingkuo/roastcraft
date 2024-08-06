@@ -48,11 +48,24 @@
         <g v-x_axis :transform="`translate(0,${height - marginBottom})`"></g>
         <g v-y_axis :transform="`translate(${marginLeft},0)`"></g>
         <g v-y_axis_ror :transform="`translate(${width - marginRight},0)`"></g>
-        <path v-for="channel in store.channels" 
+        <path 
           fill="none" 
           stroke-width=1.5 
-          :stroke="channel.color" 
-          :d="line(channel.data)">
+          :stroke="store.channels[0].color" 
+          :d="line(store.channels[0].data)">
+        </path>
+        <path 
+          fill="none" 
+          stroke-width=1.5 
+          :stroke="store.channels[1].color" 
+          :d="line(store.channels[1].data)">
+        </path>
+        <path 
+          fill="none" 
+          stroke-width=1.5 
+          
+          :stroke="store.channels[2].color" 
+          :d="lineInlet(store.channels[2].data)">
         </path>
         <g clip-path="url(#clip-path)">
           <path v-if="showROR"
@@ -70,14 +83,26 @@
             >
           </path>
         </g>
-        <g v-for="c in store.channels">
-          <circle v-if="c.data.length > 0"
-              r=2
-              :cx="xScale(c.data.at(-1).time)"
-              :cy="yScale(c.data.at(-1).value)"
-              :fill="c.color"
-          ></circle>
-        </g>
+        
+        <circle v-if="store.channels[0].data.length > 0"
+          r=2
+          :cx="xScale(store.channels[0].data.at(-1).time)"
+          :cy="yScale(store.channels[0].data.at(-1).value)"
+          :fill="store.channels[0].color"
+        ></circle>
+        <circle v-if="store.channels[1].data.length > 0"
+          r=2
+          :cx="xScale(store.channels[1].data.at(-1).time)"
+          :cy="yScale(store.channels[1].data.at(-1).value)"
+          :fill="store.channels[0].color"
+        ></circle>
+        <circle v-if="store.channels[2].data.length > 0"
+          r=2
+          :cx="xScale(store.channels[2].data.at(-1).time)"
+          :cy="yScaleInlet(store.channels[2].data.at(-1).value)"
+          :fill="store.channels[0].color"
+        ></circle>
+        
         <circle v-if="store.channels[0].ror_smoothed.length > 0"
             r=2
             :cx="xScale(store.channels[0].ror_smoothed.at(-1).time)"

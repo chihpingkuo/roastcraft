@@ -22,14 +22,20 @@ const xScale = d3
 // Declare the y (vertical position) scale on the left
 const yScale = d3
     .scaleLinear()
-    .domain([80, 380])
+    .domain([80, 220])
     .range([height - marginBottom, marginTop]);
 
 // Declare the y (vertical position) scale on the right
 const yScaleROR = d3
     .scaleLinear()
-    .domain([0, 24])
+    .domain([0, 22])
     .range([height - marginBottom, marginTop]);
+
+// Declare the y (vertical position) scale on the right
+const yScaleInlet = d3
+.scaleLinear()
+.domain([200, 400])
+.range([height - marginBottom, marginTop]);
 
 // Declare the line generator.
 const line = d3.line()
@@ -40,6 +46,9 @@ const lineROR = d3.line()
     .x((p) => xScale(p.time))
     .y((p) => yScaleROR(p.value));
 
+const lineInlet = d3.line()
+    .x((p) => xScale(p.time))
+    .y((p) => yScaleInlet(p.value));
 
 const app = createApp({
     setup() {
@@ -91,12 +100,25 @@ const app = createApp({
             let labels=[]
 
             if(channels[0].data.length > 0) {
-                channels.forEach(c => labels.push({
-                    label: c.data.at(-1).value.toFixed(1), 
-                    x: xScale(c.data.at(-1).time)+2,
-                    y: yScale(c.data.at(-1).value)
-                }))
-                
+                labels.push({
+                    label: channels[0].data.at(-1).value.toFixed(1), 
+                    x: xScale(channels[0].data.at(-1).time)+2,
+                    y: yScale(channels[0].data.at(-1).value)
+                })   
+            }
+            if(channels[1].data.length > 0) {
+                labels.push({
+                    label: channels[1].data.at(-1).value.toFixed(1), 
+                    x: xScale(channels[1].data.at(-1).time)+2,
+                    y: yScale(channels[1].data.at(-1).value)
+                })   
+            }
+            if(channels[2].data.length > 0) {
+                labels.push({
+                    label: channels[2].data.at(-1).value.toFixed(1), 
+                    x: xScale(channels[2].data.at(-1).time)+2,
+                    y: yScaleInlet(channels[2].data.at(-1).value)
+                })   
             }
             if(channels[0].ror_smoothed.length > 0) {
                 labels.push({
@@ -150,8 +172,10 @@ const app = createApp({
             xScale,
             yScale,
             yScaleROR,
+            yScaleInlet,
             line,
             lineROR,
+            lineInlet,
             timer,
             store,
             gasBubble,

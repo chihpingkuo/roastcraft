@@ -34,7 +34,7 @@ const yScaleROR = d3
 // Declare the y (vertical position) scale on the right
 const yScaleInlet = d3
 .scaleLinear()
-.domain([200, 400])
+.domain([200, 380])
 .range([height - marginBottom, marginTop]);
 
 // Declare the line generator.

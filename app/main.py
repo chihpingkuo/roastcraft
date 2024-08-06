@@ -279,6 +279,9 @@ async def charge() -> Response:
         for point in channel.ror:
             point.time = (point.timestamp - session.start_time).total_seconds()
 
+    for point in session.gas_channel.data:
+        point.time = (point.timestamp - session.start_time).total_seconds()
+
     session.roast_events[RoastEventId.C] = index
 
     await socketio_server.emit(
@@ -312,6 +315,9 @@ async def charge_to_left() -> Response:
         for point in channel.ror:
             point.time = (point.timestamp - session.start_time).total_seconds()
 
+    for point in session.gas_channel.data:
+        point.time = (point.timestamp - session.start_time).total_seconds()
+
     session.roast_events[RoastEventId.C] = new_index
 
     await socketio_server.emit(
@@ -338,6 +344,9 @@ async def charge_to_right() -> Response:
             point.time = (point.timestamp - session.start_time).total_seconds()
         for point in channel.ror:
             point.time = (point.timestamp - session.start_time).total_seconds()
+
+    for point in session.gas_channel.data:
+        point.time = (point.timestamp - session.start_time).total_seconds()
 
     session.roast_events[RoastEventId.C] = new_index
 

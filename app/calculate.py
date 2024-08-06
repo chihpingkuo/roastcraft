@@ -65,6 +65,9 @@ async def auto_detect_charge():
                 for point in channel.ror:
                     point.time = (point.timestamp - session.start_time).total_seconds()
 
+            for point in session.gas_channel.data:
+                point.time = (point.timestamp - session.start_time).total_seconds()
+
             await store.socketio_server.emit(
                 "roast_events",
                 jsonable_encoder(

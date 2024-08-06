@@ -37,10 +37,11 @@ const yScaleInlet = d3
 .domain([200, 380])
 .range([height - marginBottom, marginTop]);
 
+// gas chart height 120
 const yScaleGas = d3
 .scaleLinear()
 .domain([0, 100])
-.range([height - marginBottom, height - marginBottom - 100]);
+.range([height - marginBottom, height - marginBottom - 120]);
 
 
 // Declare the line generator.

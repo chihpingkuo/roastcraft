@@ -81,6 +81,18 @@ for c in store.settings["channels"]:
     store.session.channels.append(Channel(id=c["id"], color=c["color"]))
 
 
+@socketio_server.on("gas_value")
+def gas_value(sid, data):
+    store.session.gas_channel.current_data = data
+    store.session.gas_channel.data.append(
+        Point(
+            datetime.now(), store.session.timer, store.session.gas_channel.current_data
+        )
+    )
+
+    LOG_UVICORN.info("gas_channel : %s", store.session.gas_channel.data)
+
+
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
     return templates.TemplateResponse(
@@ -168,6 +180,12 @@ async def start() -> Response:
     )
 
     store.app_status = AppStatus.RECORDING
+
+    store.session.gas_channel.data.append(
+        Point(store.session.start_time, 0, store.session.gas_channel.current_data)
+    )
+
+    LOG_UVICORN.info("gas_channel : %s", store.session.gas_channel.data)
 
     return """
     <div class="flex gap-1 mt-1">
@@ -465,6 +483,7 @@ async def read_device():
 
     await socketio_server.emit("read_device", jsonable_encoder(session.channels))
     await socketio_server.emit("phases", jsonable_encoder(phases))
+    await socketio_server.emit("gas_channel", jsonable_encoder(session.gas_channel))
 
 
 async def update_timer():

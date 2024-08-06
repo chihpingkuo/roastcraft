@@ -30,6 +30,13 @@ class Channel:
         self.ror_smoothed: list[Point] = []
 
 
+class ManualChannel:
+    def __init__(self, id: str, current_data: float):
+        self.id: str = id
+        self.current_data: float = current_data
+        self.data: list[Point] = []
+
+
 class RoastEventId(Enum):
     C = "C"  # charge
     TP = "TP"  # turning point
@@ -59,6 +66,7 @@ class RoastSession:
         self.start_time: datetime = datetime.now()
         self.timer: float = 0.0
         self.channels: list[Channel] = []
+        self.gas_channel: ManualChannel = ManualChannel("GAS", 20)
         self.roast_events: dict = {}
 
 

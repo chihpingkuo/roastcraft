@@ -37,6 +37,12 @@ const yScaleInlet = d3
 .domain([200, 380])
 .range([height - marginBottom, marginTop]);
 
+const yScaleGas = d3
+.scaleLinear()
+.domain([0, 100])
+.range([height - marginBottom, height - marginBottom - 100]);
+
+
 // Declare the line generator.
 const line = d3.line()
     .x((p) => xScale(p.time))
@@ -50,10 +56,16 @@ const lineInlet = d3.line()
     .x((p) => xScale(p.time))
     .y((p) => yScaleInlet(p.value));
 
+const lineGas = d3.line()
+    .x((p) => xScale(p.time))
+    .y((p) => yScaleGas(p.value))
+    .curve(d3.curveStepAfter);
+
 const app = createApp({
     setup() {
         
-        let timer = ref("0:00");        
+        let timer = ref("0:00"); 
+        let timer_value = ref(0);               
         let gasBubble = ref(20);
         let gasValue = ref(20);
 
@@ -79,11 +91,12 @@ const app = createApp({
                 mai:{time:0, percent:0, temp_rise:0},
                 dev:{time:0, percent:0, temp_rise:0},
             },
-            
+            gas_channel: {}
           });        
 
         watch(gasValue, (newValue, oldValue) => {
             console.log(newValue);
+            socket.emit("gas_value", newValue);
           }
         );
        
@@ -144,11 +157,13 @@ const app = createApp({
 
         socket.on('update_timer', 
             (t) => { 
-
+             
                 timer.value = 
                 Math.floor(Math.round(t) / 60).toString() +
                         ':' +
                         (Math.round(t) % 60).toString().padStart(2, '0');
+
+                timer_value.value = t
                
         });
 
@@ -162,6 +177,11 @@ const app = createApp({
             store.value.phases = phases
         });
 
+        socket.on("gas_channel", (gas_channel) => {
+            console.log(gas_channel);
+            store.value.gas_channel = gas_channel
+        });
+
         return {
             width : width,
             height : height,
@@ -173,10 +193,13 @@ const app = createApp({
             yScale,
             yScaleROR,
             yScaleInlet,
+            yScaleGas,
             line,
             lineROR,
             lineInlet,
+            lineGas,
             timer,
+            timer_value,
             store,
             gasBubble,
             gasValue,

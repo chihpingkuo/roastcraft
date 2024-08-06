@@ -154,6 +154,15 @@
             :y="yScale(store.channels[0].data[re.index].value)+22" 
           >${time_format(store.channels[0].data[re.index].time)}</text>
         </g>
+
+        {# gas channel #}
+        <path v-if="store.gas_channel.data != undefined"
+            fill="none" 
+            stroke-width=1.5 
+            stroke="#922b21"
+            :d="lineGas([...store.gas_channel.data, {time:timer_value, value:store.gas_channel.current_data}])" 
+            >
+        </path>
       </svg>
       
       <div class="">

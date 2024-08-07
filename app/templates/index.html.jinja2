@@ -45,29 +45,37 @@
           </clipPath>
         </defs>
 
+        <!-- axis -->
         <g v-x_axis :transform="`translate(0,${height - marginBottom})`"></g>
         <g v-y_axis :transform="`translate(${marginLeft},0)`"></g>
         <g v-y_axis_inlet :transform="`translate(${marginLeft},0)`"></g>
         <g v-y_axis_ror :transform="`translate(${width - marginRight},0)`"></g>
+
+        <!-- BT curve -->
         <path 
           fill="none" 
           stroke-width=1.5 
           :stroke="store.channels[0].color" 
           :d="line(store.channels[0].data)">
         </path>
+
+        <!-- ET curve -->
         <path 
           fill="none" 
           stroke-width=1.5 
           :stroke="store.channels[1].color" 
           :d="line(store.channels[1].data)">
         </path>
+
+        <!-- INLET curve -->
         <path 
           fill="none" 
-          stroke-width=1.5 
-          
+          stroke-width=1.5   
           :stroke="store.channels[2].color" 
           :d="lineInlet(store.channels[2].data)">
         </path>
+
+        <!-- ROR curves -->
         <g clip-path="url(#clip-path)">
           <path v-if="showROR"
             fill="none" 
@@ -83,33 +91,7 @@
             :d="lineROR(store.channels[0].ror_smoothed)" 
             >
           </path>
-        </g>
-        
-        <circle v-if="store.channels[0].data.length > 0"
-          r=2
-          :cx="xScale(store.channels[0].data.at(-1).time)"
-          :cy="yScale(store.channels[0].data.at(-1).value)"
-          :fill="store.channels[0].color"
-        ></circle>
-        <circle v-if="store.channels[1].data.length > 0"
-          r=2
-          :cx="xScale(store.channels[1].data.at(-1).time)"
-          :cy="yScale(store.channels[1].data.at(-1).value)"
-          :fill="store.channels[0].color"
-        ></circle>
-        <circle v-if="store.channels[2].data.length > 0"
-          r=2
-          :cx="xScale(store.channels[2].data.at(-1).time)"
-          :cy="yScaleInlet(store.channels[2].data.at(-1).value)"
-          :fill="store.channels[0].color"
-        ></circle>
-        
-        <circle v-if="store.channels[0].ror_smoothed.length > 0"
-            r=2
-            :cx="xScale(store.channels[0].ror_smoothed.at(-1).time)"
-            :cy="yScaleROR(store.channels[0].ror_smoothed.at(-1).value)"
-            fill="#0000FF"
-        ></circle>
+        </g>       
         
         <text v-if="toolTipLabels.length > 0" v-for="tooltip in toolTipLabels"
             alignment-baseline="middle"
@@ -156,14 +138,32 @@
           >${time_format(store.channels[0].data[re.index].time)}</text>
         </g>
 
-        {# gas channel #}
+        <!-- gas channel -->
         <path v-if="store.gas_channel.data != undefined"
-            fill="none" 
-            stroke-width=1.5 
-            stroke="#922b21"
-            :d="lineGas([...store.gas_channel.data, {time:timer_value, value:store.gas_channel.current_data}])" 
-            >
+          fill="none" 
+          stroke-width=1.5 
+          stroke="#922b21"
+          :d="lineGas([...store.gas_channel.data, {time:timer_value, value:store.gas_channel.current_data}])" 
+          >
         </path>
+        <g v-for="point in store.gas_channel.data">
+          <text
+              alignment-baseline="baseline"
+              text-anchor="start"
+              font-size="10px"
+              :x="xScale(point.time)+2"
+              :y="yScaleGas(point.value)-2" 
+            >${point.value}</text>
+        </g>
+        <!--
+        <text
+              alignment-baseline="hanging"
+              text-anchor="start"
+              font-size="10px"
+              :x="xScale(timer_value)"
+              :y="yScaleGas(store.gas_channel.current_data)" 
+            >${store.gas_channel.current_data}</text>
+        -->
       </svg>
       
       <div class="">

@@ -41,7 +41,7 @@ const yScaleInlet = d3
 const yScaleGas = d3
 .scaleLinear()
 .domain([0, 100])
-.range([height - marginBottom, height - marginBottom - 120]);
+.range([height - marginBottom, height - marginBottom - 160]);
 
 
 // Declare the line generator.
@@ -108,9 +108,10 @@ const app = createApp({
         const socket = io();
 
         socket.on("read_device", (channels) => {
-            // console.log(channels);
+            
             store.value.channels = channels;
 
+            // tool tip labels
             let labels=[]
 
             if(channels[0].data.length > 0) {
@@ -153,7 +154,7 @@ const app = createApp({
             }
 
             toolTipLabels.value = labels
-            console.log(toolTipLabels.value);
+            
         });
 
         socket.on('update_timer', 

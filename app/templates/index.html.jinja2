@@ -47,6 +47,7 @@
 
         <g v-x_axis :transform="`translate(0,${height - marginBottom})`"></g>
         <g v-y_axis :transform="`translate(${marginLeft},0)`"></g>
+        <g v-y_axis_inlet :transform="`translate(${marginLeft},0)`"></g>
         <g v-y_axis_ror :transform="`translate(${width - marginRight},0)`"></g>
         <path 
           fill="none" 
@@ -290,8 +291,6 @@
           >
             >
           </button>
-        </div>
-        <div class="flex gap-1 mt-1">
           
           <button
             class="btn"

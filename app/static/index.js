@@ -22,7 +22,7 @@ const xScale = d3
 // Declare the y (vertical position) scale on the left
 const yScale = d3
     .scaleLinear()
-    .domain([80, 220])
+    .domain([80, 240])
     .range([height - marginBottom, marginTop]);
 
 // Declare the y (vertical position) scale on the right
@@ -33,9 +33,9 @@ const yScaleROR = d3
 
 // Declare the y (vertical position) scale on the right
 const yScaleInlet = d3
-.scaleLinear()
-.domain([200, 380])
-.range([height - marginBottom, marginTop]);
+    .scaleLinear()
+    .domain([220, 380])
+    .range([height - marginBottom, marginTop]);
 
 // gas chart height 120
 const yScaleGas = d3
@@ -230,6 +230,12 @@ app.directive(
 app.directive(
     'y_axis', (el, binding) => {
         d3.select(el).call(d3.axisLeft(yScale));
+    }
+)
+
+app.directive(
+    'y_axis_inlet', (el, binding) => {
+        d3.select(el).style("font-size","8px").call(d3.axisRight(yScaleInlet).tickSize(3));
     }
 )
 

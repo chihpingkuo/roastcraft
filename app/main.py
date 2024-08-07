@@ -249,11 +249,9 @@ async def reset() -> Response:
         session.timer, session.channels[0].current_data, session.roast_events
     )
     await socketio_server.emit("phases", jsonable_encoder(phases))
-    await socketio_server.emit(
-        "roast_events",
-        jsonable_encoder([]),
-    )
+    await socketio_server.emit("roast_events", jsonable_encoder([]))
     await socketio_server.emit("read_device", jsonable_encoder(session.channels))
+    await socketio_server.emit("gas_channel", jsonable_encoder(session.gas_channel))
 
     return """
     

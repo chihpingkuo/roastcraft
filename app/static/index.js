@@ -170,17 +170,17 @@ const app = createApp({
         });
 
         socket.on("roast_events", (roast_events) => {
-            console.log(roast_events);
+            // console.log(roast_events);
             store.value.roast_events = roast_events
         });
 
         socket.on("phases", (phases) => {
-            console.log(phases);
+            // console.log(phases);
             store.value.phases = phases
         });
 
         socket.on("gas_channel", (gas_channel) => {
-            console.log(gas_channel);
+            // console.log(gas_channel);
             store.value.gas_channel = gas_channel
         });
 

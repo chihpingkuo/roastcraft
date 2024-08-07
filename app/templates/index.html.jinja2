@@ -56,7 +56,7 @@
             stroke-width=0.5
             stroke-opacity=0.4
             stroke-dasharray="2 2"
-            :x1="marginLeft"
+            :x1="marginLeft + 20"
             :x2="width - marginRight"
             :y1="yScale(tick)"
             :y2="yScale(tick)"
@@ -158,7 +158,7 @@
           :d="lineGas([...store.gas_channel.data, {time:timer_value, value:store.gas_channel.current_data}])" 
           >
         </path>
-        <g v-for="point in store.gas_channel.data">
+        <g v-if="store.gas_channel.data != undefined" v-for="point in store.gas_channel.data">
           <text
               alignment-baseline="baseline"
               text-anchor="start"

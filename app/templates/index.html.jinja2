@@ -34,7 +34,6 @@
   </head>
   <body>
     <div id="app" class="flex gap-1">
-      
       <svg id="main_chart" :width="width" :height="height">
 
         <defs>
@@ -50,6 +49,19 @@
         <g v-y_axis :transform="`translate(${marginLeft},0)`"></g>
         <g v-y_axis_inlet :transform="`translate(${marginLeft},0)`"></g>
         <g v-y_axis_ror :transform="`translate(${width - marginRight},0)`"></g>
+
+        <g v-for="tick in yScale.ticks().slice(1, yScale.ticks().length)">
+          <line
+            stroke="black"
+            stroke-width=0.5
+            stroke-opacity=0.4
+            stroke-dasharray="2 2"
+            :x1="marginLeft"
+            :x2="width - marginRight"
+            :y1="yScale(tick)"
+            :y2="yScale(tick)"
+          ></line>
+        </g>
 
         <!-- BT curve -->
         <path 

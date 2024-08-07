@@ -498,5 +498,4 @@ async def read_device():
 async def update_timer():
     session: RoastSession = store.session
     session.timer = (datetime.now() - session.start_time).total_seconds()
-    LOG_UVICORN.info(session.timer)
     await socketio_server.emit("update_timer", session.timer)

@@ -107,39 +107,46 @@ const app = createApp({
         // });
         const socket = io();
 
-        socket.on("read_device", (channels) => {
-            
-            store.value.channels = channels;
+        socket.on("read_device", (session) => {
+            console.log(session)
+
+            store.value.channels = session.channels;
+            store.value.phases = session.phases
+            store.value.gas_channel = session.gas_channel
+
+            let bt=session.channels[0];
+            let et=session.channels[1];
+            let inlet=session.channels[2];
 
             // tool tip labels
             let labels=[]
 
-            if(channels[0].data.length > 0) {
+            if(bt.data.length > 0) {
                 labels.push({
-                    label: channels[0].data.at(-1).value.toFixed(1), 
-                    x: xScale(channels[0].data.at(-1).time)+2,
-                    y: yScale(channels[0].data.at(-1).value)
+                    label: bt.data.at(-1).value.toFixed(1), 
+                    x: xScale(bt.data.at(-1).time)+2,
+                    y: yScale(bt.data.at(-1).value)
                 })   
             }
-            if(channels[1].data.length > 0) {
+            if(et.data.length > 0) {
                 labels.push({
-                    label: channels[1].data.at(-1).value.toFixed(1), 
-                    x: xScale(channels[1].data.at(-1).time)+2,
-                    y: yScale(channels[1].data.at(-1).value)
+                    label: et.data.at(-1).value.toFixed(1), 
+                    x: xScale(et.data.at(-1).time)+2,
+                    y: yScale(et.data.at(-1).value)
                 })   
             }
-            if(channels[2].data.length > 0) {
+            if(inlet.data.length > 0) {
                 labels.push({
-                    label: channels[2].data.at(-1).value.toFixed(1), 
-                    x: xScale(channels[2].data.at(-1).time)+2,
-                    y: yScaleInlet(channels[2].data.at(-1).value)
+                    label: inlet.data.at(-1).value.toFixed(1), 
+                    x: xScale(inlet.data.at(-1).time)+2,
+                    y: yScaleInlet(inlet.data.at(-1).value)
                 })   
             }
-            if(channels[0].ror_smoothed.length > 0) {
+            if(bt.ror_smoothed.length > 0) {
                 labels.push({
-                    label: channels[0].ror_smoothed.at(-1).value.toFixed(1), 
-                    x: xScale(channels[0].ror_smoothed.at(-1).time)+2,
-                    y: yScaleROR(channels[0].ror_smoothed.at(-1).value)
+                    label: bt.ror_smoothed.at(-1).value.toFixed(1), 
+                    x: xScale(bt.ror_smoothed.at(-1).time)+2,
+                    y: yScaleROR(bt.ror_smoothed.at(-1).value)
                 })
             }
 
@@ -175,16 +182,6 @@ const app = createApp({
             // console.log(Object.keys(roast_events).map((key)=>({id: key, index: roast_events[key]})))
             
             store.value.roast_events = roast_events
-        });
-
-        socket.on("phases", (phases) => {
-            // console.log(phases);
-            store.value.phases = phases
-        });
-
-        socket.on("gas_channel", (gas_channel) => {
-            // console.log(gas_channel);
-            store.value.gas_channel = gas_channel
         });
 
         return {

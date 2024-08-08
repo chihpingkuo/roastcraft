@@ -245,13 +245,11 @@ async def reset() -> Response:
 
     await socketio_server.emit("update_timer", session.timer)
 
-    phases = calculate_phases(
-        session.timer, session.channels[0].current_data, session.roast_events
-    )
-    await socketio_server.emit("phases", jsonable_encoder(phases))
-    await socketio_server.emit("roast_events", jsonable_encoder(session.roast_events))
-    await socketio_server.emit("read_device", jsonable_encoder(session.channels))
-    await socketio_server.emit("gas_channel", jsonable_encoder(session.gas_channel))
+    await socketio_server.emit(
+        "roast_events", jsonable_encoder(session.roast_events)
+    )  # this first, otherwise will have bug, need to fix
+
+    await socketio_server.emit("read_device", jsonable_encoder(session))
 
     return """
     
@@ -461,9 +459,7 @@ async def read_device():
     )
     LOG_UVICORN.info(session.phases)
 
-    await socketio_server.emit("read_device", jsonable_encoder(session.channels))
-    await socketio_server.emit("phases", jsonable_encoder(session.phases))
-    await socketio_server.emit("gas_channel", jsonable_encoder(session.gas_channel))
+    await socketio_server.emit("read_device", jsonable_encoder(session))
 
 
 async def update_timer():

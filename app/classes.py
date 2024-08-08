@@ -68,6 +68,11 @@ class RoastSession:
         self.channels: list[Channel] = []
         self.gas_channel: ManualChannel = ManualChannel("GAS", 20)
         self.roast_events: dict[RoastEventId, int] = {}
+        self.phases: dict = {
+            "dry": Phase(0.0, 0.0, 0.0),
+            "mai": Phase(0.0, 0.0, 0.0),
+            "dev": Phase(0.0, 0.0, 0.0),
+        }
 
 
 class AppStatus(Enum):

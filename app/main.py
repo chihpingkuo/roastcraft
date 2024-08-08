@@ -456,13 +456,13 @@ async def read_device():
     await auto_detect_turning_point()
     await auto_detect_dry_end()
     await auto_detect_drop()
-    phases = calculate_phases(
+    session.phases = calculate_phases(
         session.timer, session.channels[0].current_data, session.roast_events
     )
-    LOG_UVICORN.info(phases)
+    LOG_UVICORN.info(session.phases)
 
     await socketio_server.emit("read_device", jsonable_encoder(session.channels))
-    await socketio_server.emit("phases", jsonable_encoder(phases))
+    await socketio_server.emit("phases", jsonable_encoder(session.phases))
     await socketio_server.emit("gas_channel", jsonable_encoder(session.gas_channel))
 
 

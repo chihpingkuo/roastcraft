@@ -170,7 +170,10 @@ const app = createApp({
         });
 
         socket.on("roast_events", (roast_events) => {
+            // console.log("roast_events");
             // console.log(roast_events);
+            // console.log(Object.keys(roast_events).map((key)=>({id: key, index: roast_events[key]})))
+            
             store.value.roast_events = roast_events
         });
 

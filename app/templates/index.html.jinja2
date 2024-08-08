@@ -112,7 +112,7 @@
             :y="tooltip.y" 
         >${tooltip.label}</text>
 
-        <g v-for="re in store.roast_events">
+        <g v-for="re in Object.keys(store.roast_events).map((key)=>({id: key, index: store.roast_events[key]}))">
           <circle
             r=2
             :cx="xScale(store.channels[0].data[re.index].time)"

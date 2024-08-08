@@ -69,13 +69,7 @@ async def auto_detect_charge():
                 point.time = (point.timestamp - session.start_time).total_seconds()
 
             await store.socketio_server.emit(
-                "roast_events",
-                jsonable_encoder(
-                    [
-                        {"id": key, "index": value}
-                        for key, value in session.roast_events.items()
-                    ]
-                ),
+                "roast_events", jsonable_encoder(session.roast_events)
             )
 
 
@@ -109,13 +103,7 @@ async def auto_detect_drop():
             session.roast_events[RoastEventId.D] = drop_index
 
             await store.socketio_server.emit(
-                "roast_events",
-                jsonable_encoder(
-                    [
-                        {"id": key, "index": value}
-                        for key, value in session.roast_events.items()
-                    ]
-                ),
+                "roast_events", jsonable_encoder(session.roast_events)
             )
 
 
@@ -136,13 +124,7 @@ async def auto_detect_dry_end():
             session.roast_events[RoastEventId.DE] = dry_end_index
 
             await store.socketio_server.emit(
-                "roast_events",
-                jsonable_encoder(
-                    [
-                        {"id": key, "index": value}
-                        for key, value in session.roast_events.items()
-                    ]
-                ),
+                "roast_events", jsonable_encoder(session.roast_events)
             )
 
 
@@ -175,13 +157,7 @@ async def auto_detect_turning_point():
         if tp_found:
             session.roast_events[RoastEventId.TP] = target_index
             await store.socketio_server.emit(
-                "roast_events",
-                jsonable_encoder(
-                    [
-                        {"id": key, "index": value}
-                        for key, value in session.roast_events.items()
-                    ]
-                ),
+                "roast_events", jsonable_encoder(session.roast_events)
             )
 
 

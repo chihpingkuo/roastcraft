@@ -67,7 +67,7 @@ class RoastSession:
         self.timer: float = 0.0
         self.channels: list[Channel] = []
         self.gas_channel: ManualChannel = ManualChannel("GAS", 20)
-        self.roast_events: dict = {}
+        self.roast_events: dict[RoastEventId, int] = {}
 
 
 class AppStatus(Enum):

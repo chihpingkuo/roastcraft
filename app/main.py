@@ -77,8 +77,8 @@ store.socketio_server = socketio_server
 store.app_status = AppStatus.OFF
 
 store.session = RoastSession()
-for c in store.settings["channels"]:
-    store.session.channels.append(Channel(id=c["id"], color=c["color"]))
+for ch in store.settings["channels"]:
+    store.session.channels.append(Channel(id=ch["id"], color=ch["color"]))
 
 
 @socketio_server.on("gas_value")
@@ -428,19 +428,17 @@ async def read_device():
         c.current_data = result[c.id]
 
         # calculate ror
-        c.data_window.append({"t": now, "v": result[c.id]})
+        c.data_window.append(Point(now, session.timer, result[c.id]))
         if len(c.data_window) > 5:
             c.data_window.pop(0)
 
-        delta = c.data_window[-1]["v"] - c.data_window[0]["v"]
+        delta = c.data_window[-1].value - c.data_window[0].value
         time_elapsed_sec = (
-            c.data_window[-1]["t"] - c.data_window[0]["t"]
+            c.data_window[-1].timestamp - c.data_window[0].timestamp
         ).total_seconds()
 
-        ror = 0
-        if time_elapsed_sec != 0:
-            ror: float = delta * 60 / time_elapsed_sec
-        c.current_ror = ror
+        if time_elapsed_sec > 0:
+            c.current_ror = delta * 60 / time_elapsed_sec  # ror time frame : 60 sec
 
     if store.app_status == AppStatus.RECORDING:
         session.timer = (now - session.start_time).total_seconds()
@@ -461,7 +459,7 @@ async def read_device():
 
             # smooth curve
             # https://scipy-cookbook.readthedocs.io/items/SignalSmooth.html
-            window_len = 15  # shouled be odd number
+            window_len = 11  # shouled be odd number
             if len(c.ror_filtered) >= window_len:
                 x = []
 

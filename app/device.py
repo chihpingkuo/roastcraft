@@ -56,24 +56,25 @@ class Kapok501(Device):
         self.client = None
 
     async def connect(self) -> bool:
-        self.client = ModbusClient.AsyncModbusSerialClient(
-            self.port,
-            framer=Framer.ASCII,
-            # timeout=10,
-            # retries=3,
-            # retry_on_empty=False,
-            # strict=True,
-            baudrate=9600,
-            bytesize=8,
-            parity="N",
-            stopbits=1,
-            # handle_local_echo=False,
-        )
+        if self.client is None:
+            self.client = ModbusClient.AsyncModbusSerialClient(
+                self.port,
+                framer=Framer.ASCII,
+                # timeout=10,
+                # retries=3,
+                # retry_on_empty=False,
+                # strict=True,
+                baudrate=9600,
+                bytesize=8,
+                parity="N",
+                stopbits=1,
+                # handle_local_echo=False,
+            )
         await self.client.connect()
         return True
 
     async def close(self) -> bool:
-        await self.client.close()
+        self.client.close()
         return True
 
     async def read(self) -> Dict:

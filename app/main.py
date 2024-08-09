@@ -245,10 +245,6 @@ async def reset() -> Response:
 
     await socketio_server.emit("update_timer", session.timer)
 
-    await socketio_server.emit(
-        "roast_events", jsonable_encoder(session.roast_events)
-    )  # this first, otherwise will have bug, need to fix
-
     await socketio_server.emit("read_device", jsonable_encoder(session))
 
     return """

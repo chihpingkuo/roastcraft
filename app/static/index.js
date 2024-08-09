@@ -40,7 +40,7 @@ const yScaleInlet = d3
 // gas chart height 120
 const yScaleGas = d3
 .scaleLinear()
-.domain([0, 100])
+.domain([0, 120])
 .range([height - marginBottom, height - marginBottom - 160]);
 
 
@@ -86,7 +86,7 @@ const app = createApp({
               ror_smoothed: []
             })),
             
-            roast_events: [],
+            roast_events: {},
             phases: {
                 dry:{time:0, percent:0, temp_rise:0},
                 mai:{time:0, percent:0, temp_rise:0},
@@ -111,8 +111,9 @@ const app = createApp({
             console.log(session)
 
             store.value.channels = session.channels;
-            store.value.phases = session.phases
             store.value.gas_channel = session.gas_channel
+            store.value.phases = session.phases
+            store.value.roast_events = session.roast_events
 
             let bt=session.channels[0];
             let et=session.channels[1];

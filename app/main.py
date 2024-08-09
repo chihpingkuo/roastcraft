@@ -124,6 +124,31 @@ async def on_charge(sid, data):
     await socketio_server.emit("roast_events", jsonable_encoder(session.roast_events))
 
 
+@socketio_server.on("first_crack")
+async def on_first_crack(sid, data):
+
+    session: RoastSession = store.session
+
+    index = len(session.channels[0].data) - 1
+    session.roast_events[RoastEventId.FC] = index
+
+    LOG_UVICORN.info("FIRST CRACK at BT index : %s", index)
+
+    await socketio_server.emit("roast_events", jsonable_encoder(session.roast_events))
+
+
+@socketio_server.on("drop")
+async def on_drop(sid, data):
+    session: RoastSession = store.session
+
+    index = len(session.channels[0].data) - 1
+    session.roast_events[RoastEventId.D] = index
+
+    LOG_UVICORN.info("DROP at BT index : %s", index)
+
+    await socketio_server.emit("roast_events", jsonable_encoder(session.roast_events))
+
+
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
     return templates.TemplateResponse(
@@ -280,48 +305,6 @@ async def reset() -> Response:
 
     return """
     
-    """
-
-
-@app.post("/fc", response_class=HTMLResponse)
-async def fc() -> Response:
-
-    session: RoastSession = store.session
-
-    index = len(session.channels[0].data) - 1
-    session.roast_events[RoastEventId.FC] = index
-
-    LOG_UVICORN.info("FIRST CRACK at BT index : %s", index)
-
-    await socketio_server.emit("roast_events", jsonable_encoder(session.roast_events))
-
-    return """
-    <button 
-        class="btn btn-disabled" 
-    >
-        FC
-    </button>
-    """
-
-
-@app.post("/drop", response_class=HTMLResponse)
-async def drop() -> Response:
-
-    session: RoastSession = store.session
-
-    index = len(session.channels[0].data) - 1
-    session.roast_events[RoastEventId.D] = index
-
-    LOG_UVICORN.info("DROP at BT index : %s", index)
-
-    await socketio_server.emit("roast_events", jsonable_encoder(session.roast_events))
-
-    return """
-    <button 
-        class="btn btn-disabled" 
-    >
-        drop
-    </button>
     """
 
 

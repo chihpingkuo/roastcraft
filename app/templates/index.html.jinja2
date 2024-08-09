@@ -283,7 +283,7 @@
             :class="['btn', ('C' in store.roast_events) ? 'btn-disabled' : '']"
             @click="socket.emit('charge', 'charge')"
           >
-            charge
+            Charge
           </button>
           <button 
             class="btn"
@@ -297,25 +297,19 @@
           >
             >
           </button>
-          
-          <button
-            class="btn"
-            hx-post="/fc"
-            hx-trigger="click"
-            hx-target="this"
-            hx-swap="outerHTML"
+          <button 
+            :class="['btn', ('FC' in store.roast_events) ? 'btn-disabled' : '']"
+            @click="socket.emit('first_crack', '')"
           >
             FC
           </button>
-          <button
-            class="btn"
-            hx-post="/drop"
-            hx-trigger="click"
-            hx-target="this"
-            hx-swap="outerHTML"
+          <button 
+            :class="['btn', ('D' in store.roast_events) ? 'btn-disabled' : '']"
+            @click="socket.emit('drop', '')"
           >
-            drop
+            Drop
           </button>
+          
         </div>
 
         {# range slider #}

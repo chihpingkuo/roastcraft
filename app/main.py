@@ -97,7 +97,12 @@ def gas_value(sid, data):
 async def on_charge(sid, data):
     session: RoastSession = store.session
 
-    index = len(session.channels[0].data) - 1
+    if data == "charge":
+        index = len(session.channels[0].data) - 1
+    elif data == "to_left":
+        index = session.roast_events[RoastEventId.C] - 1
+    else:  # data == "to_right"
+        index = session.roast_events[RoastEventId.C] + 1
 
     charge_point = session.channels[0].data[index]
     LOG_UVICORN.info("CHARGE at BT index : %s", index)
@@ -276,56 +281,6 @@ async def reset() -> Response:
     return """
     
     """
-
-
-@app.post("/charge/toLeft")
-async def charge_to_left() -> Response:
-
-    session: RoastSession = store.session
-
-    new_index = session.roast_events[RoastEventId.C] - 1
-
-    # re calculate time
-    session.start_time = session.channels[0].data[new_index].timestamp
-    for channel in session.channels:
-        for point in channel.data:
-            point.time = (point.timestamp - session.start_time).total_seconds()
-        for point in channel.ror:
-            point.time = (point.timestamp - session.start_time).total_seconds()
-
-    for point in session.gas_channel.data:
-        point.time = (point.timestamp - session.start_time).total_seconds()
-
-    session.roast_events[RoastEventId.C] = new_index
-
-    await socketio_server.emit("roast_events", jsonable_encoder(session.roast_events))
-
-    return {"message": "Ok"}
-
-
-@app.post("/charge/toRight")
-async def charge_to_right() -> Response:
-
-    session: RoastSession = store.session
-
-    new_index = session.roast_events[RoastEventId.C] + 1
-
-    # re calculate time
-    session.start_time = session.channels[0].data[new_index].timestamp
-    for channel in session.channels:
-        for point in channel.data:
-            point.time = (point.timestamp - session.start_time).total_seconds()
-        for point in channel.ror:
-            point.time = (point.timestamp - session.start_time).total_seconds()
-
-    for point in session.gas_channel.data:
-        point.time = (point.timestamp - session.start_time).total_seconds()
-
-    session.roast_events[RoastEventId.C] = new_index
-
-    await socketio_server.emit("roast_events", jsonable_encoder(session.roast_events))
-
-    return {"message": "Ok"}
 
 
 @app.post("/fc", response_class=HTMLResponse)

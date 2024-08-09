@@ -285,19 +285,15 @@
           >
             charge
           </button>
-          <button
+          <button 
             class="btn"
-            hx-post="/charge/toLeft"
-            hx-trigger="click"
-            hx-swap="none"
+            @click="socket.emit('charge', 'to_left')"
           >
             <
           </button>
-          <button
+          <button 
             class="btn"
-            hx-post="/charge/toRight"
-            hx-trigger="click"
-            hx-swap="none"
+            @click="socket.emit('charge', 'to_right')"
           >
             >
           </button>

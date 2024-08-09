@@ -93,6 +93,32 @@ def gas_value(sid, data):
     LOG_UVICORN.info("gas_channel : %s", store.session.gas_channel.data)
 
 
+@socketio_server.on("charge")
+async def on_charge(sid, data):
+    session: RoastSession = store.session
+
+    index = len(session.channels[0].data) - 1
+
+    charge_point = session.channels[0].data[index]
+    LOG_UVICORN.info("CHARGE at BT index : %s", index)
+    LOG_UVICORN.info("CHARGE at Point : %s", charge_point)
+
+    # re calculate time
+    session.start_time = charge_point.timestamp
+    for channel in session.channels:
+        for point in channel.data:
+            point.time = (point.timestamp - session.start_time).total_seconds()
+        for point in channel.ror:
+            point.time = (point.timestamp - session.start_time).total_seconds()
+
+    for point in session.gas_channel.data:
+        point.time = (point.timestamp - session.start_time).total_seconds()
+
+    session.roast_events[RoastEventId.C] = index
+
+    await socketio_server.emit("roast_events", jsonable_encoder(session.roast_events))
+
+
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
     return templates.TemplateResponse(
@@ -249,41 +275,6 @@ async def reset() -> Response:
 
     return """
     
-    """
-
-
-@app.post("/charge", response_class=HTMLResponse)
-async def charge() -> Response:
-
-    session: RoastSession = store.session
-
-    index = len(session.channels[0].data) - 1
-
-    charge_point = session.channels[0].data[index]
-    LOG_UVICORN.info("CHARGE at BT index : %s", index)
-    LOG_UVICORN.info("CHARGE at Point : %s", charge_point)
-
-    # re calculate time
-    session.start_time = charge_point.timestamp
-    for channel in session.channels:
-        for point in channel.data:
-            point.time = (point.timestamp - session.start_time).total_seconds()
-        for point in channel.ror:
-            point.time = (point.timestamp - session.start_time).total_seconds()
-
-    for point in session.gas_channel.data:
-        point.time = (point.timestamp - session.start_time).total_seconds()
-
-    session.roast_events[RoastEventId.C] = index
-
-    await socketio_server.emit("roast_events", jsonable_encoder(session.roast_events))
-
-    return """
-    <button 
-        class="btn btn-disabled" 
-    >
-        charge
-    </button>
     """
 
 

@@ -34,7 +34,7 @@ const yScaleROR = d3
 // Declare the y (vertical position) scale on the right
 const yScaleInlet = d3
     .scaleLinear()
-    .domain([220, 380])
+    .domain([240, 400])
     .range([height - marginBottom, marginTop]);
 
 // gas chart height 120

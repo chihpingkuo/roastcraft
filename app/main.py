@@ -373,7 +373,15 @@ async def read_device():
 
                 c.ror_smoothed = []
                 for idx, p in enumerate(c.ror_filtered):
-                    c.ror_smoothed.append(Point(p.timestamp, p.time, res[idx]))
+                    if p.time < 0:
+                        pass
+                    elif (
+                        RoastEventId.D in session.roast_events
+                        and idx > session.roast_events[RoastEventId.D] - 1
+                    ):
+                        pass
+                    else:
+                        c.ror_smoothed.append(Point(p.timestamp, p.time, res[idx]))
 
     await auto_detect_charge()
     await auto_detect_turning_point()

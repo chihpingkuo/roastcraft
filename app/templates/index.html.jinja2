@@ -40,7 +40,7 @@
           <clipPath
               clipPathUnits="userSpaceOnUse"
               id="clip-path">
-              <rect :x="xScale(0)" :y="marginTop" :width="width - marginRight - xScale(0)" :height="height - marginTop - marginBottom" />
+              <rect :x="marginLeft" :y="marginTop" :width="width - marginRight - marginLeft" :height="height - marginTop - marginBottom" />
           </clipPath>
         </defs>
 
@@ -62,33 +62,32 @@
             :y2="yScale(tick)"
           ></line>
         </g>
-
-        <!-- BT curve -->
-        <path 
-          fill="none" 
-          stroke-width=1.5 
-          :stroke="store.channels[0].color" 
-          :d="line(store.channels[0].data)">
-        </path>
-
-        <!-- ET curve -->
-        <path 
-          fill="none" 
-          stroke-width=1.5 
-          :stroke="store.channels[1].color" 
-          :d="line(store.channels[1].data)">
-        </path>
-
-        <!-- INLET curve -->
-        <path 
-          fill="none" 
-          stroke-width=1.5   
-          :stroke="store.channels[2].color" 
-          :d="lineInlet(store.channels[2].data)">
-        </path>
-
-        <!-- ROR curves -->
         <g clip-path="url(#clip-path)">
+          <!-- BT curve -->
+          <path 
+            fill="none" 
+            stroke-width=1.5 
+            :stroke="store.channels[0].color" 
+            :d="line(store.channels[0].data)">
+          </path>
+
+          <!-- ET curve -->
+          <path 
+            fill="none" 
+            stroke-width=1.5 
+            :stroke="store.channels[1].color" 
+            :d="line(store.channels[1].data)">
+          </path>
+
+          <!-- INLET curve -->
+          <path 
+            fill="none" 
+            stroke-width=1.5   
+            :stroke="store.channels[2].color" 
+            :d="lineInlet(store.channels[2].data)">
+          </path>
+
+          <!-- ROR curves -->
           <path v-if="showROR"
             fill="none" 
             stroke-width=1.5 
@@ -168,15 +167,24 @@
               :y="yScaleGas(point.value)-2" 
             >${point.value}</text>
         </g>
-        <!--
-        <text
-              alignment-baseline="hanging"
-              text-anchor="start"
-              font-size="10px"
-              :x="xScale(timer_value)"
-              :y="yScaleGas(store.gas_channel.current_data)" 
-            >${store.gas_channel.current_data}</text>
-        -->
+        <!-- first crack reference -->
+        <circle
+          r=3
+          fill="none" 
+          stroke-width=1 
+          stroke="green"
+          :cx="xScale(60*9)"
+          :cy="yScale(195)"
+        ></circle>
+        <!-- dry end reference -->
+        <circle
+          r=3
+          fill="none" 
+          stroke-width=1 
+          stroke="green"
+          :cx="xScale(60*4.5)"
+          :cy="yScale(150)"
+        ></circle>
       </svg>
       
       <div class="">
@@ -341,135 +349,172 @@
         <table class="w-full font-['Consolas'] divide-y text-right "> 
           <thead>
           <tr class="">
-            <th class="bg-slate-200"><pre>max</pre></th>
-            <th><pre>150 160 170</pre></th>
-            <th class="bg-slate-200"><pre>180 188  FC</pre></th>
-            <th><pre>   10%</pre></th>
+            <th><pre>max</pre></th>
+            <th class="bg-slate-200"><pre>150 160</pre></th>
+            <th><pre>170 180</pre></th>
+            <th class="bg-slate-200"><pre>188 FC</pre></th>
+            <th><pre>10%</pre></th>
           </tr>
           </thead>
           <tbody class="divide-y divide-dashed">
             <tr>
-              <td class="bg-slate-200">
+              <td>
                 <div class="flex justify-end">
                   <input type="radio" name="radio-1"/>
-                  <pre>A4 115</pre>
-                </div>
-              </td>
-              <td>
-                <div class="flex justify-end">
-                  <input type="radio" name="radio-2"/>
-                  <pre>B4 95  80  65</pre>
+                  <pre>A4 110</pre>
                 </div>
               </td>
               <td class="bg-slate-200">
                 <div class="flex justify-end">
                   <input type="radio" name="radio-2"/>
-                  <pre>C4 50  40  35</pre>
+                  <pre>B4 100 85</pre>
                 </div>
               </td>
               <td>
                 <div class="flex justify-end">
+                  <input type="radio" name="radio-3"/>
+                  <pre>C4 70  55</pre>
+                </div>
+              </td>
+              <td class="bg-slate-200">
+                <div class="flex justify-end">
                   <input type="radio" name="radio-4"/>
-                  <pre>D4 30</pre>
+                  <pre>D4 40 35</pre>
+                </div>
+              </td>
+              <td>
+                <div class="flex justify-end">
+                  <pre></pre>
                 </div>
               </td>  
             </tr>
             <tr>
-              <td class="bg-slate-200">
+              <td>
                 <div class="flex justify-end">
                   <input type="radio" name="radio-1"/>
-                  <pre>A3 110</pre>
+                  <pre>A3 105</pre>
                 </div>
               </td>
-              <td>
+              <td class="bg-slate-200">
                 <div class="flex justify-end">
                   <input type="radio" name="radio-2"/>
-                  <pre>B3 90  75  60</pre>
-                </div>
-                </td>
-              <td class="bg-slate-200">
-                <div class="flex justify-end">
-                  <input type="radio" name="radio-3"/>
-                  <pre>C3 45  35  30</pre>
+                  <pre>B3  95 80</pre>
                 </div>
               </td>
               <td>
                 <div class="flex justify-end">
-                  <input type="radio" name="radio-4"/>
-                  <pre>D3 25</pre>
+                  <input type="radio" name="radio-3"/>
+                  <pre>C3 65  50</pre>
                 </div>
-              </td>        
-            </tr>
-            <tr>
+              </td>
               <td class="bg-slate-200">
+                <div class="flex justify-end">
+                  <input type="radio" name="radio-4"/>
+                  <pre>D3 35 30</pre>
+                </div>
+              </td>
+              <td>
+                <div class="flex justify-end">
+                  <pre></pre>
+                </div>
+              </td>  
+            </tr> 
+            <tr>
+              <td>
                 <div class="flex justify-end">
                   <input type="radio" name="radio-1"/>
-                  <pre>A2 105</pre>
-                </div>
-              </td>
-              <td>
-                <div class="flex justify-end">
-                  <input type="radio" name="radio-2" checked="checked"/>
-                  <pre>B2 85  70  55</pre>
+                  <pre>A2 100</pre>
                 </div>
               </td>
               <td class="bg-slate-200">
-                <div class="flex justify-end">
-                  <input type="radio" name="radio-3" checked="checked"/>
-                  <pre>C2 40  30  25</pre>
-                </div>
-              </td>
-              <td>
-                <div class="flex justify-end">
-                  <input type="radio" name="radio-4"/>
-                  <pre>D2 20</pre>
-                </div>
-              </td>        
-            </tr>
-            <tr>
-              <td class="bg-slate-200">
-                <div class="flex justify-end">
-                  <input type="radio" name="radio-1" checked="checked"/>
-                  <pre>A1 100</pre>
-                </div>
-              </td>
-              <td>
                 <div class="flex justify-end">
                   <input type="radio" name="radio-2"/>
-                  <pre>B1 80  65  50</pre>
-                </div>
-              </td>
-              <td class="bg-slate-200">
-                <div class="flex justify-end">
-                  <input type="radio" name="radio-3"/>
-                  <pre>C1 35  25  20</pre>
+                  <pre>B2  90 75</pre>
                 </div>
               </td>
               <td>
                 <div class="flex justify-end">
-                  <input type="radio" name="radio-4" checked="checked"/>
-                  <pre>D1 15</pre>
+                  <input type="radio" name="radio-3"/>
+                  <pre>C2 60  45</pre>
                 </div>
-              </td>        
+              </td>
+              <td class="bg-slate-200">
+                <div class="flex justify-end">
+                  <input type="radio" name="radio-4"/>
+                  <pre>D2 30 25</pre>
+                </div>
+              </td>
+              <td>
+                <div class="flex justify-end">
+                  <input type="radio" name="radio-5"/>
+                  <pre>E2 20</pre>
+                </div>
+              </td>  
             </tr>
             <tr>
-              <td class="bg-slate-200"><div class="flex justify-end">
-                <input type="radio" name="radio-1"/>
-                <pre>A0  95</pre>
-              </div></td>
-              <td><div class="flex justify-end">
-                <input type="radio" name="radio-2"/>
-                <pre>B0 75  60  45</pre>
-              </div></td>
-              <td class="bg-slate-200"><div class="flex justify-end">
-                <input type="radio" name="radio-3"/>
-                <pre>C0 30  20  15</pre>
-              </div></td>
-              <td><div class="flex justify-end">
-                <input type="radio" name="radio-4"/>
-                <pre>D0 10</pre>
-              </div></td>        
-            </tr>  
+              <td>
+                <div class="flex justify-end">
+                  <input type="radio" name="radio-1"/>
+                  <pre>A1  95</pre>
+                </div>
+              </td>
+              <td class="bg-slate-200">
+                <div class="flex justify-end">
+                  <input type="radio" name="radio-2"/>
+                  <pre>B1  85 70</pre>
+                </div>
+              </td>
+              <td>
+                <div class="flex justify-end">
+                  <input type="radio" name="radio-3"/>
+                  <pre>C1 55  40</pre>
+                </div>
+              </td>
+              <td class="bg-slate-200">
+                <div class="flex justify-end">
+                  <input type="radio" name="radio-4"/>
+                  <pre>D1 25 20</pre>
+                </div>
+              </td>
+              <td>
+                <div class="flex justify-end">
+                  <input type="radio" name="radio-5"/>
+                  <pre>E1 15</pre>
+                </div>
+              </td>  
+            </tr>
+            <tr>
+              <td>
+                <div class="flex justify-end">
+                  <input type="radio" name="radio-1"/>
+                  <pre>A0  90</pre>
+                </div>
+              </td>
+              <td class="bg-slate-200">
+                <div class="flex justify-end">
+                  <input type="radio" name="radio-2"/>
+                  <pre>B0  80 65</pre>
+                </div>
+              </td>
+              <td>
+                <div class="flex justify-end">
+                  <input type="radio" name="radio-3"/>
+                  <pre>C0 50  35</pre>
+                </div>
+              </td>
+              <td class="bg-slate-200">
+                <div class="flex justify-end">
+                  <input type="radio" name="radio-4"/>
+                  <pre>D0 20 15</pre>
+                </div>
+              </td>
+              <td>
+                <div class="flex justify-end">
+                  <input type="radio" name="radio-5"/>
+                  <pre>E0 10</pre>
+                </div>
+              </td>  
+            </tr> 
           </tbody>
         </table>
       </div>

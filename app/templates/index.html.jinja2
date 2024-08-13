@@ -16,9 +16,6 @@
       }
     </script>
 
-    {# https://unpkg.com/htmx.org@2.0.0 #}
-    <script type="module" src="{{ url_for('static', path='/lib/htmx.2.0.0.min.js') }}"></script>
-
     {# https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js #}
     <script src="{{ url_for('static', path='/lib/d3.7.9.0.min.js') }}"></script>
 
@@ -28,6 +25,8 @@
     <script>
       let settings = {{ctx_settings|tojson}};
       console.log(settings);
+      let appstatus_init = "{{ctx_appstatus.name}}";
+      console.log(appstatus_init);
     </script>
 
     <script type="module" src="{{ url_for('static', path='/index.js') }}"></script>
@@ -193,56 +192,39 @@
           <div class="flex items-center justify-center bg-black text-white rounded text-2xl font-extrabold w-24">
             ${timer}
           </div>
+          ${appStatus}
         </div>
         <div class="flex gap-1 mt-1">
-          {% if ctx_appstatus.name == "OFF" %}
-            <button
-              class="btn"
-              hx-post="/reset"
-              hx-trigger="click"
-              hx-swap="none"
-            >
-              reset
-            </button>
-            <button
-              class="btn"
-              hx-post="/on"
-              hx-trigger="click"
-              hx-target="closest div"
-              hx-swap="outerHTML"
-            >
-              on
-            </button>
-          {% elif ctx_appstatus.name == "ON" %}
-            <button
-              class="btn"
-              hx-post="/off"
-              hx-trigger="click"
-              hx-target="closest div"
-              hx-swap="outerHTML"
-            >
-              off
-            </button>
-            <button 
-              class="btn" 
-              hx-post="/start" 
-              hx-trigger="click"
-              hx-target="closest div"
-              hx-swap="outerHTML"
-            >
-              start
-            </button>
-          {% else %}
-            <button 
-              class="btn" 
-              hx-post="/stop" 
-              hx-trigger="click"
-              hx-target="closest div"
-              hx-swap="outerHTML"
-            >
-              stop
-            </button>
-          {% endif %}
+          <button v-if="appStatus == 'OFF'"
+            class="btn"
+            @click="socket.emit('reset', '')"
+          >
+            Reset
+          </button>
+          <button v-if="appStatus == 'OFF'"
+            class="btn"
+            @click="socket.emit('on', '')"
+          >
+            On
+          </button>
+          <button v-if="appStatus == 'ON'"
+            class="btn"
+            @click="socket.emit('off', '')"
+          >
+            Off
+          </button>
+          <button v-if="appStatus == 'ON'"
+            class="btn"
+            @click="socket.emit('start', '')"
+          >
+            Start
+          </button>
+          <button v-if="appStatus == 'RECORDING'"
+            class="btn"
+            @click="socket.emit('stop', '')"
+          >
+            Stop
+          </button>
         </div>
 
         <div class="flex gap-1 mt-1">  

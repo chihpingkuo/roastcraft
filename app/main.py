@@ -6,7 +6,7 @@ import typing
 import socketio
 
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, Response
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.concurrency import asynccontextmanager
@@ -158,9 +158,8 @@ async def root(request: Request):
     )
 
 
-@app.post("/on", response_class=HTMLResponse)
-async def connect() -> Response:
-
+@socketio_server.on("on")
+async def on_on(sid, data):
     # TODO: implicit reset data
 
     await store.device.connect()
@@ -170,65 +169,20 @@ async def connect() -> Response:
     )
 
     store.app_status = AppStatus.ON
-
-    return """
-    <div class="flex gap-1 mt-1">
-        <button
-            class="btn"
-            hx-post="/off"
-            hx-trigger="click"
-            hx-target="closest div"
-            hx-swap="outerHTML"
-        >
-            off
-        </button>
-        <button 
-            class="btn" 
-            hx-post="/start" 
-            hx-trigger="click"
-            hx-target="closest div"
-            hx-swap="outerHTML"
-        >
-            start
-        </button>
-    </div>
-    """
+    await socketio_server.emit("app_status", jsonable_encoder(store.app_status.name))
 
 
-@app.post("/off", response_class=HTMLResponse)
-async def close() -> Response:
-
+@socketio_server.on("off")
+async def on_off(sid, data):
     store.read_device_task.cancel()
     await store.device.close()
 
     store.app_status = AppStatus.OFF
-
-    return """
-    <div class="flex gap-1 mt-1">
-        <button
-            class="btn"
-            hx-post="/reset"
-            hx-trigger="click"
-            hx-swap="none"
-        >
-            reset
-        </button>
-        <button
-            class="btn"
-            hx-post="/on"
-            hx-trigger="click"
-            hx-target="closest div"
-            hx-swap="outerHTML"
-        >
-            on
-        </button>
-    </div>
-    """
+    await socketio_server.emit("app_status", jsonable_encoder(store.app_status.name))
 
 
-@app.post("/start", response_class=HTMLResponse)
-async def start() -> Response:
-
+@socketio_server.on("start")
+async def on_start(sid, data):
     store.session.start_time = datetime.now()
 
     store.update_timer_task = store.loop.create_task(
@@ -242,70 +196,30 @@ async def start() -> Response:
     )
 
     LOG_UVICORN.info("gas_channel : %s", store.session.gas_channel.data)
-
-    return """
-    <div class="flex gap-1 mt-1">
-        <button 
-            class="btn" 
-            hx-post="/stop" 
-            hx-trigger="click"
-            hx-target="closest div"
-            hx-swap="outerHTML"
-        >
-            stop
-        </button>
-    </div>
-    """
+    await socketio_server.emit("app_status", jsonable_encoder(store.app_status.name))
 
 
-@app.post("/stop", response_class=HTMLResponse)
-async def stop() -> Response:
-
+@socketio_server.on("stop")
+async def on_stop(sid, data):
     store.read_device_task.cancel()
     await store.device.close()
 
     store.update_timer_task.cancel()
 
     store.app_status = AppStatus.OFF
-
-    return """
-    <div class="flex gap-1 mt-1">
-        <button
-            class="btn"
-            hx-post="/reset"
-            hx-trigger="click"
-            hx-swap="none"
-        >
-            reset
-        </button>
-        <button
-            class="btn"
-            hx-post="/on"
-            hx-trigger="click"
-            hx-target="closest div"
-            hx-swap="outerHTML"
-        >
-            on
-        </button>
-    </div>
-    """
+    await socketio_server.emit("app_status", jsonable_encoder(store.app_status.name))
 
 
-@app.post("/reset", response_class=HTMLResponse)
-async def reset() -> Response:
-
+@socketio_server.on("reset")
+async def on_reset(sid, data):
     session = RoastSession()
     store.session = session
     for c in store.settings["channels"]:
         store.session.channels.append(Channel(id=c["id"], color=c["color"]))
 
     await socketio_server.emit("update_timer", session.timer)
-
     await socketio_server.emit("read_device", jsonable_encoder(session))
-
-    return """
-    
-    """
+    await socketio_server.emit("app_status", jsonable_encoder(store.app_status.name))
 
 
 async def ticker(interval: float, function_to_call: typing.Callable):

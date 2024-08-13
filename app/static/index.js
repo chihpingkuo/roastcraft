@@ -74,6 +74,8 @@ const app = createApp({
 
         let toolTipLabels = ref([])
 
+        let appStatus = ref(appstatus_init)
+
         let store = ref({
             channels: settings.channels.map((c) => ({
               id: c.id,
@@ -185,6 +187,10 @@ const app = createApp({
             store.value.roast_events = roast_events
         });
 
+        socket.on("app_status", (app_status) => {
+            appStatus.value = app_status
+        });
+
         return {
             width : width,
             height : height,
@@ -203,6 +209,7 @@ const app = createApp({
             lineGas,
             timer,
             timer_value,
+            appStatus,
             store,
             gasBubble,
             gasValue,

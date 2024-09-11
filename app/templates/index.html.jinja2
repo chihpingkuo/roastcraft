@@ -184,6 +184,24 @@
           :cx="xScale(60*4.5)"
           :cy="yScale(150)"
         ></circle>
+        <!-- BT extrapolation -->
+        <circle
+          r=3
+          fill="none" 
+          stroke-width=1 
+          stroke="blue"
+          :cx="xScale(timer_value+30)"
+          :cy="yScale(store.channels[0].current_data + store.channels[0].current_ror/2)"
+        ></circle>
+        <circle
+          r=3
+          fill="none" 
+          stroke-width=1 
+          stroke="blue"
+          :cx="xScale(timer_value+60)"
+          :cy="yScale(store.channels[0].current_data + store.channels[0].current_ror)"
+        ></circle>
+        
       </svg>
       
       <div class="">

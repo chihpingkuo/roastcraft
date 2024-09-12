@@ -154,7 +154,7 @@
           fill="none" 
           stroke-width=1.5 
           stroke="#922b21"
-          :d="lineGas([...store.gas_channel.data, {time:timer_value, value:store.gas_channel.current_data}])" 
+          :d="lineGas([...store.gas_channel.data, {time:timer, value:store.gas_channel.current_data}])" 
           >
         </path>
         <g v-if="store.gas_channel.data != undefined" v-for="point in store.gas_channel.data">
@@ -190,7 +190,7 @@
           fill="none" 
           stroke-width=1 
           stroke="blue"
-          :cx="xScale(timer_value+30)"
+          :cx="xScale(timer+30)"
           :cy="yScale(store.channels[0].current_data + store.channels[0].current_ror/2)"
         ></circle>
         <circle
@@ -198,7 +198,7 @@
           fill="none" 
           stroke-width=1 
           stroke="blue"
-          :cx="xScale(timer_value+60)"
+          :cx="xScale(timer+60)"
           :cy="yScale(store.channels[0].current_data + store.channels[0].current_ror)"
         ></circle>
         
@@ -208,7 +208,7 @@
         
         <div class="flex gap-1 mt-1">
           <div class="flex items-center justify-center bg-black text-white rounded text-2xl font-extrabold w-24">
-            ${timer}
+            ${timer_str}
           </div>
           ${appStatus}
         </div>

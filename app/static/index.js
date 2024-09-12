@@ -65,8 +65,8 @@ const lineGas = d3.line()
 const app = createApp({
     setup() {
         
-        let timer = ref("0:00"); 
-        let timer_value = ref(0);               
+        let timer_str = ref("0:00"); 
+        let timer = ref(0);               
         let gasBubble = ref(20);
         let gasValue = ref(20);
 
@@ -170,12 +170,12 @@ const app = createApp({
         socket.on('update_timer', 
             (t) => { 
              
-                timer.value = 
+                timer_str.value = 
                 Math.floor(Math.round(t) / 60).toString() +
                         ':' +
                         (Math.round(t) % 60).toString().padStart(2, '0');
 
-                timer_value.value = t
+                timer.value = t
                
         });
 
@@ -207,8 +207,8 @@ const app = createApp({
             lineROR,
             lineInlet,
             lineGas,
+            timer_str,
             timer,
-            timer_value,
             appStatus,
             store,
             gasBubble,

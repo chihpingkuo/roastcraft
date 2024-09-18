@@ -1,4 +1,4 @@
-import json
+import sqlite3
 import asyncio
 from datetime import datetime
 import typing
@@ -57,13 +57,24 @@ socketio_app = socketio.ASGIApp(
 app.mount("/socket.io", socketio_app)
 
 # store init
-store.settings = {"device": "ArtisanLog", "serial": {"port": "COM3"}}
+con = sqlite3.connect("roastcraft.db")
+cur = con.cursor()
+device = cur.execute(
+    "SELECT value FROM settings WHERE key = ?", ("device",)
+).fetchone()[0]
+
+port = cur.execute(
+    "SELECT value FROM settings WHERE key = ?", ("serial.port",)
+).fetchone()[0]
+
+store.settings = {"device": device, "serial": {"port": port}}
 store.settings["channels"] = [
     {"id": "BT", "color": "#191970"},
     {"id": "ET", "color": "#ff0000"},
     {"id": "INLET", "color": "#196F3D"},
 ]
 LOG_FASTAPI_CLI.info(store.settings)
+con.close()
 
 if store.settings["device"] == "Kapok501":
     LOG_FASTAPI_CLI.info("device: Kapok501")

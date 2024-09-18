@@ -24,4 +24,21 @@ cur.execute(
     """
 )
 
+cur.execute(
+    """
+    REPLACE INTO settings(key, value)
+    VALUES(?,?)
+    """,
+    ("device", "ArtisanLog"),
+)
+
+cur.execute(
+    """
+    REPLACE INTO settings(key, value)
+    VALUES(?,?)
+    """,
+    ("serial.port", "COM3"),
+)
+
+con.commit()
 con.close()

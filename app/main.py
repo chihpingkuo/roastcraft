@@ -57,9 +57,13 @@ socketio_app = socketio.ASGIApp(
 app.mount("/socket.io", socketio_app)
 
 # store init
-with open("settings.json", "rb") as f:
-    store.settings = json.load(f)
-    LOG_FASTAPI_CLI.info(settings)
+store.settings = {"device": "ArtisanLog", "serial": {"port": "COM3"}}
+store.settings["channels"] = [
+    {"id": "BT", "color": "#191970"},
+    {"id": "ET", "color": "#ff0000"},
+    {"id": "INLET", "color": "#196F3D"},
+]
+LOG_FASTAPI_CLI.info(store.settings)
 
 if store.settings["device"] == "Kapok501":
     LOG_FASTAPI_CLI.info("device: Kapok501")

@@ -1,9 +1,0 @@
-{
-  "device": "ArtisanLog", 
-  "serial": { "port": "COM3" },
-  "channels": [
-    { "id": "BT", "color": "#191970" },
-    { "id": "ET", "color": "#ff0000" },
-    { "id": "INLET", "color": "#196F3D" }
-  ]
-}

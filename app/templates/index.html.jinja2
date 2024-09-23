@@ -208,13 +208,13 @@
       <div class="">
         
         <div class="flex gap-1 mt-1">
-          <button class="text-white bg-gray-700 font-extrabold rounded-lg text-2xl px-5 py-2.5" type="button" disabled>
+          <button class="text-white bg-gray-900 font-extrabold rounded-lg text-2xl px-5 py-2.5" type="button" disabled>
           ${timer_str}
           </button>
           <button class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800" type="button" data-drawer-target="drawer-right-example" data-drawer-show="drawer-right-example" data-drawer-placement="right" aria-controls="drawer-right-example">
           Settings
           </button>
-          ${appStatus}
+          
         </div>
         <div class="flex gap-1 mt-1">
           <button v-if="appStatus == 'OFF'"
@@ -261,32 +261,29 @@
                >${channel.current_data.toFixed(1)}
             </p>
           </div>
-          
-        </div>
-        {# ror #}
-        <div class="flex gap-1 mt-1">
           <div class="bg-gray-200 rounded text-right w-20 px-1">
             <p>${'Δ' + store.channels[0].id}</p>
             <p class="text-2xl leading-tight text-blue-600"
                >${store.channels[0].current_ror.toFixed(1)}
             </p>
-          </div>  
+          </div> 
         </div>
+        
         {# phases #}
         <div class="flex gap-1 mt-1">
-          <div class="grid grid-cols-3 bg-gray-200 rounded w-32 px-1 text-xl" > 
+          <div class="grid grid-cols-3 bg-gray-300 rounded w-32 px-1 text-xl" > 
             <p class="col-span-1">${store.phases.dry.temp_rise.toFixed(1)}°</p>
             <p class="col-span-2 text-right text-base">Drying</p>
             <p class="col-span-1 text-red-600 ">${time_format(store.phases.dry.time)}</p>  
             <p class="col-span-2 text-right text-blue-600">${store.phases.dry.percent.toFixed(1)}%</p>
           </div>  
-          <div class="grid grid-cols-3 bg-gray-200 rounded w-32 px-1 text-xl" > 
+          <div class="grid grid-cols-3 bg-gray-300 rounded w-32 px-1 text-xl" > 
             <p class="col-span-1">${store.phases.mai.temp_rise.toFixed(1)}°</p>
             <p class="col-span-2 text-right text-base">Maillard</p>
             <p class="col-span-1 text-red-600 ">${time_format(store.phases.mai.time)}</p>  
             <p class="col-span-2 text-right text-blue-600">${store.phases.mai.percent.toFixed(1)}%</p>
           </div>  
-          <div class="grid grid-cols-3 bg-gray-200 rounded w-32 px-1 text-xl" > 
+          <div class="grid grid-cols-3 bg-gray-300 rounded w-32 px-1 text-xl" > 
             <p class="col-span-1">${store.phases.dev.temp_rise.toFixed(1)}°</p>
             <p class="col-span-2 text-right text-base">Develop</p>
             <p class="col-span-1 text-red-600 ">${time_format(store.phases.dev.time)}</p>  
@@ -381,25 +378,25 @@
               <td>
                 <div class="flex justify-end items-center">
                   <input type="radio" name="radio-1" class="w-3 h-3"/>
-                  <pre>A4 110</pre>
+                  <pre> 110</pre>
                 </div>
               </td>
               <td class="bg-slate-200">
                 <div class="flex justify-end items-center">
                   <input type="radio" name="radio-2" class="w-3 h-3"/>
-                  <pre>B4 100  85</pre>
+                  <pre> 100  85</pre>
                 </div>
               </td>
               <td>
                 <div class="flex justify-end items-center">
                   <input type="radio" name="radio-3" class="w-3 h-3"/>
-                  <pre>C4 70  55</pre>
+                  <pre> 70  55</pre>
                 </div>
               </td>
               <td class="bg-slate-200">
                 <div class="flex justify-end items-center">
                   <input type="radio" name="radio-4" class="w-3 h-3"/>
-                  <pre>D4 40 35</pre>
+                  <pre> 40 35</pre>
                 </div>
               </td>
               <td>
@@ -412,25 +409,25 @@
               <td>
                 <div class="flex justify-end items-center">
                   <input type="radio" name="radio-1" class="w-3 h-3"/>
-                  <pre>A3 105</pre>
+                  <pre> 105</pre>
                 </div>
               </td>
               <td class="bg-slate-200">
                 <div class="flex justify-end items-center">
                   <input type="radio" name="radio-2" class="w-3 h-3"/>
-                  <pre>B3  95  80</pre>
+                  <pre>  95  80</pre>
                 </div>
               </td>
               <td>
                 <div class="flex justify-end items-center">
                   <input type="radio" name="radio-3" class="w-3 h-3"/>
-                  <pre>C3 65  50</pre>
+                  <pre> 65  50</pre>
                 </div>
               </td>
               <td class="bg-slate-200">
                 <div class="flex justify-end items-center">
                   <input type="radio" name="radio-4" class="w-3 h-3"/>
-                  <pre>D3 35 30</pre>
+                  <pre> 35 30</pre>
                 </div>
               </td>
               <td>
@@ -443,31 +440,31 @@
               <td>
                 <div class="flex justify-end items-center">
                   <input type="radio" name="radio-1" class="w-3 h-3" checked="checked"/>
-                  <pre>A2 100</pre>
+                  <pre> 100</pre>
                 </div>
               </td>
               <td class="bg-slate-200">
                 <div class="flex justify-end items-center">
                   <input type="radio" name="radio-2" class="w-3 h-3" checked="checked"/>
-                  <pre>B2  90  75</pre>
+                  <pre>  90  75</pre>
                 </div>
               </td>
               <td>
                 <div class="flex justify-end items-center">
                   <input type="radio" name="radio-3" class="w-3 h-3" checked="checked"/>
-                  <pre>C2 60  45</pre>
+                  <pre> 60  45</pre>
                 </div>
               </td>
               <td class="bg-slate-200">
                 <div class="flex justify-end items-center">
                   <input type="radio" name="radio-4" class="w-3 h-3" checked="checked"/>
-                  <pre>D2 30 25</pre>
+                  <pre> 30 25</pre>
                 </div>
               </td>
               <td>
                 <div class="flex justify-end items-center">
                   <input type="radio" name="radio-5" class="w-3 h-3" checked="checked"/>
-                  <pre>E2 20</pre>
+                  <pre> 20</pre>
                 </div>
               </td>  
             </tr>
@@ -475,31 +472,31 @@
               <td>
                 <div class="flex justify-end items-center">
                   <input type="radio" name="radio-1" class="w-3 h-3"/>
-                  <pre>A1  95</pre>
+                  <pre>  95</pre>
                 </div>
               </td>
               <td class="bg-slate-200">
                 <div class="flex justify-end items-center">
                   <input type="radio" name="radio-2" class="w-3 h-3"/>
-                  <pre>B1  85  70</pre>
+                  <pre>  85  70</pre>
                 </div>
               </td>
               <td>
                 <div class="flex justify-end items-center">
                   <input type="radio" name="radio-3" class="w-3 h-3"/>
-                  <pre>C1 55  40</pre>
+                  <pre> 55  40</pre>
                 </div>
               </td>
               <td class="bg-slate-200">
                 <div class="flex justify-end items-center">
                   <input type="radio" name="radio-4" class="w-3 h-3"/>
-                  <pre>D1 25 20</pre>
+                  <pre> 25 20</pre>
                 </div>
               </td>
               <td>
                 <div class="flex justify-end items-center">
                   <input type="radio" name="radio-5" class="w-3 h-3"/>
-                  <pre>E1 15</pre>
+                  <pre> 15</pre>
                 </div>
               </td>  
             </tr>
@@ -507,31 +504,31 @@
               <td>
                 <div class="flex justify-end items-center">
                   <input type="radio" name="radio-1" class="w-3 h-3"/>
-                  <pre>A0  90</pre>
+                  <pre>  90</pre>
                 </div>
               </td>
               <td class="bg-slate-200">
                 <div class="flex justify-end items-center">
                   <input type="radio" name="radio-2" class="w-3 h-3"/>
-                  <pre>B0  80  65</pre>
+                  <pre>  80  65</pre>
                 </div>
               </td>
               <td>
                 <div class="flex justify-end items-center">
                   <input type="radio" name="radio-3" class="w-3 h-3"/>
-                  <pre>C0 50  35</pre>
+                  <pre> 50  35</pre>
                 </div>
               </td>
               <td class="bg-slate-200">
                 <div class="flex justify-end items-center">
                   <input type="radio" name="radio-4" class="w-3 h-3"/>
-                  <pre>D0 20 15</pre>
+                  <pre> 20 15</pre>
                 </div>
               </td>
               <td>
                 <div class="flex justify-end items-center">
                   <input type="radio" name="radio-5" class="w-3 h-3"/>
-                  <pre>E0 10</pre>
+                  <pre> 10</pre>
                 </div>
               </td>  
             </tr> 

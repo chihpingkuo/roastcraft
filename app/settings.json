@@ -1,6 +1,6 @@
 {
-  "device": "ArtisanLog", 
-  "serial": { "port": "COM3" },
+  "device": "Kapok501", 
+  "serial": { "port": "/dev/rfcomm0" },
   "channels": [
     { "id": "BT", "color": "#191970" },
     { "id": "ET", "color": "#ff0000" },

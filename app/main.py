@@ -44,9 +44,9 @@ socketio_server = socketio.AsyncServer(async_mode="asgi", cors_allowed_origins="
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(settings.router)
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory="app/templates")
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 socketio_app = socketio.ASGIApp(
     socketio_server=socketio_server, socketio_path="/socket.io"
@@ -57,7 +57,7 @@ socketio_app = socketio.ASGIApp(
 app.mount("/socket.io", socketio_app)
 
 # store init
-with open("settings.json", "rb") as f:
+with open("app/settings.json", "rb") as f:
     store.settings = json.load(f)
     LOG_FASTAPI_CLI.info(settings)
 
@@ -68,7 +68,7 @@ if store.settings["device"] == "Kapok501":
     store.device = device
 else:
     LOG_FASTAPI_CLI.info("device: ArtisanLog")
-    device: Device = ArtisanLog("../util/24-08-04_0946_mozart.alog")
+    device: Device = ArtisanLog("util/24-08-04_0946_mozart.alog")
     store.device = device
 
 # initialization

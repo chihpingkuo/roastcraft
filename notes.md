@@ -12,6 +12,9 @@ cd tailwindcss
 ./tailwindcss-windows-x64-v3.4.3.exe -i ../app/static/tailwind-input.css -o ../app/static/tailwind-output.css --minify
 
 . venv/Scripts/activate
-cd app
-fastapi dev main.py
+/roastcraft
+
+fastapi dev app/main.py
+fastapi run app/main.py
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 

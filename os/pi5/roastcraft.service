@@ -1,0 +1,17 @@
+[Unit]
+Description=roastcraft
+After=network.target rfcomm.service
+Wants=
+ 
+[Service]
+ExecStart=/home/user/roastcraft/venv/bin/uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+ExecReload=
+WorkingDirectory=/home/user/roastcraft
+Restart=on-failure
+PrivateTmp=true
+ProtectSystem=full
+User=user
+Group=user
+
+[Install]
+WantedBy=multi-user.target

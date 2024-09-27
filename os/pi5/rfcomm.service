@@ -1,0 +1,15 @@
+[Unit]
+Description=rfcomm
+After=bluetooth.service
+Requires=bluetooth.service
+Wants=
+
+[Service]
+ExecStartPre=/bin/sleep 10
+ExecStart=/usr/bin/rfcomm connect hci0 98:D3:C1:FD:F9:8F
+Restart=on-failure
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target

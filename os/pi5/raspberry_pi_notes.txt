@@ -34,33 +34,13 @@ sudo rfcomm connect hci0 98:D3:C1:FD:F9:8F
 
 # Connected /dev/rfcomm0 to 98:D3:C1:FD:F9:8F on channel 1
 
+
+# copy roastcraft.service, rfcomm.service
+sudo cp roastcraft.service /usr/lib/systemd/system/roastcraft.service
+sudo cp rfcomm.service /usr/lib/systemd/system/rfcomm.service
+
 sudo systemctl start roastcraft
 sudo journalctl -u roastcraft -f
-
-# roastcraft
-sudo nano /usr/lib/systemd/system/roastcraft.service
-
-[Unit]
-Description=roastcraft
-After=network.target auditd.service
-Wants=
-
-[Service]
-ExecStart=/home/user/roastcraft/venv/bin/uvicorn app.main:app --reload --host 0.0.0.0 --port 80>
-ExecReload=
-WorkingDirectory=/home/user/roastcraft
-Restart=on-failure
-PrivateTmp=true
-ProtectSystem=full
-User=user
-Group=user
-
-[Install]
-WantedBy=multi-user.target
-
-
-
-
 
 
 

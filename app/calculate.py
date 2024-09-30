@@ -1,9 +1,11 @@
+import logging
 import numpy
-from fastapi.encoders import jsonable_encoder
 
+from fastapi.encoders import jsonable_encoder
 from app import store
 from app.classes import Phase, RoastSession, RoastEventId, Point
-from app.loggers import LOG_UVICORN
+
+logger = logging.getLogger("uvicorn")
 
 
 # https://github.com/erykml/medium_articles/blob/master/Machine%20Learning/outlier_detection_hampel_filter.ipynb
@@ -53,7 +55,7 @@ async def auto_detect_charge():
         ):
             charge_index = len(ror) - 3
 
-            LOG_UVICORN.info("auto detected chargeat ror index: %s", charge_index)
+            logger.info("auto detected chargeat ror index: %s", charge_index)
 
             session.roast_events[RoastEventId.C] = charge_index
 
@@ -98,7 +100,7 @@ async def auto_detect_drop():
         ):
             drop_index = len(ror) - 3
 
-            LOG_UVICORN.info("auto detected drop at ror index: %s", drop_index)
+            logger.info("auto detected drop at ror index: %s", drop_index)
 
             session.roast_events[RoastEventId.D] = drop_index
 
@@ -192,7 +194,7 @@ def calculate_phases(t: float, last_temp: float, roast_events: dict):
     if RoastEventId.C in roast_events:
         charge = session.channels[0].data[roast_events[RoastEventId.C]]
     else:
-        LOG_UVICORN.warning("no CHARGE event")
+        logger.warning("no CHARGE event")
         return result
 
     if RoastEventId.TP in roast_events:

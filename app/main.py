@@ -3,6 +3,7 @@ import asyncio
 from datetime import datetime
 import typing
 
+import logging
 import socketio
 
 from fastapi import FastAPI, Request
@@ -26,9 +27,10 @@ from app.calculate import (
 )
 from app.device import ArtisanLog, Device, Kapok501
 from app.classes import RoastSession, RoastEventId, Point, Channel, AppStatus
-from app.loggers import LOG_FASTAPI_CLI, LOG_UVICORN
 
 from app.routers import settings
+
+logger = logging.getLogger("uvicorn")
 
 
 @asynccontextmanager
@@ -59,15 +61,15 @@ app.mount("/socket.io", socketio_app)
 # store init
 with open("app/settings.json", "rb") as f:
     store.settings = json.load(f)
-    LOG_FASTAPI_CLI.info(settings)
+    logger.info(settings)
 
 if store.settings["device"] == "Kapok501":
-    LOG_FASTAPI_CLI.info("device: Kapok501")
+    logger.info("device: Kapok501")
 
     device: Device = Kapok501(store.settings["serial"]["port"])
     store.device = device
 else:
-    LOG_FASTAPI_CLI.info("device: ArtisanLog")
+    logger.info("device: ArtisanLog")
     device: Device = ArtisanLog("util/24-08-04_0946_mozart.alog")
     store.device = device
 
@@ -90,7 +92,7 @@ def gas_value(sid, data):
         )
     )
 
-    LOG_UVICORN.info("gas_channel : %s", store.session.gas_channel.data)
+    logger.info("gas_channel : %s", store.session.gas_channel.data)
 
 
 @socketio_server.on("charge")
@@ -105,8 +107,8 @@ async def on_charge(sid, data):
         index = session.roast_events[RoastEventId.C] + 1
 
     charge_point = session.channels[0].data[index]
-    LOG_UVICORN.info("CHARGE at BT index : %s", index)
-    LOG_UVICORN.info("CHARGE at Point : %s", charge_point)
+    logger.info("CHARGE at BT index : %s", index)
+    logger.info("CHARGE at Point : %s", charge_point)
 
     # re calculate time
     session.start_time = charge_point.timestamp
@@ -132,7 +134,7 @@ async def on_first_crack(sid, data):
     index = len(session.channels[0].data) - 1
     session.roast_events[RoastEventId.FC] = index
 
-    LOG_UVICORN.info("FIRST CRACK at BT index : %s", index)
+    logger.info("FIRST CRACK at BT index : %s", index)
 
     await socketio_server.emit("roast_events", jsonable_encoder(session.roast_events))
 
@@ -144,7 +146,7 @@ async def on_drop(sid, data):
     index = len(session.channels[0].data) - 1
     session.roast_events[RoastEventId.D] = index
 
-    LOG_UVICORN.info("DROP at BT index : %s", index)
+    logger.info("DROP at BT index : %s", index)
 
     await socketio_server.emit("roast_events", jsonable_encoder(session.roast_events))
 
@@ -195,7 +197,7 @@ async def on_start(sid, data):
         Point(store.session.start_time, 0, store.session.gas_channel.current_data)
     )
 
-    LOG_UVICORN.info("gas_channel : %s", store.session.gas_channel.data)
+    logger.info("gas_channel : %s", store.session.gas_channel.data)
     await socketio_server.emit("app_status", jsonable_encoder(store.app_status.name))
 
 
@@ -233,7 +235,7 @@ async def read_device():
     session: RoastSession = store.session
 
     result = await store.device.read()
-    LOG_UVICORN.info("result: %s", result)
+    logger.info("result: %s", result)
 
     now = datetime.now()
     for c in session.channels:
@@ -254,7 +256,7 @@ async def read_device():
 
     if store.app_status == AppStatus.RECORDING:
         session.timer = (now - session.start_time).total_seconds()
-        LOG_UVICORN.info("roast_session timer : %s", session.timer)
+        logger.info("roast_session timer : %s", session.timer)
 
         for c in session.channels:
             c.data.append(Point(now, session.timer, result[c.id]))
@@ -304,7 +306,7 @@ async def read_device():
     session.phases = calculate_phases(
         session.timer, session.channels[0].current_data, session.roast_events
     )
-    LOG_UVICORN.info(session.phases)
+    logger.info(session.phases)
 
     await socketio_server.emit("read_device", jsonable_encoder(session))
 

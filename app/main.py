@@ -80,7 +80,10 @@ store.app_status = AppStatus.OFF
 
 store.session = RoastSession()
 for ch in store.settings["channels"]:
-    store.session.channels.append(Channel(id=ch["id"], color=ch["color"]))
+    c = Channel(id=ch["id"], color=ch["color"])
+    store.session.channels.append(c)
+    if ch["id"] == "BT":
+        store.session.bt_channel = c
 
 
 @socketio_server.on("gas_value")
@@ -100,13 +103,13 @@ async def on_charge(sid, data):
     session: RoastSession = store.session
 
     if data == "charge":
-        index = len(session.channels[0].data) - 1
+        index = len(session.bt_channel.data) - 1
     elif data == "to_left":
         index = session.roast_events[RoastEventId.C] - 1
     else:  # data == "to_right"
         index = session.roast_events[RoastEventId.C] + 1
 
-    charge_point = session.channels[0].data[index]
+    charge_point = session.bt_channel.data[index]
     logger.info("CHARGE at BT index : %s", index)
     logger.info("CHARGE at Point : %s", charge_point)
 
@@ -131,7 +134,7 @@ async def on_first_crack(sid, data):
 
     session: RoastSession = store.session
 
-    index = len(session.channels[0].data) - 1
+    index = len(session.bt_channel.data) - 1
     session.roast_events[RoastEventId.FC] = index
 
     logger.info("FIRST CRACK at BT index : %s", index)
@@ -143,7 +146,7 @@ async def on_first_crack(sid, data):
 async def on_drop(sid, data):
     session: RoastSession = store.session
 
-    index = len(session.channels[0].data) - 1
+    index = len(session.bt_channel.data) - 1
     session.roast_events[RoastEventId.D] = index
 
     logger.info("DROP at BT index : %s", index)
@@ -304,7 +307,7 @@ async def read_device():
     await auto_detect_dry_end()
     await auto_detect_drop()
     session.phases = calculate_phases(
-        session.timer, session.channels[0].current_data, session.roast_events
+        session.timer, session.bt_channel.current_data, session.roast_events
     )
     logger.info(session.phases)
 

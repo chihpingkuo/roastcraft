@@ -66,6 +66,7 @@ class RoastSession:
         self.start_time: datetime = datetime.now()
         self.timer: float = 0.0
         self.channels: list[Channel] = []
+        self.bt_channel: Channel = None
         self.gas_channel: ManualChannel = ManualChannel("GAS", 20)
         self.roast_events: dict[RoastEventId, int] = {}
         self.phases: dict = {

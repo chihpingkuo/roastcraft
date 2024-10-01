@@ -36,7 +36,7 @@ def hampel_filter_forloop_point(input_series: list[Point], window_size, n_sigmas
 
 async def auto_detect_charge():
     session: RoastSession = store.session
-    ror: list[Point] = session.channels[0].ror
+    ror: list[Point] = session.bt_channel.ror
     if (RoastEventId.C not in session.roast_events) & (len(ror) > 5):
         # window array: [ 0][ 1][ 2][ 3][ 4]
         #    ror array: [-5][-4][-3][-2][-1]
@@ -60,7 +60,7 @@ async def auto_detect_charge():
             session.roast_events[RoastEventId.C] = charge_index
 
             # re calculate time
-            session.start_time = session.channels[0].data[charge_index].timestamp
+            session.start_time = session.bt_channel.data[charge_index].timestamp
             for channel in session.channels:
                 for point in channel.data:
                     point.time = (point.timestamp - session.start_time).total_seconds()
@@ -77,7 +77,7 @@ async def auto_detect_charge():
 
 async def auto_detect_drop():
     session: RoastSession = store.session
-    ror: list[Point] = session.channels[0].ror
+    ror: list[Point] = session.bt_channel.ror
     if (
         (RoastEventId.TP in session.roast_events)
         & (RoastEventId.D not in session.roast_events)
@@ -115,7 +115,7 @@ async def auto_detect_dry_end():
     if (RoastEventId.TP in session.roast_events) & (
         RoastEventId.DE not in session.roast_events
     ):
-        bt: list[Point] = session.channels[0].data
+        bt: list[Point] = session.bt_channel.data
 
         dry_end = 150
 
@@ -138,7 +138,7 @@ async def auto_detect_turning_point():
         RoastEventId.TP not in session.roast_events
     ):
 
-        bt: list[Point] = session.channels[0].data
+        bt: list[Point] = session.bt_channel.data
 
         tp = 1000
         high_temp = 0
@@ -192,25 +192,25 @@ def calculate_phases(t: float, last_temp: float, roast_events: dict):
     drop: Point = None
 
     if RoastEventId.C in roast_events:
-        charge = session.channels[0].data[roast_events[RoastEventId.C]]
+        charge = session.bt_channel.data[roast_events[RoastEventId.C]]
     else:
         logger.warning("no CHARGE event")
         return result
 
     if RoastEventId.TP in roast_events:
-        tp = session.channels[0].data[roast_events[RoastEventId.TP]]
+        tp = session.bt_channel.data[roast_events[RoastEventId.TP]]
     else:
         result["dry"] = Phase(session.timer - charge.time, 100.0, 0.0)
         return result
 
     if RoastEventId.DE in roast_events:
-        de = session.channels[0].data[roast_events[RoastEventId.DE]]
+        de = session.bt_channel.data[roast_events[RoastEventId.DE]]
 
     if RoastEventId.FC in roast_events:
-        fc = session.channels[0].data[roast_events[RoastEventId.FC]]
+        fc = session.bt_channel.data[roast_events[RoastEventId.FC]]
 
     if RoastEventId.D in roast_events:
-        drop = session.channels[0].data[roast_events[RoastEventId.D]]
+        drop = session.bt_channel.data[roast_events[RoastEventId.D]]
         t = drop.time
         last_temp = drop.value
 

@@ -76,7 +76,7 @@ const app = createApp({
 
         let appStatus = ref(appstatus_init)
 
-        let store = ref({
+        let session = ref({
             channels: settings.channels.map((c) => ({
               id: c.id,
               color: c.color,
@@ -109,17 +109,17 @@ const app = createApp({
         // });
         const socket = io();
 
-        socket.on("read_device", (session) => {
-            console.log(session)
+        socket.on("read_device", (s) => {
+            console.log(s)
 
-            store.value.channels = session.channels;
-            store.value.gas_channel = session.gas_channel
-            store.value.phases = session.phases
-            store.value.roast_events = session.roast_events
+            session.value.channels = s.channels;
+            session.value.gas_channel = s.gas_channel
+            session.value.phases = s.phases
+            session.value.roast_events = s.roast_events
 
-            let bt=session.channels[0];
-            let et=session.channels[1];
-            let inlet=session.channels[2];
+            let bt=s.channels[0];
+            let et=s.channels[1];
+            let inlet=s.channels[2];
 
             // tool tip labels
             let labels=[]
@@ -180,11 +180,11 @@ const app = createApp({
         });
 
         socket.on("roast_events", (roast_events) => {
-            // console.log("roast_events");
+            
             // console.log(roast_events);
             // console.log(Object.keys(roast_events).map((key)=>({id: key, index: roast_events[key]})))
             
-            store.value.roast_events = roast_events
+            session.value.roast_events = roast_events
         });
 
         socket.on("app_status", (app_status) => {
@@ -210,7 +210,7 @@ const app = createApp({
             timer_str,
             timer,
             appStatus,
-            store,
+            session,
             gasBubble,
             gasValue,
             showROR,

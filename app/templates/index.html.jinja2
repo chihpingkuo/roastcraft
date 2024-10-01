@@ -66,24 +66,24 @@
           <path 
             fill="none" 
             stroke-width=1.5 
-            :stroke="store.channels[0].color" 
-            :d="line(store.channels[0].data)">
+            :stroke="session.channels[0].color" 
+            :d="line(session.channels[0].data)">
           </path>
 
           <!-- ET curve -->
           <path 
             fill="none" 
             stroke-width=1.5 
-            :stroke="store.channels[1].color" 
-            :d="line(store.channels[1].data)">
+            :stroke="session.channels[1].color" 
+            :d="line(session.channels[1].data)">
           </path>
 
           <!-- INLET curve -->
           <path 
             fill="none" 
             stroke-width=1.5   
-            :stroke="store.channels[2].color" 
-            :d="lineInlet(store.channels[2].data)">
+            :stroke="session.channels[2].color" 
+            :d="lineInlet(session.channels[2].data)">
           </path>
 
           <!-- ROR curves -->
@@ -91,14 +91,14 @@
             fill="none" 
             stroke-width=1.5 
             stroke="#2E8B57"
-            :d="lineROR(store.channels[0].ror)" 
+            :d="lineROR(session.channels[0].ror)" 
             >
           </path>
           <path 
             fill="none" 
             stroke-width=1.5 
             stroke="#0000FF"
-            :d="lineROR(store.channels[0].ror_smoothed)" 
+            :d="lineROR(session.channels[0].ror_smoothed)" 
             >
           </path>
         </g>       
@@ -111,53 +111,53 @@
         >${tooltip.label}</text>
 
         <!-- roast events -->
-        <g v-for="re in Object.keys(store.roast_events).map((key)=>({id: key, index: store.roast_events[key]}))">
+        <g v-for="re in Object.keys(session.roast_events).map((key)=>({id: key, index: session.roast_events[key]}))">
           <circle
             r=2
-            :cx="xScale(store.channels[0].data[re.index].time)"
-            :cy="yScale(store.channels[0].data[re.index].value)"
+            :cx="xScale(session.channels[0].data[re.index].time)"
+            :cy="yScale(session.channels[0].data[re.index].value)"
           ></circle>
           <line
             stroke="black"
             stroke-width=1
-            :x1="xScale(store.channels[0].data[re.index].time)-2"
-            :y1="yScale(store.channels[0].data[re.index].value)-4" 
-            :x2="xScale(store.channels[0].data[re.index].time)-10"
-            :y2="yScale(store.channels[0].data[re.index].value)-20" 
+            :x1="xScale(session.channels[0].data[re.index].time)-2"
+            :y1="yScale(session.channels[0].data[re.index].value)-4" 
+            :x2="xScale(session.channels[0].data[re.index].time)-10"
+            :y2="yScale(session.channels[0].data[re.index].value)-20" 
           ></line>
           <text
             alignment-baseline="baseline"
             text-anchor="middle"
             font-size="small"
-            :x="xScale(store.channels[0].data[re.index].time)-10"
-            :y="yScale(store.channels[0].data[re.index].value)-22" 
-          >${re.id}  ${store.channels[0].data[re.index].value.toFixed(1)}°</text>
+            :x="xScale(session.channels[0].data[re.index].time)-10"
+            :y="yScale(session.channels[0].data[re.index].value)-22" 
+          >${re.id}  ${session.channels[0].data[re.index].value.toFixed(1)}°</text>
           <line
             stroke="black"
             stroke-width=1
-            :x1="xScale(store.channels[0].data[re.index].time)-2"
-            :y1="yScale(store.channels[0].data[re.index].value)+4" 
-            :x2="xScale(store.channels[0].data[re.index].time)-10"
-            :y2="yScale(store.channels[0].data[re.index].value)+20" 
+            :x1="xScale(session.channels[0].data[re.index].time)-2"
+            :y1="yScale(session.channels[0].data[re.index].value)+4" 
+            :x2="xScale(session.channels[0].data[re.index].time)-10"
+            :y2="yScale(session.channels[0].data[re.index].value)+20" 
           ></line>
           <text
             alignment-baseline="hanging"
             text-anchor="end"
             font-size="small"
-            :x="xScale(store.channels[0].data[re.index].time)-10"
-            :y="yScale(store.channels[0].data[re.index].value)+22" 
-          >${time_format(store.channels[0].data[re.index].time)}</text>
+            :x="xScale(session.channels[0].data[re.index].time)-10"
+            :y="yScale(session.channels[0].data[re.index].value)+22" 
+          >${time_format(session.channels[0].data[re.index].time)}</text>
         </g>
 
         <!-- gas channel -->
-        <path v-if="store.gas_channel.data != undefined"
+        <path v-if="session.gas_channel.data != undefined"
           fill="none" 
           stroke-width=1.5 
           stroke="#922b21"
-          :d="lineGas([...store.gas_channel.data, {time:timer, value:store.gas_channel.current_data}])" 
+          :d="lineGas([...session.gas_channel.data, {time:timer, value:session.gas_channel.current_data}])" 
           >
         </path>
-        <g v-if="store.gas_channel.data != undefined" v-for="point in store.gas_channel.data">
+        <g v-if="session.gas_channel.data != undefined" v-for="point in session.gas_channel.data">
           <text
               alignment-baseline="baseline"
               text-anchor="start"
@@ -191,7 +191,7 @@
           stroke-width=1 
           stroke="blue"
           :cx="xScale(timer+30)"
-          :cy="yScale(store.channels[0].current_data + store.channels[0].current_ror/2)"
+          :cy="yScale(session.channels[0].current_data + session.channels[0].current_ror/2)"
         ></circle>
         <circle
           r=3
@@ -199,7 +199,7 @@
           stroke-width=1 
           stroke="blue"
           :cx="xScale(timer+60)"
-          :cy="yScale(store.channels[0].current_data + store.channels[0].current_ror)"
+          :cy="yScale(session.channels[0].current_data + session.channels[0].current_ror)"
         ></circle>
         
       </svg>
@@ -246,7 +246,7 @@
         </div>
 
         <div class="flex gap-1 mt-1">  
-          <div class="bg-base-300 rounded text-right w-20 px-1" v-for="channel in store.channels">
+          <div class="bg-base-300 rounded text-right w-20 px-1" v-for="channel in session.channels">
             <p>${channel.id}</p>
             <p class="text-2xl leading-tight text-red-600"
                >${channel.current_data.toFixed(1)}
@@ -257,38 +257,38 @@
         {# ror #}
         <div class="flex gap-1 mt-1">
           <div class="bg-base-300 rounded text-right w-20 px-1">
-            <p>${'Δ' + store.channels[0].id}</p>
+            <p>${'Δ' + session.channels[0].id}</p>
             <p class="text-2xl leading-tight text-blue-600"
-               >${store.channels[0].current_ror.toFixed(1)}
+               >${session.channels[0].current_ror.toFixed(1)}
             </p>
           </div>  
         </div>
         {# phases #}
         <div class="flex gap-1 mt-1">
           <div class="grid grid-cols-3 bg-base-300 rounded w-32 px-1 text-xl" > 
-            <p class="col-span-1">${store.phases.dry.temp_rise.toFixed(1)}°</p>
+            <p class="col-span-1">${session.phases.dry.temp_rise.toFixed(1)}°</p>
             <p class="col-span-2 text-right text-base">Drying</p>
-            <p class="col-span-1 text-red-600 ">${time_format(store.phases.dry.time)}</p>  
-            <p class="col-span-2 text-right text-blue-600">${store.phases.dry.percent.toFixed(1)}%</p>
+            <p class="col-span-1 text-red-600 ">${time_format(session.phases.dry.time)}</p>  
+            <p class="col-span-2 text-right text-blue-600">${session.phases.dry.percent.toFixed(1)}%</p>
           </div>  
           <div class="grid grid-cols-3 bg-base-300 rounded w-32 px-1 text-xl" > 
-            <p class="col-span-1">${store.phases.mai.temp_rise.toFixed(1)}°</p>
+            <p class="col-span-1">${session.phases.mai.temp_rise.toFixed(1)}°</p>
             <p class="col-span-2 text-right text-base">Maillard</p>
-            <p class="col-span-1 text-red-600 ">${time_format(store.phases.mai.time)}</p>  
-            <p class="col-span-2 text-right text-blue-600">${store.phases.mai.percent.toFixed(1)}%</p>
+            <p class="col-span-1 text-red-600 ">${time_format(session.phases.mai.time)}</p>  
+            <p class="col-span-2 text-right text-blue-600">${session.phases.mai.percent.toFixed(1)}%</p>
           </div>  
           <div class="grid grid-cols-3 bg-base-300 rounded w-32 px-1 text-xl" > 
-            <p class="col-span-1">${store.phases.dev.temp_rise.toFixed(1)}°</p>
+            <p class="col-span-1">${session.phases.dev.temp_rise.toFixed(1)}°</p>
             <p class="col-span-2 text-right text-base">Develop</p>
-            <p class="col-span-1 text-red-600 ">${time_format(store.phases.dev.time)}</p>  
-            <p class="col-span-2 text-right text-blue-600">${store.phases.dev.percent.toFixed(1)}%</p>
+            <p class="col-span-1 text-red-600 ">${time_format(session.phases.dev.time)}</p>  
+            <p class="col-span-2 text-right text-blue-600">${session.phases.dev.percent.toFixed(1)}%</p>
           </div>    
           
         </div>
         <!-- roast event buttons -->
         <div class="flex gap-1 mt-1">
           <button 
-            :class="['btn', ('C' in store.roast_events) ? 'btn-disabled' : '']"
+            :class="['btn', ('C' in session.roast_events) ? 'btn-disabled' : '']"
             @click="socket.emit('charge', 'charge')"
           >
             Charge
@@ -306,13 +306,13 @@
             >
           </button>
           <button 
-            :class="['btn', ('FC' in store.roast_events) ? 'btn-disabled' : '']"
+            :class="['btn', ('FC' in session.roast_events) ? 'btn-disabled' : '']"
             @click="socket.emit('first_crack', '')"
           >
             FC
           </button>
           <button 
-            :class="['btn', ('D' in store.roast_events) ? 'btn-disabled' : '']"
+            :class="['btn', ('D' in session.roast_events) ? 'btn-disabled' : '']"
             @click="socket.emit('drop', '')"
           >
             Drop

@@ -7,7 +7,7 @@ function time_format(time) {
 }
 
 const width = 860;
-const height = 550;
+const height = 650;
 const marginTop = 20;
 const marginRight = 20;
 const marginBottom = 30;

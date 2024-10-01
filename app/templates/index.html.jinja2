@@ -264,27 +264,27 @@
           </div>  
         </div>
         {# phases #}
-        <div class="flex gap-1 mt-1">
-          <div class="grid grid-cols-3 bg-base-300 rounded w-32 px-1 text-xl" > 
-            <p class="col-span-1">${session.phases.dry.temp_rise.toFixed(1)}°</p>
-            <p class="col-span-2 text-right text-base">Drying</p>
-            <p class="col-span-1 text-red-600 ">${time_format(session.phases.dry.time)}</p>  
-            <p class="col-span-2 text-right text-blue-600">${session.phases.dry.percent.toFixed(1)}%</p>
-          </div>  
-          <div class="grid grid-cols-3 bg-base-300 rounded w-32 px-1 text-xl" > 
-            <p class="col-span-1">${session.phases.mai.temp_rise.toFixed(1)}°</p>
-            <p class="col-span-2 text-right text-base">Maillard</p>
-            <p class="col-span-1 text-red-600 ">${time_format(session.phases.mai.time)}</p>  
-            <p class="col-span-2 text-right text-blue-600">${session.phases.mai.percent.toFixed(1)}%</p>
-          </div>  
-          <div class="grid grid-cols-3 bg-base-300 rounded w-32 px-1 text-xl" > 
-            <p class="col-span-1">${session.phases.dev.temp_rise.toFixed(1)}°</p>
-            <p class="col-span-2 text-right text-base">Develop</p>
-            <p class="col-span-1 text-red-600 ">${time_format(session.phases.dev.time)}</p>  
-            <p class="col-span-2 text-right text-blue-600">${session.phases.dev.percent.toFixed(1)}%</p>
-          </div>    
+        
+        <div class="grid grid-cols-3 bg-base-300 rounded w-32 px-1 text-xl mt-1" > 
+          <p class="col-span-1">${session.phases.dry.temp_rise.toFixed(1)}°</p>
+          <p class="col-span-2 text-right text-base">Drying</p>
+          <p class="col-span-1 text-red-600 ">${time_format(session.phases.dry.time)}</p>  
+          <p class="col-span-2 text-right text-blue-600">${session.phases.dry.percent.toFixed(1)}%</p>
+        </div>  
+        <div class="grid grid-cols-3 bg-base-300 rounded w-32 px-1 text-xl mt-1" > 
+          <p class="col-span-1">${session.phases.mai.temp_rise.toFixed(1)}°</p>
+          <p class="col-span-2 text-right text-base">Maillard</p>
+          <p class="col-span-1 text-red-600 ">${time_format(session.phases.mai.time)}</p>  
+          <p class="col-span-2 text-right text-blue-600">${session.phases.mai.percent.toFixed(1)}%</p>
+        </div>  
+        <div class="grid grid-cols-3 bg-base-300 rounded w-32 px-1 text-xl mt-1" > 
+          <p class="col-span-1">${session.phases.dev.temp_rise.toFixed(1)}°</p>
+          <p class="col-span-2 text-right text-base">Develop</p>
+          <p class="col-span-1 text-red-600 ">${time_format(session.phases.dev.time)}</p>  
+          <p class="col-span-2 text-right text-blue-600">${session.phases.dev.percent.toFixed(1)}%</p>
+        </div>    
           
-        </div>
+        
         <!-- roast event buttons -->
         <div class="flex gap-1 mt-1">
           <button 

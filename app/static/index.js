@@ -112,10 +112,7 @@ const app = createApp({
         socket.on("read_device", (s) => {
             console.log(s)
 
-            session.value.channels = s.channels;
-            session.value.gas_channel = s.gas_channel
-            session.value.phases = s.phases
-            session.value.roast_events = s.roast_events
+            session.value = s;
 
             let bt=s.channels[0];
             let et=s.channels[1];

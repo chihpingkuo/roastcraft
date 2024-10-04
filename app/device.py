@@ -2,7 +2,7 @@ import codecs
 import ast
 from typing import Any, Dict
 import pymodbus.client as ModbusClient
-from pymodbus import Framer, ModbusException
+from pymodbus import FramerType, ModbusException
 from pymodbus.constants import Endian
 from pymodbus.payload import BinaryPayloadDecoder
 
@@ -59,7 +59,7 @@ class Kapok501(Device):
         if self.client is None:
             self.client = ModbusClient.AsyncModbusSerialClient(
                 self.port,
-                framer=Framer.ASCII,
+                framer=FramerType.ASCII,
                 # timeout=10,
                 # retries=3,
                 # retry_on_empty=False,

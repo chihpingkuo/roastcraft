@@ -217,13 +217,16 @@ async def on_stop(sid, data):
 
 @socketio_server.on("reset")
 async def on_reset(sid, data):
-    session = RoastSession()
-    store.session = session
-    for c in store.settings["channels"]:
-        store.session.channels.append(Channel(id=c["id"], color=c["color"]))
 
-    await socketio_server.emit("update_timer", session.timer)
-    await socketio_server.emit("read_device", jsonable_encoder(session))
+    store.session = RoastSession()
+    for ch in store.settings["channels"]:
+        c = Channel(id=ch["id"], color=ch["color"])
+        store.session.channels.append(c)
+        if ch["id"] == "BT":
+            store.session.bt_channel = c
+
+    await socketio_server.emit("update_timer", store.session.timer)
+    await socketio_server.emit("read_device", jsonable_encoder(store.session))
     await socketio_server.emit("app_status", jsonable_encoder(store.app_status.name))
 
 
